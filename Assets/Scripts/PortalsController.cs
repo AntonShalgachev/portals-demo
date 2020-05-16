@@ -1,12 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using NaughtyAttributes;
 
 namespace UnityPrototype
 {
     public class PortalsController : MonoBehaviour
     {
         [SerializeField] private Vector2 m_portalSize = Vector2.one;
+        [SerializeField, Layer] private int[] m_portalWallLayers = new int[] { };
 
         private List<Portal> m_portals = new List<Portal>(2);
 
@@ -30,6 +32,13 @@ namespace UnityPrototype
                     return otherPortal;
 
             return null;
+        }
+
+        public int GetWallLayer(Portal portal)
+        {
+            var index = m_portals.IndexOf(portal);
+            Debug.Assert(index >= 0);
+            return m_portalWallLayers[index];
         }
 
         public void RegisterPortal(Portal portal)

@@ -10,16 +10,21 @@ namespace UnityPrototype
         [SerializeField] private Renderer m_viewportRenderer = null;
         [SerializeField] private Transform m_debugVisual = null;
         [SerializeField] private Camera m_portalCamera = null;
+        [SerializeField] private GameObject m_parentWall = null;
 
         public PortalsController m_controller => GetComponentInParent<PortalsController>(); // inefficient, but I don't care for now
         public Portal m_otherPortal => m_controller.GetOtherPortal(this);
 
         private RenderTexture m_texture = null;
 
+        private int m_cullingMask = 0;
+
         private void Awake()
         {
             m_texture = CreateRenderTexture(m_controller.activeCamera);
             m_viewportRenderer.material.mainTexture = m_texture;
+
+            m_cullingMask = m_portalCamera.cullingMask;
 
             m_portalCamera.targetTexture = m_texture;
             m_portalCamera.transform.ResetLocal();
@@ -30,6 +35,8 @@ namespace UnityPrototype
         {
             if (m_controller != null)
                 m_controller.RegisterPortal(this);
+
+            m_parentWall.layer = m_controller.GetWallLayer(this);
         }
 
         private void OnDisable()
@@ -70,6 +77,8 @@ namespace UnityPrototype
 
             m_portalCamera.transform.position = virtualCameraWorldPosition;
             m_portalCamera.transform.LookAt(virtualCameraWorldPosition + virtualCameraWorldDirection);
+
+            m_portalCamera.cullingMask = m_cullingMask & ~(1 << m_controller.GetWallLayer(otherPortal));
         }
 
         private void UpdateCameraMatrix()
