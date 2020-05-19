@@ -18,9 +18,9 @@ TagManager:
   - PortalWall1
   - PortalWall2
   - Player
-  - 
-  - 
-  - 
+  - Decor
+  - Wall
+  - PortalObjectDetector
   - 
   - 
   - 

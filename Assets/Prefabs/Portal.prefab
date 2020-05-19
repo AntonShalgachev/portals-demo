@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 2717684231170853149}
   - component: {fileID: 4436903542365514924}
   - component: {fileID: 1982400650870116068}
-  m_Layer: 0
+  m_Layer: 15
   m_Name: ObjectDetector
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -76,7 +76,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_targetLayerMask:
     serializedVersion: 2
-    m_Bits: 4096
+    m_Bits: 12288
   m_onCollided:
     m_PersistentCalls:
       m_Calls: []
