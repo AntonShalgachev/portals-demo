@@ -8,7 +8,7 @@ namespace UnityPrototype
     public class Portal : MonoBehaviour
     {
         [SerializeField] private Renderer m_viewportRenderer = null;
-        [SerializeField] private Transform m_debugVisual = null;
+        [SerializeField] private CollisionDetector m_objectDetector = null;
         [SerializeField] private Camera m_portalCamera = null;
         [SerializeField] private GameObject m_parentWall = null;
 
@@ -21,14 +21,16 @@ namespace UnityPrototype
 
         private void Awake()
         {
-            m_texture = CreateRenderTexture(m_controller.activeCamera);
+            var viewCamera = m_controller.activeCamera;
+
+            m_texture = CreateRenderTexture(viewCamera);
             m_viewportRenderer.material.mainTexture = m_texture;
 
             m_cullingMask = m_portalCamera.cullingMask;
 
             m_portalCamera.targetTexture = m_texture;
             m_portalCamera.transform.ResetLocal();
-            UpdateCameraMatrix();
+            SyncCameraMatrix(viewCamera);
         }
 
         private void OnEnable()
@@ -56,13 +58,22 @@ namespace UnityPrototype
             if (otherPortal == null)
                 return;
 
+            if (m_viewportRenderer != null)
+                m_viewportRenderer.transform.SetScaleXY(m_controller.portalSize.x, m_controller.portalSize.y);
+            if (m_objectDetector != null)
+                m_objectDetector.transform.SetScaleXY(m_controller.portalSize.x, m_controller.portalSize.y);
+
             var viewCamera = m_controller.activeCamera;
+            SyncCameraMatrix(viewCamera);
+            UpdateCameraTransform(viewCamera, otherPortal);
 
-            m_debugVisual.SetScaleXY(m_controller.portalSize.x, m_controller.portalSize.y);
-            m_viewportRenderer.transform.SetScaleXY(m_controller.portalSize.x, m_controller.portalSize.y);
+            m_portalCamera.cullingMask = m_cullingMask & ~(1 << m_controller.GetWallLayer(otherPortal));
 
-            UpdateCameraMatrix();
+            TeleportObjects(otherPortal);
+        }
 
+        private void UpdateCameraTransform(Camera viewCamera, Portal otherPortal)
+        {
             var virtualCameraLocalOffset = transform.InverseTransformPoint(viewCamera.transform.position);
             var virtualCameraLocalDirection = transform.InverseTransformDirection(viewCamera.transform.forward);
 
@@ -77,13 +88,35 @@ namespace UnityPrototype
 
             m_portalCamera.transform.position = virtualCameraWorldPosition;
             m_portalCamera.transform.LookAt(virtualCameraWorldPosition + virtualCameraWorldDirection);
-
-            m_portalCamera.cullingMask = m_cullingMask & ~(1 << m_controller.GetWallLayer(otherPortal));
         }
 
-        private void UpdateCameraMatrix()
+        private void SyncCameraMatrix(Camera viewCamera)
         {
-            m_portalCamera.projectionMatrix = m_controller.activeCamera.projectionMatrix;
+            m_portalCamera.projectionMatrix = viewCamera.projectionMatrix;
+        }
+
+        private void TeleportObjects(Portal otherPortal)
+        {
+            foreach (var otherTransform in m_objectDetector.touchingTransforms)
+            {
+                if (otherTransform == null)
+                    continue;
+
+                var localPosition = transform.InverseTransformPoint(otherTransform.position);
+                if (localPosition.z >= 0.0f)
+                    continue;
+
+                var localDirection = transform.InverseTransformDirection(otherTransform.forward);
+
+                var flipRotation = Quaternion.Euler(0.0f, 180.0f, 0.0f);
+                localPosition = flipRotation * localPosition;
+                localDirection = flipRotation * localDirection;
+
+                var teleportedPosition = otherPortal.transform.TransformPoint(localPosition);
+                var teleportedDirection = otherPortal.transform.TransformDirection(localDirection);
+                otherTransform.position = teleportedPosition;
+                otherTransform.LookAt(teleportedPosition + teleportedDirection);
+            }
         }
 
         private void OnDrawGizmos()
