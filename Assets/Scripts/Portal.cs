@@ -127,9 +127,11 @@ namespace UnityPrototype
                 if (portalableObject == null)
                     continue;
 
-                var mirroredLocalPosition = MirrorPointLocal(otherTransform.position);
+                var objectPosition = otherTransform.position;
+                var objectDirection = otherTransform.forward;
 
-                var mirroredLocalDirection = MirrorDirectionLocal(otherTransform.forward);
+                var mirroredLocalPosition = MirrorPointLocal(objectPosition);
+                var mirroredLocalDirection = MirrorDirectionLocal(objectDirection);
 
                 var teleportedPosition = otherPortal.transform.TransformPoint(mirroredLocalPosition);
                 var teleportedDirection = otherPortal.transform.TransformDirection(mirroredLocalDirection);
@@ -142,6 +144,8 @@ namespace UnityPrototype
                 {
                     otherTransform.position = teleportedPosition;
                     otherTransform.LookAt(teleportedPosition + teleportedDirection);
+
+                    portalableObject.OnObjectTeleported(objectPosition, objectDirection, teleportedPosition, teleportedDirection);
                 }
             }
         }

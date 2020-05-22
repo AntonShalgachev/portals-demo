@@ -34,7 +34,13 @@ public class FreeFlyCamera : MonoBehaviour
     private float _movementSpeed = 10f;
 
     [SerializeField]
+    private float _accelerationRate = 50f;
+
+    [SerializeField]
     private float _boostedSpeed = 50f;
+
+    [SerializeField]
+    private float _boostedAccelerationRate = 250f;
 
     [Space]
 
@@ -53,6 +59,7 @@ public class FreeFlyCamera : MonoBehaviour
 
     private CursorLockMode _wantedMode;
 
+    private Vector3 _currentVelocity = Vector3.zero;
     private float _currentIncrease = 1;
     private float _currentIncreaseMem = 0;
 
@@ -133,10 +140,14 @@ public class FreeFlyCamera : MonoBehaviour
         if (_enableMovement)
         {
             Vector3 deltaPosition = Vector3.zero;
-            float currentSpeed = _movementSpeed;
+            float targetSpeed = _movementSpeed;
+            float accelerationRate = _accelerationRate;
 
             if (Input.GetKey(KeyCode.LeftShift))
-                currentSpeed = _boostedSpeed;
+            {
+                targetSpeed = _boostedSpeed;
+                accelerationRate = _boostedAccelerationRate;
+            }
 
             if (Input.GetKey(KeyCode.W))
                 deltaPosition += transform.forward;
@@ -153,7 +164,10 @@ public class FreeFlyCamera : MonoBehaviour
             // Calc acceleration
             CalculateCurrentIncrease(deltaPosition != Vector3.zero);
 
-            transform.position += deltaPosition * currentSpeed * _currentIncrease;
+            var targetVelocity = deltaPosition * targetSpeed;
+            _currentVelocity = Vector3.MoveTowards(_currentVelocity, targetVelocity, Time.deltaTime * accelerationRate);
+
+            transform.position += _currentVelocity * _currentIncrease;
         }
 
         // Rotation
@@ -179,5 +193,10 @@ public class FreeFlyCamera : MonoBehaviour
             transform.position = _initPosition;
             transform.eulerAngles = _initRotation;
         }
+    }
+
+    public void Rotate(Vector3 from, Vector3 to)
+    {
+        _currentVelocity = Quaternion.FromToRotation(from, to) * _currentVelocity;
     }
 }

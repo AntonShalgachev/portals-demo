@@ -963,6 +963,7 @@ GameObject:
   - component: {fileID: 863845226}
   - component: {fileID: 863845227}
   - component: {fileID: 863845228}
+  - component: {fileID: 863845229}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -1006,7 +1007,9 @@ MonoBehaviour:
   _translationSpeed: 55
   _enableMovement: 1
   _movementSpeed: 3
+  _accelerationRate: 25
   _boostedSpeed: 10
+  _boostedAccelerationRate: 250
   _enableSpeedAcceleration: 0
   _speedAccelerationFactor: 1.5
   _initPositonButton: 114
@@ -1039,6 +1042,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_teleportableVisual: {fileID: 367828762}
+--- !u!114 &863845229
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 863845224}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe83281affd39f643a518c6a1686ee6e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &963194225
 GameObject:
   m_ObjectHideFlags: 0
@@ -1340,7 +1355,7 @@ PrefabInstance:
     - target: {fileID: 2574883553259244604, guid: d8718ec2772e63e44b4c7710778ab936,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 3.35
+      value: 4.35
       objectReference: {fileID: 0}
     - target: {fileID: 2574883553259244604, guid: d8718ec2772e63e44b4c7710778ab936,
         type: 3}
