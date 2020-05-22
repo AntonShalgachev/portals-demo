@@ -43,12 +43,16 @@ namespace UnityPrototype
                 m_controller.RegisterPortal(this);
 
             m_parentWall.layer = m_controller.GetWallLayer(this);
+
+            m_objectDetector.onTransformExit += OnObjectExitedPortalDetector;
         }
 
         private void OnDisable()
         {
             if (m_controller != null)
                 m_controller.DeregisterPortal(this);
+
+            m_objectDetector.onTransformExit -= OnObjectExitedPortalDetector;
         }
 
         private static RenderTexture CreateRenderTexture(Camera cam)
@@ -78,19 +82,30 @@ namespace UnityPrototype
             TeleportObjects(otherPortal);
         }
 
+        private Quaternion MirrorRotation()
+        {
+            return Quaternion.Euler(0.0f, 180.0f, 0.0f);
+        }
+
+        private Vector3 MirrorPointLocal(Vector3 position)
+        {
+            var localPosition = transform.InverseTransformPoint(position);
+            return MirrorRotation() * localPosition;
+        }
+
+        private Vector3 MirrorDirectionLocal(Vector3 direction)
+        {
+            var localDirection = transform.InverseTransformDirection(direction);
+            return MirrorRotation() * localDirection;
+        }
+
         private void UpdateCameraTransform(Camera viewCamera, Portal otherPortal)
         {
-            var virtualCameraLocalOffset = transform.InverseTransformPoint(viewCamera.transform.position);
-            var virtualCameraLocalDirection = transform.InverseTransformDirection(viewCamera.transform.forward);
-
-            virtualCameraLocalOffset.Scale(new Vector3(-1.0f, 1.0f, -1.0f)); // position of the virtual camera relative to this portal
-            virtualCameraLocalDirection.Scale(new Vector3(-1.0f, 1.0f, -1.0f)); // orientation of the virtual camera relative to this portal
+            var virtualCameraLocalOffset = MirrorPointLocal(viewCamera.transform.position);
+            var virtualCameraLocalDirection = MirrorDirectionLocal(viewCamera.transform.forward);
 
             var virtualCameraWorldPosition = otherPortal.transform.TransformPoint(virtualCameraLocalOffset);
             var virtualCameraWorldDirection = otherPortal.transform.TransformDirection(virtualCameraLocalDirection);
-
-            Debug.DrawLine(otherPortal.transform.position, virtualCameraWorldPosition, Color.blue);
-            Debug.DrawLine(virtualCameraWorldPosition, virtualCameraWorldPosition + virtualCameraWorldDirection, Color.magenta);
 
             m_portalCamera.transform.position = virtualCameraWorldPosition;
             m_portalCamera.transform.LookAt(virtualCameraWorldPosition + virtualCameraWorldDirection);
@@ -108,21 +123,36 @@ namespace UnityPrototype
                 if (otherTransform == null)
                     continue;
 
-                var localPosition = transform.InverseTransformPoint(otherTransform.position);
-                if (localPosition.z > m_teleportationThreshold)
+                var portalableObject = otherTransform.GetComponent<PortalableObject>();
+                if (portalableObject == null)
                     continue;
 
-                var localDirection = transform.InverseTransformDirection(otherTransform.forward);
+                var mirroredLocalPosition = MirrorPointLocal(otherTransform.position);
 
-                var flipRotation = Quaternion.Euler(0.0f, 180.0f, 0.0f);
-                localPosition = flipRotation * localPosition;
-                localDirection = flipRotation * localDirection;
+                var mirroredLocalDirection = MirrorDirectionLocal(otherTransform.forward);
 
-                var teleportedPosition = otherPortal.transform.TransformPoint(localPosition);
-                var teleportedDirection = otherPortal.transform.TransformDirection(localDirection);
-                otherTransform.position = teleportedPosition;
-                otherTransform.LookAt(teleportedPosition + teleportedDirection);
+                var teleportedPosition = otherPortal.transform.TransformPoint(mirroredLocalPosition);
+                var teleportedDirection = otherPortal.transform.TransformDirection(mirroredLocalDirection);
+
+                if (mirroredLocalPosition.z < m_teleportationThreshold)
+                {
+                    portalableObject.TeleportSecondaryVisual(teleportedPosition, teleportedDirection);
+                }
+                else
+                {
+                    otherTransform.position = teleportedPosition;
+                    otherTransform.LookAt(teleportedPosition + teleportedDirection);
+                }
             }
+        }
+
+        private void OnObjectExitedPortalDetector(Transform transform)
+        {
+            var portalableObject = transform.GetComponent<PortalableObject>();
+            if (portalableObject == null)
+                return;
+
+            portalableObject.ResetSecondaryVisual();
         }
 
         private void OnDrawGizmos()

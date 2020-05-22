@@ -8,7 +8,6 @@ namespace UnityPrototype
     public class CollisionDetector : MonoBehaviour
     {
         [SerializeField] private LayerMask m_targetLayerMask = -1;
-        [SerializeField] private UnityEvent m_onCollided = null;
 
         public bool isTouching => m_touchingColliders.Count > 0;
 
@@ -17,6 +16,9 @@ namespace UnityPrototype
 
         private HashSet<Transform> m_touchingTransforms = new HashSet<Transform>();
         public IEnumerable<Transform> touchingTransforms => m_touchingTransforms;
+
+        public event System.Action<Transform> onTransformEnter;
+        public event System.Action<Transform> onTransformExit;
 
         private bool TestLayer(int layer)
         {
@@ -48,9 +50,12 @@ namespace UnityPrototype
             if (!TestLayer(other.gameObject.layer))
                 return;
 
+            var otherTransform = GetParentObject(other);
+
             m_touchingColliders.Add(other);
-            m_touchingTransforms.Add(GetParentObject(other));
-            m_onCollided?.Invoke();
+            m_touchingTransforms.Add(otherTransform);
+
+            onTransformEnter?.Invoke(otherTransform);
         }
 
         private void ProcessCollisionExit(Collider other)
@@ -58,7 +63,11 @@ namespace UnityPrototype
             if (!TestLayer(other.gameObject.layer))
                 return;
 
-            m_touchingTransforms.Remove(GetParentObject(other));
+            var otherTransform = GetParentObject(other);
+
+            onTransformExit?.Invoke(otherTransform);
+
+            m_touchingTransforms.Remove(otherTransform);
             m_touchingColliders.Remove(other);
         }
 
