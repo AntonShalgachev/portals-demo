@@ -12,12 +12,18 @@ namespace UnityPrototype
         public Vector3 teleportedPosition;
         public Vector3 teleportedDirection;
 
-        public ObjectTeleportedEvent(Vector3 originalPosition, Vector3 originalDirection, Vector3 teleportedPosition, Vector3 teleportedDirection)
+        public Vector3 sourcePortalDirection;
+        public Vector3 destinationPortalDirection;
+
+        public ObjectTeleportedEvent(Vector3 originalPosition, Vector3 originalDirection, Vector3 teleportedPosition, Vector3 teleportedDirection, Vector3 sourcePortalDirection, Vector3 destinationPortalDirection)
         {
             this.originalPosition = originalPosition;
             this.originalDirection = originalDirection;
             this.teleportedPosition = teleportedPosition;
             this.teleportedDirection = teleportedDirection;
+
+            this.sourcePortalDirection = sourcePortalDirection;
+            this.destinationPortalDirection = destinationPortalDirection;
         }
     }
 
@@ -63,9 +69,9 @@ namespace UnityPrototype
             m_secondaryVisual.SetActive(false);
         }
 
-        public void OnObjectTeleported(Vector3 originalPosition, Vector3 originalDirection, Vector3 teleportedPosition, Vector3 teleportedDirection)
+        public void OnObjectTeleported(ObjectTeleportedEvent teleportedEvent)
         {
-            onObjectTeleported?.Invoke(new ObjectTeleportedEvent(originalPosition, originalDirection, teleportedPosition, teleportedDirection));
+            onObjectTeleported?.Invoke(teleportedEvent);
         }
     }
 }

@@ -145,7 +145,9 @@ namespace UnityPrototype
                     otherTransform.position = teleportedPosition;
                     otherTransform.LookAt(teleportedPosition + teleportedDirection);
 
-                    portalableObject.OnObjectTeleported(objectPosition, objectDirection, teleportedPosition, teleportedDirection);
+                    var teleportedEvent = new ObjectTeleportedEvent(objectPosition, objectDirection, teleportedPosition, teleportedDirection, transform.forward, otherPortal.transform.forward);
+
+                    portalableObject.OnObjectTeleported(teleportedEvent);
                 }
             }
         }
