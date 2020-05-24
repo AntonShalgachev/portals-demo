@@ -125,26 +125,31 @@ namespace UnityPrototype
                 if (portalableObject == null)
                     continue;
 
-                var portalMatrix = FromToPortalMatrix(this, otherPortal);
-                var portalRotation = FromToPortalRotation(this, otherPortal);
+                TeleportObject(otherPortal, portalableObject);
+            }
+        }
 
-                var objectPosition = otherTransform.position;
-                var objectRotation = otherTransform.rotation;
-                var teleportedPosition = portalMatrix.MultiplyPoint(objectPosition);
-                var teleportedRotation = portalRotation * objectRotation;
+        public void TeleportObject(Portal otherPortal, PortalableObject portalableObject)
+        {
+            var portalMatrix = FromToPortalMatrix(this, otherPortal);
+            var portalRotation = FromToPortalRotation(this, otherPortal);
 
-                var localObjectPosition = transform.InverseTransformPoint(objectPosition);
-                if (localObjectPosition.z > 0.0f)
-                {
-                    portalableObject.TeleportSecondaryVisual(teleportedPosition, teleportedRotation);
-                }
-                else
-                {
-                    otherTransform.SetPositionAndRotation(teleportedPosition, teleportedRotation);
+            var objectPosition = portalableObject.transform.position;
+            var objectRotation = portalableObject.transform.rotation;
+            var teleportedPosition = portalMatrix.MultiplyPoint(objectPosition);
+            var teleportedRotation = portalRotation * objectRotation;
 
-                    var teleportedEvent = new ObjectTeleportedEvent(portalRotation);
-                    portalableObject.OnObjectTeleported(teleportedEvent);
-                }
+            var localObjectPosition = transform.InverseTransformPoint(objectPosition);
+            if (localObjectPosition.z > 0.0f)
+            {
+                portalableObject.TeleportReplica(this, teleportedPosition, teleportedRotation);
+            }
+            else
+            {
+                portalableObject.transform.SetPositionAndRotation(teleportedPosition, teleportedRotation);
+
+                var teleportedEvent = new ObjectTeleportedEvent(portalRotation);
+                portalableObject.OnObjectTeleported(teleportedEvent);
             }
         }
 
@@ -154,7 +159,7 @@ namespace UnityPrototype
             if (portalableObject == null)
                 return;
 
-            portalableObject.ResetSecondaryVisual();
+            portalableObject.ResetReplica(this);
         }
 
         private void OnDrawGizmos()

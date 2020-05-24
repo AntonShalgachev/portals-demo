@@ -10,6 +10,8 @@ namespace UnityPrototype
         [SerializeField] private Vector2 m_portalSize = Vector2.one;
         [SerializeField, Layer] private int[] m_portalWallLayers = new int[] { };
 
+        [SerializeField] private PortalableObject[] m_lights = new PortalableObject[] { };
+
         private List<Portal> m_portals = new List<Portal>(2);
 
         public Vector2 portalSize => m_portalSize;
@@ -44,11 +46,32 @@ namespace UnityPrototype
         public void RegisterPortal(Portal portal)
         {
             m_portals.Add(portal);
+
+            // Shitty condition
+            if (m_portals.Count == 2)
+                TeleportLightReplicas();
         }
 
         public void DeregisterPortal(Portal portal)
         {
             m_portals.Remove(portal);
+        }
+
+        private void TeleportLightReplicas()
+        {
+            Debug.Assert(m_portals.Count == 2);
+
+            // TODO don't use arrays for the portals
+            TeleportLightReplicas(m_portals[0], m_portals[1]);
+            TeleportLightReplicas(m_portals[1], m_portals[0]);
+        }
+
+        public void TeleportLightReplicas(Portal from, Portal to)
+        {
+            // TODO implement
+
+            // foreach (var light in m_lights)
+            //     from.TeleportObject(to, light);
         }
     }
 }
