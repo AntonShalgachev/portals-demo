@@ -72,13 +72,20 @@ namespace UnityPrototype
             if (m_objectDetector != null)
                 m_objectDetector.transform.SetScaleXY(m_controller.portalSize.x, m_controller.portalSize.y);
 
+            TeleportObjects(otherPortal);
+        }
+
+        private void LateUpdate()
+        {
+            var otherPortal = m_otherPortal;
+            if (otherPortal == null)
+                return;
+
             var viewCamera = m_controller.activeCamera;
             SyncCameraMatrix(viewCamera);
             UpdateCameraTransform(viewCamera, otherPortal);
 
             m_portalCamera.cullingMask = m_cullingMask & ~(1 << m_controller.GetWallLayer(otherPortal));
-
-            TeleportObjects(otherPortal);
         }
 
         private static Quaternion MirrorRotation()
