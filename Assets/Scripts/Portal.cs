@@ -7,13 +7,14 @@ namespace UnityPrototype
 {
     public class Portal : MonoBehaviour
     {
-        [SerializeField] private Renderer m_viewportRenderer = null;
-        [SerializeField] private Renderer m_backViewportRenderer = null;
+        [Header("Visual")]
+        [SerializeField] private Renderer[] m_viewports = new Renderer[] { };
+        [SerializeField] private Transform m_visual = null;
+
+        [Header("Other")]
         [SerializeField] private CollisionDetector m_objectDetector = null;
         [SerializeField] private Camera m_portalCamera = null;
         [SerializeField] private GameObject m_parentWall = null;
-        [SerializeField] private float m_teleportationThreshold = 0.0f;
-        [SerializeField] private float m_backViewportScale = 100.0f;
 
         public PortalsController m_controller => GetComponentInParent<PortalsController>(); // inefficient, but I don't care for now
         public Portal m_otherPortal => m_controller.GetOtherPortal(this);
@@ -27,8 +28,8 @@ namespace UnityPrototype
             var viewCamera = m_controller.activeCamera;
 
             m_texture = CreateRenderTexture(viewCamera);
-            m_viewportRenderer.material.mainTexture = m_texture;
-            m_backViewportRenderer.material.mainTexture = m_texture;
+            foreach (var viewport in m_viewports)
+                viewport.material.mainTexture = m_texture;
 
             m_cullingMask = m_portalCamera.cullingMask;
 
@@ -66,10 +67,8 @@ namespace UnityPrototype
             if (otherPortal == null)
                 return;
 
-            if (m_viewportRenderer != null)
-                m_viewportRenderer.transform.SetScaleXY(m_controller.portalSize.x, m_controller.portalSize.y);
-            if (m_backViewportRenderer != null)
-                m_backViewportRenderer.transform.SetScaleXY(m_controller.portalSize.x * m_backViewportScale, m_controller.portalSize.y * m_backViewportScale);
+            if (m_visual != null)
+                m_visual.transform.SetScaleXY(m_controller.portalSize.x, m_controller.portalSize.y);
             if (m_objectDetector != null)
                 m_objectDetector.transform.SetScaleXY(m_controller.portalSize.x, m_controller.portalSize.y);
 
@@ -136,7 +135,7 @@ namespace UnityPrototype
                 var teleportedPosition = otherPortal.transform.TransformPoint(mirroredLocalPosition);
                 var teleportedDirection = otherPortal.transform.TransformDirection(mirroredLocalDirection);
 
-                if (mirroredLocalPosition.z < m_teleportationThreshold)
+                if (mirroredLocalPosition.z < 0.0f)
                 {
                     portalableObject.TeleportSecondaryVisual(teleportedPosition, teleportedDirection);
                 }

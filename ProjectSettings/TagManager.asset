@@ -14,7 +14,7 @@ TagManager:
   - 
   - 
   - PortalViewport
-  - PortalViewportDebug
+  - PortalViewportStub
   - PortalWall1
   - PortalWall2
   - Player
