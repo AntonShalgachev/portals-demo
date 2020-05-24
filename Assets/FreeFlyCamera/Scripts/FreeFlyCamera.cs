@@ -195,8 +195,8 @@ public class FreeFlyCamera : MonoBehaviour
         }
     }
 
-    public void Rotate(Vector3 from, Vector3 to)
+    public void Rotate(Quaternion rotation)
     {
-        _currentVelocity = Quaternion.FromToRotation(from, to) * _currentVelocity;
+        _currentVelocity = rotation * _currentVelocity;
     }
 }

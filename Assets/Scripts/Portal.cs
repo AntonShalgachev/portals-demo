@@ -81,33 +81,25 @@ namespace UnityPrototype
             TeleportObjects(otherPortal);
         }
 
-        private Quaternion MirrorRotation()
+        private static Quaternion MirrorRotation()
         {
             return Quaternion.Euler(0.0f, 180.0f, 0.0f);
         }
 
-        private Vector3 MirrorPointLocal(Vector3 position)
+        private static Quaternion FromToPortalRotation(Portal from, Portal to)
         {
-            var localPosition = transform.InverseTransformPoint(position);
-            return MirrorRotation() * localPosition;
+            return to.transform.rotation * Quaternion.Inverse(from.transform.rotation) * MirrorRotation();
         }
 
-        private Vector3 MirrorDirectionLocal(Vector3 direction)
+        private static Matrix4x4 FromToPortalMatrix(Portal from, Portal to)
         {
-            var localDirection = transform.InverseTransformDirection(direction);
-            return MirrorRotation() * localDirection;
+            return to.transform.localToWorldMatrix * Matrix4x4.Rotate(MirrorRotation()) * from.transform.worldToLocalMatrix;
         }
 
         private void UpdateCameraTransform(Camera viewCamera, Portal otherPortal)
         {
-            var virtualCameraLocalOffset = MirrorPointLocal(viewCamera.transform.position);
-            var virtualCameraLocalDirection = MirrorDirectionLocal(viewCamera.transform.forward);
-
-            var virtualCameraWorldPosition = otherPortal.transform.TransformPoint(virtualCameraLocalOffset);
-            var virtualCameraWorldDirection = otherPortal.transform.TransformDirection(virtualCameraLocalDirection);
-
-            m_portalCamera.transform.position = virtualCameraWorldPosition;
-            m_portalCamera.transform.LookAt(virtualCameraWorldPosition + virtualCameraWorldDirection);
+            m_portalCamera.transform.position = FromToPortalMatrix(this, otherPortal).MultiplyPoint(viewCamera.transform.position);
+            m_portalCamera.transform.rotation = FromToPortalRotation(this, otherPortal) * viewCamera.transform.rotation;
         }
 
         private void SyncCameraMatrix(Camera viewCamera)
@@ -126,26 +118,24 @@ namespace UnityPrototype
                 if (portalableObject == null)
                     continue;
 
+                var portalMatrix = FromToPortalMatrix(this, otherPortal);
+                var portalRotation = FromToPortalRotation(this, otherPortal);
+
                 var objectPosition = otherTransform.position;
-                var objectDirection = otherTransform.forward;
+                var objectRotation = otherTransform.rotation;
+                var teleportedPosition = portalMatrix.MultiplyPoint(objectPosition);
+                var teleportedRotation = portalRotation * objectRotation;
 
-                var mirroredLocalPosition = MirrorPointLocal(objectPosition);
-                var mirroredLocalDirection = MirrorDirectionLocal(objectDirection);
-
-                var teleportedPosition = otherPortal.transform.TransformPoint(mirroredLocalPosition);
-                var teleportedDirection = otherPortal.transform.TransformDirection(mirroredLocalDirection);
-
-                if (mirroredLocalPosition.z < 0.0f)
+                var localObjectPosition = transform.InverseTransformPoint(objectPosition);
+                if (localObjectPosition.z > 0.0f)
                 {
-                    portalableObject.TeleportSecondaryVisual(teleportedPosition, teleportedDirection);
+                    portalableObject.TeleportSecondaryVisual(teleportedPosition, teleportedRotation);
                 }
                 else
                 {
-                    otherTransform.position = teleportedPosition;
-                    otherTransform.LookAt(teleportedPosition + teleportedDirection);
+                    otherTransform.SetPositionAndRotation(teleportedPosition, teleportedRotation);
 
-                    var teleportedEvent = new ObjectTeleportedEvent(objectPosition, objectDirection, teleportedPosition, teleportedDirection, transform.forward, otherPortal.transform.forward);
-
+                    var teleportedEvent = new ObjectTeleportedEvent(portalRotation);
                     portalableObject.OnObjectTeleported(teleportedEvent);
                 }
             }

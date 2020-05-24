@@ -27,7 +27,7 @@ namespace UnityPrototype
 
         private void OnObjectTeleported(ObjectTeleportedEvent e)
         {
-            m_flyController.Rotate(-e.sourcePortalDirection, e.destinationPortalDirection);
+            m_flyController.Rotate(e.portalRotation);
         }
     }
 }

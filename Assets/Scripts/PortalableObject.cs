@@ -7,23 +7,11 @@ namespace UnityPrototype
 {
     public class ObjectTeleportedEvent
     {
-        public Vector3 originalPosition;
-        public Vector3 originalDirection;
-        public Vector3 teleportedPosition;
-        public Vector3 teleportedDirection;
+        public Quaternion portalRotation; // rotation from one portal to the other
 
-        public Vector3 sourcePortalDirection;
-        public Vector3 destinationPortalDirection;
-
-        public ObjectTeleportedEvent(Vector3 originalPosition, Vector3 originalDirection, Vector3 teleportedPosition, Vector3 teleportedDirection, Vector3 sourcePortalDirection, Vector3 destinationPortalDirection)
+        public ObjectTeleportedEvent(Quaternion portalRotation)
         {
-            this.originalPosition = originalPosition;
-            this.originalDirection = originalDirection;
-            this.teleportedPosition = teleportedPosition;
-            this.teleportedDirection = teleportedDirection;
-
-            this.sourcePortalDirection = sourcePortalDirection;
-            this.destinationPortalDirection = destinationPortalDirection;
+            this.portalRotation = portalRotation;
         }
     }
 
@@ -57,11 +45,11 @@ namespace UnityPrototype
             m_secondaryVisual = Instantiate(m_teleportableVisual, targetTransform.position, targetTransform.rotation, targetTransform.parent);
         }
 
-        public void TeleportSecondaryVisual(Vector3 position, Vector3 direction)
+        public void TeleportSecondaryVisual(Vector3 position, Quaternion rotation)
         {
             m_secondaryVisual.SetActive(true);
             m_secondaryVisual.transform.position = position;
-            m_secondaryVisual.transform.LookAt(position + direction);
+            m_secondaryVisual.transform.rotation = rotation;
         }
 
         public void ResetSecondaryVisual()
