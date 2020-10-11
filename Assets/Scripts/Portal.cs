@@ -51,7 +51,7 @@ namespace UnityPrototype
         private void OnDisable()
         {
             if (m_controller != null)
-                m_controller.DeregisterPortal(this);
+                m_controller.UnregisterPortal(this);
 
             m_objectDetector.onTransformExit -= OnObjectExitedPortalDetector;
         }
@@ -121,45 +121,45 @@ namespace UnityPrototype
                 if (otherTransform == null)
                     continue;
 
-                var portalableObject = otherTransform.GetComponent<PortalableObject>();
-                if (portalableObject == null)
+                var teleportableObject = otherTransform.GetComponent<TeleportableObject>();
+                if (teleportableObject == null)
                     continue;
 
-                TeleportObject(otherPortal, portalableObject);
+                TeleportObject(otherPortal, teleportableObject);
             }
         }
 
-        public void TeleportObject(Portal otherPortal, PortalableObject portalableObject)
+        public void TeleportObject(Portal otherPortal, TeleportableObject teleportableObject)
         {
             var portalMatrix = FromToPortalMatrix(this, otherPortal);
             var portalRotation = FromToPortalRotation(this, otherPortal);
 
-            var objectPosition = portalableObject.transform.position;
-            var objectRotation = portalableObject.transform.rotation;
+            var objectPosition = teleportableObject.transform.position;
+            var objectRotation = teleportableObject.transform.rotation;
             var teleportedPosition = portalMatrix.MultiplyPoint(objectPosition);
             var teleportedRotation = portalRotation * objectRotation;
 
             var localObjectPosition = transform.InverseTransformPoint(objectPosition);
             if (localObjectPosition.z > 0.0f)
             {
-                portalableObject.TeleportReplica(this, teleportedPosition, teleportedRotation);
+                teleportableObject.TeleportReplica(this, teleportedPosition, teleportedRotation);
             }
             else
             {
-                portalableObject.transform.SetPositionAndRotation(teleportedPosition, teleportedRotation);
+                teleportableObject.transform.SetPositionAndRotation(teleportedPosition, teleportedRotation);
 
                 var teleportedEvent = new ObjectTeleportedEvent(portalRotation);
-                portalableObject.OnObjectTeleported(teleportedEvent);
+                teleportableObject.OnObjectTeleported(teleportedEvent);
             }
         }
 
         private void OnObjectExitedPortalDetector(Transform transform)
         {
-            var portalableObject = transform.GetComponent<PortalableObject>();
-            if (portalableObject == null)
+            var teleportableObject = transform.GetComponent<TeleportableObject>();
+            if (teleportableObject == null)
                 return;
 
-            portalableObject.ResetReplica(this);
+            teleportableObject.ResetReplica(this);
         }
 
         private void OnDrawGizmos()

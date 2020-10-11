@@ -7,22 +7,22 @@ namespace UnityPrototype
     public class TeleportablePlayer : MonoBehaviour
     {
         private FreeFlyCamera m_flyController = null;
-        private PortalableObject m_portalableObject = null;
+        private TeleportableObject m_teleportableObject = null;
 
         private void Awake()
         {
             m_flyController = GetComponent<FreeFlyCamera>();
-            m_portalableObject = GetComponent<PortalableObject>();
+            m_teleportableObject = GetComponent<TeleportableObject>();
         }
 
         private void OnEnable()
         {
-            m_portalableObject.onObjectTeleported += OnObjectTeleported;
+            m_teleportableObject.onObjectTeleported += OnObjectTeleported;
         }
 
         private void OnDisable()
         {
-            m_portalableObject.onObjectTeleported -= OnObjectTeleported;
+            m_teleportableObject.onObjectTeleported -= OnObjectTeleported;
         }
 
         private void OnObjectTeleported(ObjectTeleportedEvent e)

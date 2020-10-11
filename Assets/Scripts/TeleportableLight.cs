@@ -6,11 +6,11 @@ namespace UnityPrototype
 {
     public class TeleportableLight : MonoBehaviour
     {
-        private PortalableObject m_portalableObject = null;
+        private TeleportableObject m_teleportableObject = null;
 
         private void Awake()
         {
-            m_portalableObject = GetComponent<PortalableObject>();
+            m_teleportableObject = GetComponent<TeleportableObject>();
         }
 
         private void Start()

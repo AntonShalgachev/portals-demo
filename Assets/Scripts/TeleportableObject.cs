@@ -15,7 +15,7 @@ namespace UnityPrototype
         }
     }
 
-    public class PortalableObject : MonoBehaviour
+    public class TeleportableObject : MonoBehaviour
     {
         [SerializeField] private GameObject m_teleportableVisual = null;
 

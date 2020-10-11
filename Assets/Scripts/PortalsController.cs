@@ -10,7 +10,7 @@ namespace UnityPrototype
         [SerializeField] private Vector2 m_portalSize = Vector2.one;
         [SerializeField, Layer] private int[] m_portalWallLayers = new int[] { };
 
-        [SerializeField] private PortalableObject[] m_lights = new PortalableObject[] { };
+        [SerializeField] private TeleportableObject[] m_lights = new TeleportableObject[] { };
 
         private List<Portal> m_portals = new List<Portal>(2);
 
@@ -52,7 +52,7 @@ namespace UnityPrototype
                 TeleportLightReplicas();
         }
 
-        public void DeregisterPortal(Portal portal)
+        public void UnregisterPortal(Portal portal)
         {
             m_portals.Remove(portal);
         }
