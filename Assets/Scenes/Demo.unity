@@ -218,7 +218,7 @@ PrefabInstance:
     - target: {fileID: 4641871574566813577, guid: 0ae7e692f50408d44985e4c76f635f43,
         type: 3}
       propertyPath: m_Name
-      value: Wall
+      value: PortalWall2
       objectReference: {fileID: 0}
     - target: {fileID: 4641871574566813582, guid: 0ae7e692f50408d44985e4c76f635f43,
         type: 3}
@@ -1203,7 +1203,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 1
-  m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
+  m_BackGroundColor: {r: 0, g: 0, b: 0, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -1221,10 +1221,10 @@ Camera:
   field of view: 60
   orthographic: 0
   orthographic size: 5
-  m_Depth: 1
+  m_Depth: 0
   m_CullingMask:
     serializedVersion: 2
-    m_Bits: 130359
+    m_Bits: 4294967295
   m_RenderingPath: -1
   m_TargetTexture: {fileID: 0}
   m_TargetDisplay: 0
@@ -1335,7 +1335,7 @@ PrefabInstance:
     - target: {fileID: 4641871574566813577, guid: 0ae7e692f50408d44985e4c76f635f43,
         type: 3}
       propertyPath: m_Name
-      value: Wall
+      value: PortalWall1
       objectReference: {fileID: 0}
     - target: {fileID: 4641871574566813582, guid: 0ae7e692f50408d44985e4c76f635f43,
         type: 3}
@@ -1455,6 +1455,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Decor (3)
       objectReference: {fileID: 0}
+    - target: {fileID: 2574883553259244595, guid: d8718ec2772e63e44b4c7710778ab936,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 2574883553259244604, guid: d8718ec2772e63e44b4c7710778ab936,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -1468,7 +1473,7 @@ PrefabInstance:
     - target: {fileID: 2574883553259244604, guid: d8718ec2772e63e44b4c7710778ab936,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 4.933
+      value: 4.08
       objectReference: {fileID: 0}
     - target: {fileID: 2574883553259244604, guid: d8718ec2772e63e44b4c7710778ab936,
         type: 3}
@@ -1664,7 +1669,7 @@ PrefabInstance:
     - target: {fileID: 7356635823441164755, guid: b7c0dd27e1b224e469417dae9ceaa10c,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: 9.949
+      value: 9.95
       objectReference: {fileID: 0}
     - target: {fileID: 7356635823441164755, guid: b7c0dd27e1b224e469417dae9ceaa10c,
         type: 3}
@@ -1989,7 +1994,7 @@ PrefabInstance:
     - target: {fileID: 7356635823441164755, guid: b7c0dd27e1b224e469417dae9ceaa10c,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 4.949
+      value: 4.95
       objectReference: {fileID: 0}
     - target: {fileID: 7356635823441164755, guid: b7c0dd27e1b224e469417dae9ceaa10c,
         type: 3}

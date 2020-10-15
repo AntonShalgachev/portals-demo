@@ -2,22 +2,34 @@
 {
     Properties
     {
-        _MainTex ("Texture", 2D) = "white" {}
+        [HideInInspector] _CullMode ("__cullMode", Float) = 0 // Off
     }
     SubShader
     {
-        Tags { "RenderType"="Opaque" }
-        LOD 100
+        Tags
+        {
+            "RenderType" = "Opaque"
+            "Queue" = "Geometry+1"
+        }
 
         Pass
         {
+            Offset -0.1, 0
+            Cull [_CullMode]
+
+            Stencil
+            {
+                Ref 1
+                Comp Always
+                Pass Replace
+            }
+
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
-            // make fog work
-            #pragma multi_compile_fog
 
             #include "UnityCG.cginc"
+            #include "PortalCommon.cginc"
 
             struct appdata
             {
@@ -26,32 +38,63 @@
 
             struct v2f
             {
-                UNITY_FOG_COORDS(1)
                 float4 vertex : SV_POSITION;
-                float4 screenPos : TEXCOORD1;
+                float3 worldPos : TEXCOORD0;
             };
-
-            sampler2D _MainTex;
-            float4 _MainTex_ST;
 
             v2f vert (appdata v)
             {
                 v2f o;
                 o.vertex = UnityObjectToClipPos(v.vertex);
-                o.screenPos = ComputeScreenPos(o.vertex);
-                UNITY_TRANSFER_FOG(o,o.vertex);
+                o.worldPos = mul(unity_ObjectToWorld, v.vertex);
                 return o;
             }
 
-            fixed4 frag (v2f i) : SV_Target
+            fixed4 frag (v2f i) : COLOR
             {
-                fixed2 screenPos = i.screenPos.xy / i.screenPos.w;
-                fixed4 col = tex2D(_MainTex, screenPos);
+                ClipPlane(i.worldPos);
+                return fixed4(0, 0, 0, 1);
+            }
+            ENDCG
+        }
 
-                // apply fog
-                UNITY_APPLY_FOG(i.fogCoord, col);
+        Pass
+        {
+            ZWrite On
+            ZTest Always
+            Cull [_CullMode]
+            
+            Stencil
+            {
+                Ref 1
+                Comp Equal
+                Pass Keep
+            }
 
-                return col;
+            CGPROGRAM
+            #pragma vertex vert
+            #pragma fragment frag
+
+            struct appdata
+            {
+                float4 vertex : POSITION;
+            };
+
+            struct v2f
+            {
+                float4 vertex : SV_POSITION;
+            };
+
+            v2f vert (appdata v)
+            {
+                v2f o;
+                o.vertex = UnityObjectToClipPos(v.vertex);
+                return o;
+            }
+
+            float frag (v2f i) : DEPTH
+            {
+                return 0.0f;
             }
             ENDCG
         }

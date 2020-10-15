@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e57edcbf238856044bf43835582e88c1, type: 3}
+  m_Name: PortalMaterialsCollection
+  m_EditorClassIdentifier: 
+  m_materials:
+  - {fileID: 2100000, guid: 0f284c0ce4168244da82f06a3c545fc0, type: 2}
+  - {fileID: 2100000, guid: 4ef7577718c5b4043ae40ba325eea74d, type: 2}
+  - {fileID: 2100000, guid: d2ba0b5e9adc4c34194bd50c410e3f18, type: 2}
+  - {fileID: 2100000, guid: 3c48af3b74f9ebd4bb8d5610182d681c, type: 2}

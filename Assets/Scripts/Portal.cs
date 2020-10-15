@@ -13,29 +13,19 @@ namespace UnityPrototype
 
         [Header("Other")]
         [SerializeField] private CollisionDetector m_objectDetector = null;
-        [SerializeField] private Camera m_portalCamera = null;
+        [SerializeField] private PortalCamera m_portalCamera = null;
         [SerializeField] private GameObject m_parentWall = null;
+        [SerializeField] private Transform m_clippingPlane = null;
 
         public PortalsController m_controller => GetComponentInParent<PortalsController>(); // inefficient, but I don't care for now
         public Portal m_otherPortal => m_controller.GetOtherPortal(this);
-
-        private RenderTexture m_texture = null;
-
-        private int m_cullingMask = 0;
 
         private void Awake()
         {
             var viewCamera = m_controller.activeCamera;
 
-            m_texture = CreateRenderTexture(viewCamera);
-            foreach (var viewport in m_viewports)
-                viewport.material.mainTexture = m_texture;
-
-            m_cullingMask = m_portalCamera.cullingMask;
-
-            m_portalCamera.targetTexture = m_texture;
             m_portalCamera.transform.ResetLocal();
-            SyncCameraMatrix(viewCamera);
+            m_portalCamera.SyncCameraMatrix(viewCamera);
         }
 
         private void OnEnable()
@@ -54,11 +44,6 @@ namespace UnityPrototype
                 m_controller.UnregisterPortal(this);
 
             m_objectDetector.onTransformExit -= OnObjectExitedPortalDetector;
-        }
-
-        private static RenderTexture CreateRenderTexture(Camera cam)
-        {
-            return new RenderTexture(cam.pixelWidth, cam.pixelHeight, 24, RenderTextureFormat.ARGB32);
         }
 
         private void Update()
@@ -82,10 +67,10 @@ namespace UnityPrototype
                 return;
 
             var viewCamera = m_controller.activeCamera;
-            SyncCameraMatrix(viewCamera);
+            m_portalCamera.SyncCameraMatrix(viewCamera);
             UpdateCameraTransform(viewCamera, otherPortal);
 
-            m_portalCamera.cullingMask = m_cullingMask & ~(1 << m_controller.GetWallLayer(otherPortal));
+            m_portalCamera.SetClippingPlane(otherPortal.m_clippingPlane);
         }
 
         private static Quaternion MirrorRotation()
@@ -107,11 +92,6 @@ namespace UnityPrototype
         {
             m_portalCamera.transform.position = FromToPortalMatrix(this, otherPortal).MultiplyPoint(viewCamera.transform.position);
             m_portalCamera.transform.rotation = FromToPortalRotation(this, otherPortal) * viewCamera.transform.rotation;
-        }
-
-        private void SyncCameraMatrix(Camera viewCamera)
-        {
-            m_portalCamera.projectionMatrix = viewCamera.projectionMatrix;
         }
 
         private void TeleportObjects(Portal otherPortal)
