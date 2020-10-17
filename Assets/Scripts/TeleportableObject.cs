@@ -40,7 +40,7 @@ namespace UnityPrototype
 
             var targetTransform = m_teleportableVisual.transform;
             var replica = Instantiate(m_teleportableVisual, targetTransform.position, targetTransform.rotation, m_replicasRoot.transform);
-            replica.name = $"{m_teleportableVisual} (Replica)";
+            replica.name = $"{m_teleportableVisual.name} (Replica)";
             replica.layer = LayerMask.NameToLayer("Replica"); // temporary
 
             return replica;

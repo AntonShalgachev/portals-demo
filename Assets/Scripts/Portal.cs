@@ -14,7 +14,6 @@ namespace UnityPrototype
         [Header("Other")]
         [SerializeField] private CollisionDetector m_objectDetector = null;
         [SerializeField] private PortalCamera m_portalCamera = null;
-        [SerializeField] private GameObject m_parentWall = null;
         [SerializeField] private Transform m_clippingPlane = null;
 
         public PortalsController m_controller => GetComponentInParent<PortalsController>(); // inefficient, but I don't care for now
@@ -32,8 +31,6 @@ namespace UnityPrototype
         {
             if (m_controller != null)
                 m_controller.RegisterPortal(this);
-
-            m_parentWall.layer = m_controller.GetWallLayer(this);
 
             m_objectDetector.onTransformExit += OnObjectExitedPortalDetector;
         }

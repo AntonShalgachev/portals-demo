@@ -14,15 +14,15 @@ TagManager:
   - 
   - 
   - PortalViewport
-  - PortalViewportStub
-  - PortalWall1
-  - PortalWall2
+  - 
+  - 
+  - 
   - Player
   - Decor
   - Wall
   - PortalObjectDetector
   - Replica
-  - VirtualReplica
+  - 
   - 
   - 
   - 
