@@ -1,0 +1,20 @@
+{
+  "name": "com.shalgachev.portals.render-pipeline",
+  "description": "Test rendering pipeline for the portals. Based on the URP 7.3.1",
+  "version": "1.0.0",
+  "unity": "2019.3",
+  "unityRelease": "2f1",
+  "displayName": "Portals RP",
+  "dependencies": {
+    "com.unity.render-pipelines.core": "7.3.1",
+    "com.unity.shadergraph": "7.3.1"
+  },
+  "keywords": [
+    "graphics",
+    "performance",
+    "rendering",
+    "mobile",
+    "render",
+    "pipeline"
+  ]
+}
