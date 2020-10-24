@@ -634,12 +634,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 367828762}
   m_Mesh: {fileID: 10208, guid: 0000000000000000e000000000000000, type: 0}
---- !u!1 &393586706 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 4641871574566813577, guid: 0ae7e692f50408d44985e4c76f635f43,
-    type: 3}
-  m_PrefabInstance: {fileID: 1073432178}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &529741078
 GameObject:
   m_ObjectHideFlags: 0
@@ -986,12 +980,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &835724053 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 4641871574566813577, guid: 0ae7e692f50408d44985e4c76f635f43,
-    type: 3}
-  m_PrefabInstance: {fileID: 216905514}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &848486637
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1058,11 +1046,6 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3393471546573945904, guid: 02717705c25e25c4d9d2823b60d2322d,
-        type: 3}
-      propertyPath: m_Intensity
-      value: 1.6
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 02717705c25e25c4d9d2823b60d2322d, type: 3}
@@ -1257,6 +1240,7 @@ GameObject:
   - component: {fileID: 963194228}
   - component: {fileID: 963194227}
   - component: {fileID: 963194226}
+  - component: {fileID: 963194229}
   m_Layer: 0
   m_Name: Camera
   m_TagString: MainCamera
@@ -1329,6 +1313,39 @@ Transform:
   m_Father: {fileID: 863845225}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &963194229
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 963194225}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a79441f348de89743a2939f4d699eac1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_RenderShadows: 1
+  m_RequiresDepthTextureOption: 2
+  m_RequiresOpaqueTextureOption: 2
+  m_CameraType: 0
+  m_Cameras:
+  - {fileID: 1822106643}
+  - {fileID: 1513529009}
+  m_RendererIndex: -1
+  m_VolumeLayerMask:
+    serializedVersion: 2
+    m_Bits: 1
+  m_VolumeTrigger: {fileID: 0}
+  m_RenderPostProcessing: 0
+  m_Antialiasing: 0
+  m_AntialiasingQuality: 2
+  m_StopNaN: 0
+  m_Dithering: 0
+  m_ClearDepth: 1
+  m_RequiresDepthTexture: 0
+  m_RequiresColorTexture: 0
+  m_Version: 2
 --- !u!1001 &1018128761
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1810,6 +1827,12 @@ CapsuleCollider:
   m_Height: 2
   m_Direction: 1
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!20 &1513529009 stripped
+Camera:
+  m_CorrespondingSourceObject: {fileID: 7356635822512291067, guid: b7c0dd27e1b224e469417dae9ceaa10c,
+    type: 3}
+  m_PrefabInstance: {fileID: 1671538774}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1559370408
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1903,11 +1926,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 529741079}
     m_Modifications:
-    - target: {fileID: 7356635823441164754, guid: b7c0dd27e1b224e469417dae9ceaa10c,
-        type: 3}
-      propertyPath: m_parentWall
-      value: 
-      objectReference: {fileID: 835724053}
     - target: {fileID: 7356635823441164755, guid: b7c0dd27e1b224e469417dae9ceaa10c,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -1975,6 +1993,12 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 7356635823441164755, guid: b7c0dd27e1b224e469417dae9ceaa10c,
     type: 3}
   m_PrefabInstance: {fileID: 1671538774}
+  m_PrefabAsset: {fileID: 0}
+--- !u!20 &1822106643 stripped
+Camera:
+  m_CorrespondingSourceObject: {fileID: 7356635822512291067, guid: b7c0dd27e1b224e469417dae9ceaa10c,
+    type: 3}
+  m_PrefabInstance: {fileID: 7356635823450644639}
   m_PrefabAsset: {fileID: 0}
 --- !u!4 &2061547973 stripped
 Transform:
@@ -2224,11 +2248,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 529741079}
     m_Modifications:
-    - target: {fileID: 7356635823441164754, guid: b7c0dd27e1b224e469417dae9ceaa10c,
-        type: 3}
-      propertyPath: m_parentWall
-      value: 
-      objectReference: {fileID: 393586706}
     - target: {fileID: 7356635823441164755, guid: b7c0dd27e1b224e469417dae9ceaa10c,
         type: 3}
       propertyPath: m_LocalPosition.x

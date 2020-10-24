@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 namespace UnityPrototype
 {
@@ -16,6 +17,18 @@ namespace UnityPrototype
             m_camera = GetComponent<Camera>();
         }
 
+        private void OnEnable()
+        {
+            RenderPipelineManager.beginCameraRendering += BeginCameraRendering;
+            RenderPipelineManager.endCameraRendering += EndCameraRendering;
+        }
+
+        private void OnDisable()
+        {
+            RenderPipelineManager.beginCameraRendering -= BeginCameraRendering;
+            RenderPipelineManager.endCameraRendering -= EndCameraRendering;
+        }
+
         public void SyncCameraMatrix(Camera viewCamera)
         {
             if (m_camera == null)
@@ -29,8 +42,12 @@ namespace UnityPrototype
             m_clippingPlane = clippingPlane;
         }
 
-        private void OnPreRender()
+        private void BeginCameraRendering(ScriptableRenderContext context, Camera camera)
         {
+            if (camera != m_camera)
+                return;
+
+            Debug.Log("OnPreRender");
             foreach (var material in m_materials.materials)
             {
                 material.SetInt("_StencilComp", (int)UnityEngine.Rendering.CompareFunction.Equal);
@@ -48,8 +65,11 @@ namespace UnityPrototype
             }
         }
 
-        private void OnPostRender()
+        private void EndCameraRendering(ScriptableRenderContext context, Camera camera)
         {
+            if (camera != m_camera)
+                return;
+
             foreach (var material in m_materials.materials)
             {
                 material.SetInt("_StencilComp", (int)UnityEngine.Rendering.CompareFunction.Disabled);

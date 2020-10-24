@@ -1,4 +1,4 @@
-﻿Shader "Unlit/PortalViewport"
+﻿Shader "Unlit/PortalViewportDepth"
 {
     Properties
     {
@@ -9,30 +9,28 @@
         Tags
         {
             "RenderType" = "Opaque"
-            "Queue" = "Geometry+100"
+            "Queue" = "Geometry+101"
         }
 
         Pass
         {
-            Name "ForwardPortalViewport"
+            Name "ForwardPortalViewportDepth"
             Tags{"LightMode" = "UniversalForward"}
 
-            Offset -0.1, 0
+            ZWrite On
+            ZTest Always
             Cull [_CullMode]
-
+            
             Stencil
             {
                 Ref 1
-                Comp Always
-                Pass Replace
+                Comp Equal
+                Pass Keep
             }
 
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
-
-            #include "UnityCG.cginc"
-            #include "PortalCommon.cginc"
 
             struct appdata
             {
@@ -42,21 +40,18 @@
             struct v2f
             {
                 float4 vertex : SV_POSITION;
-                float3 worldPos : TEXCOORD0;
             };
 
             v2f vert (appdata v)
             {
                 v2f o;
                 o.vertex = UnityObjectToClipPos(v.vertex);
-                o.worldPos = mul(unity_ObjectToWorld, v.vertex);
                 return o;
             }
 
-            fixed4 frag (v2f i) : COLOR
+            float frag (v2f i) : DEPTH
             {
-                ClipPlane(i.worldPos);
-                return fixed4(0, 0, 0, 1);
+                return 0.0f;
             }
             ENDCG
         }
