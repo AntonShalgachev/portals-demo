@@ -10,8 +10,8 @@ namespace UnityEditor.Experimental.Rendering.Universal
         private class LayerSelectionData
         {
             public SerializedObject serializedObject;
-            public Object[]         targets;
-            public int              layerID;
+            public Object[] targets;
+            public int layerID;
             public System.Action<SerializedObject> onSelectionChanged;
 
             public LayerSelectionData(SerializedObject so, int lid, Object[] tgts, System.Action<SerializedObject> selectionChangedCallback)
@@ -46,7 +46,7 @@ namespace UnityEditor.Experimental.Rendering.Universal
 
         void UpdateApplyToSortingLayersArray(object layerSelectionDataObject)
         {
-            LayerSelectionData layerSelectionData = (LayerSelectionData)layerSelectionDataObject; 
+            LayerSelectionData layerSelectionData = (LayerSelectionData)layerSelectionDataObject;
 
             m_ApplyToSortingLayers.ClearArray();
             for (int i = 0; i < m_ApplyToSortingLayersList.Count; ++i)
@@ -57,7 +57,7 @@ namespace UnityEditor.Experimental.Rendering.Universal
 
             if (layerSelectionData.onSelectionChanged != null)
                 layerSelectionData.onSelectionChanged(layerSelectionData.serializedObject);
-            
+
             layerSelectionData.serializedObject.ApplyModifiedProperties();
 
             if (layerSelectionData.targets is Light2D[])

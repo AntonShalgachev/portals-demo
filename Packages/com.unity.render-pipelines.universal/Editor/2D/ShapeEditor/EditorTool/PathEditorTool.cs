@@ -76,7 +76,7 @@ namespace UnityEditor.Experimental.Rendering.Universal.Path2D
 
         internal static T GetEditorTool<T>() where T : EditorTool
         {
-            foreach(var tool in m_Tools)
+            foreach (var tool in m_Tools)
             {
                 if (tool.GetType().Equals(typeof(T)))
                     return tool as T;
@@ -140,7 +140,7 @@ namespace UnityEditor.Experimental.Rendering.Universal.Path2D
 
             var undoName = Undo.GetCurrentGroupName();
             var serializedObject = GetSerializedObject(target);
-            
+
             serializedObject.UpdateIfRequiredOrScript();
 
             SetShape(path, serializedObject);
@@ -266,7 +266,7 @@ namespace UnityEditor.Experimental.Rendering.Universal.Path2D
 
         private void ForEachTarget(Action<UnityObject> action)
         {
-            foreach(var target in targets)
+            foreach (var target in targets)
             {
                 if (target == null)
                     continue;
@@ -375,11 +375,11 @@ namespace UnityEditor.Experimental.Rendering.Universal.Path2D
         {
             if (m_GUIState.eventType == EventType.Layout)
                 m_Controller.ClearClosestPath();
-                
+
             m_RectSelector.OnGUI();
 
             bool changed = false;
-            
+
             ForEachTarget((target) =>
             {
                 var path = GetPath(target);

@@ -113,7 +113,7 @@ namespace UnityEditor.Experimental.Rendering.Universal.Path2D
 
             if (editablePath.pointCount > minPointCount)
             {
-                var indices = editablePath.selection.elements.OrderByDescending( i => i);
+                var indices = editablePath.selection.elements.OrderByDescending(i => i);
 
                 foreach (var index in indices)
                     if (editablePath.pointCount > minPointCount)
@@ -130,7 +130,7 @@ namespace UnityEditor.Experimental.Rendering.Universal.Path2D
             for (var i = 0; i < editablePath.pointCount; ++i)
             {
                 if (editablePath.selection.Contains(i))
-                {                            
+                {
                     var controlPoint = editablePath.GetPoint(i);
                     controlPoint.position += delta;
                     editablePath.SetPoint(i, controlPoint);
@@ -142,7 +142,7 @@ namespace UnityEditor.Experimental.Rendering.Universal.Path2D
         {
             if (editablePath.isOpenEnded && index == editablePath.pointCount - 1)
                 return;
-            
+
             var controlPoint = editablePath.GetPoint(index);
             controlPoint.position += delta;
             editablePath.SetPoint(index, controlPoint);

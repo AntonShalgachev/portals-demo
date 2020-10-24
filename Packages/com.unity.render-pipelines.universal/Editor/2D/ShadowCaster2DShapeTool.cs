@@ -9,7 +9,7 @@ namespace UnityEditor.Experimental.Rendering.Universal
     class ShadowCaster2DShapeTool : PathEditorTool<ScriptablePath>
     {
         const string k_ShapePath = "m_ShapePath";
- 
+
         protected override IShape GetShape(Object target)
         {
             return (target as ShadowCaster2D).shapePath.ToPolygon(false);

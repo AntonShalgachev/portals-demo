@@ -28,7 +28,7 @@ namespace UnityEditor.Rendering.Universal
                 Debug.LogWarning("TrackballUIDrawer requires a Vector4 property");
                 return;
             }
-            
+
             m_ComputeFunc = computeFunc;
             var value = property.vector4Value;
 

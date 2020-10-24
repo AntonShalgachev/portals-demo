@@ -131,7 +131,7 @@ namespace UnityEditor.Rendering.Universal
                 AssetVersion assetVersion = null;
                 foreach (var subAsset in assetVersions)
                 {
-                    if(subAsset.GetType() == typeof(AssetVersion))
+                    if (subAsset.GetType() == typeof(AssetVersion))
                         assetVersion = subAsset as AssetVersion;
                 }
                 var debug = "\n" + material.name;
@@ -225,7 +225,7 @@ namespace UnityEditor.Rendering.Universal
             if (material == null)
                 throw new ArgumentNullException("material");
 
-            if(material.GetTexture("_MetallicGlossMap") || material.GetTexture("_SpecGlossMap") || material.GetFloat("_SmoothnessTextureChannel") >= 0.5f)
+            if (material.GetTexture("_MetallicGlossMap") || material.GetTexture("_SpecGlossMap") || material.GetFloat("_SmoothnessTextureChannel") >= 0.5f)
                 material.SetFloat("_Smoothness", material.GetFloat("_GlossMapScale"));
             else
                 material.SetFloat("_Smoothness", material.GetFloat("_Glossiness"));
@@ -296,7 +296,7 @@ namespace UnityEditor.Rendering.Universal
                 throw new ArgumentNullException("material");
 
             var smoothnessSource = 1 - (int)material.GetFloat("_GlossinessSource");
-            material.SetFloat("_SmoothnessSource" ,smoothnessSource);
+            material.SetFloat("_SmoothnessSource", smoothnessSource);
             if (material.GetTexture("_SpecGlossMap") == null)
             {
                 var col = material.GetColor("_SpecColor");

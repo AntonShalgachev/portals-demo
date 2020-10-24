@@ -182,7 +182,7 @@ namespace UnityEditor
             m_SurfaceInputsFoldout = new SavedBool($"{m_HeaderStateKey}.SurfaceInputsFoldout", true);
             m_AdvancedFoldout = new SavedBool($"{m_HeaderStateKey}.AdvancedFoldout", false);
 
-            foreach (var obj in  materialEditor.targets)
+            foreach (var obj in materialEditor.targets)
                 MaterialChanged((Material)obj);
         }
 
@@ -194,7 +194,8 @@ namespace UnityEditor
             EditorGUI.BeginChangeCheck();
 
             m_SurfaceOptionsFoldout.value = EditorGUILayout.BeginFoldoutHeaderGroup(m_SurfaceOptionsFoldout.value, Styles.SurfaceOptions);
-            if(m_SurfaceOptionsFoldout.value){
+            if (m_SurfaceOptionsFoldout.value)
+            {
                 DrawSurfaceOptions(material);
                 EditorGUILayout.Space();
             }
@@ -220,7 +221,7 @@ namespace UnityEditor
 
             if (EditorGUI.EndChangeCheck())
             {
-                foreach (var obj in  materialEditor.targets)
+                foreach (var obj in materialEditor.targets)
                     MaterialChanged((Material)obj);
             }
         }
@@ -292,7 +293,7 @@ namespace UnityEditor
             }
         }
 
-        public virtual void DrawAdditionalFoldouts(Material material){}
+        public virtual void DrawAdditionalFoldouts(Material material) { }
 
         public virtual void DrawBaseProperties(Material material)
         {
@@ -385,7 +386,7 @@ namespace UnityEditor
             // Setup blending - consistent across all Universal RP shaders
             SetupMaterialBlendMode(material);
             // Receive Shadows
-            if(material.HasProperty("_ReceiveShadows"))
+            if (material.HasProperty("_ReceiveShadows"))
                 CoreUtils.SetKeyword(material, "_RECEIVE_SHADOWS_OFF", material.GetFloat("_ReceiveShadows") == 0.0f);
             // Emission
             if (material.HasProperty("_EmissionColor"))
@@ -396,7 +397,7 @@ namespace UnityEditor
                 shouldEmissionBeEnabled = material.GetFloat("_EmissionEnabled") >= 0.5f;
             CoreUtils.SetKeyword(material, "_EMISSION", shouldEmissionBeEnabled);
             // Normal Map
-            if(material.HasProperty("_BumpMap"))
+            if (material.HasProperty("_BumpMap"))
                 CoreUtils.SetKeyword(material, "_NORMALMAP", material.GetTexture("_BumpMap"));
             // Shader specific keyword functions
             shadingModelFunc?.Invoke(material);
@@ -419,8 +420,8 @@ namespace UnityEditor
             }
 
             var queueOffset = 0; // queueOffsetRange;
-            if(material.HasProperty("_QueueOffset"))
-                queueOffset = queueOffsetRange - (int) material.GetFloat("_QueueOffset");
+            if (material.HasProperty("_QueueOffset"))
+                queueOffset = queueOffsetRange - (int)material.GetFloat("_QueueOffset");
 
             SurfaceType surfaceType = (SurfaceType)material.GetFloat("_Surface");
             if (surfaceType == SurfaceType.Opaque)
@@ -445,7 +446,7 @@ namespace UnityEditor
             else
             {
                 BlendMode blendMode = (BlendMode)material.GetFloat("_Blend");
-                var queue = (int) UnityEngine.Rendering.RenderQueue.Transparent;
+                var queue = (int)UnityEngine.Rendering.RenderQueue.Transparent;
 
                 // Specific Transparent Mode Settings
                 switch (blendMode)
@@ -589,7 +590,7 @@ namespace UnityEditor
                     return properties[index];
             }
             if (propertyIsMandatory)
-                throw new ArgumentException("Could not find MaterialProperty: '" + propertyName + "', Num properties: " + (object) properties.Length);
+                throw new ArgumentException("Could not find MaterialProperty: '" + propertyName + "', Num properties: " + (object)properties.Length);
             return null;
         }
 

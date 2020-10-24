@@ -129,7 +129,7 @@ namespace UnityEditor.Rendering.Universal
             }
 
             bool enablePerPixelNormalChanged = false;
-            
+
             // Since Instanced Per-pixel normal is actually dependent on instancing enabled or not, it is not
             // important to check it in the GUI.  The shader will make sure it is enabled/disabled properly.s
             if (enableInstancedPerPixelNormal != null)
@@ -245,7 +245,7 @@ namespace UnityEditor.Rendering.Universal
                     min = maskMapRemapMin.y; max = maskMapRemapMax.y;
                     EditorGUILayout.MinMaxSlider(s_Styles.ao, ref min, ref max, 0, 1);
                     maskMapRemapMin.y = min; maskMapRemapMax.y = max;
-                    
+
                     if (heightBlend)
                     {
                         EditorGUILayout.LabelField(styles.height);
@@ -268,7 +268,7 @@ namespace UnityEditor.Rendering.Universal
                         }
                         --EditorGUI.indentLevel;
                     }
-                    
+
                     min = maskMapRemapMin.w; max = maskMapRemapMax.w;
                     EditorGUILayout.MinMaxSlider(s_Styles.smoothness, ref min, ref max, 0, 1);
                     maskMapRemapMin.w = min; maskMapRemapMax.w = max;

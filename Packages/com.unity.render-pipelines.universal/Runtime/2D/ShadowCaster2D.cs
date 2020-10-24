@@ -43,7 +43,7 @@ namespace UnityEngine.Experimental.Rendering.Universal
         public bool useRendererSilhouette
         {
             set { m_UseRendererSilhouette = value; }
-            get { return m_UseRendererSilhouette && m_HasRenderer;  }
+            get { return m_UseRendererSilhouette && m_HasRenderer; }
         }
 
         /// <summary>
@@ -69,7 +69,7 @@ namespace UnityEngine.Experimental.Rendering.Universal
             int layerCount = SortingLayer.layers.Length;
             int[] allLayers = new int[layerCount];
 
-            for(int layerIndex=0;layerIndex < layerCount;layerIndex++)
+            for (int layerIndex = 0; layerIndex < layerCount; layerIndex++)
             {
                 allLayers[layerIndex] = SortingLayer.layers[layerIndex].id;
             }
@@ -84,11 +84,11 @@ namespace UnityEngine.Experimental.Rendering.Universal
 
         private void Awake()
         {
-            if(m_ApplyToSortingLayers == null)
+            if (m_ApplyToSortingLayers == null)
                 m_ApplyToSortingLayers = SetDefaultSortingLayers();
 
             Bounds bounds = new Bounds(transform.position, Vector3.one);
-            
+
             Renderer renderer = GetComponent<Renderer>();
             if (renderer != null)
             {
@@ -161,7 +161,7 @@ namespace UnityEngine.Experimental.Rendering.Universal
 
             if (LightUtility.CheckForChange(m_CastsShadows, ref m_PreviousCastsShadows))
             {
-                if(m_CastsShadows)
+                if (m_CastsShadows)
                     ShadowCasterGroup2DManager.AddGroup(this);
                 else
                     ShadowCasterGroup2DManager.RemoveGroup(this);

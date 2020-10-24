@@ -7,7 +7,8 @@ using UnityEditorInternal;
 namespace UnityEditor.Rendering.Universal
 {
     [CustomEditor(typeof(UniversalRenderPipelineAsset))]
-    [MovedFrom("UnityEditor.Rendering.LWRP")] public class UniversalRenderPipelineAssetEditor : Editor
+    [MovedFrom("UnityEditor.Rendering.LWRP")]
+    public class UniversalRenderPipelineAssetEditor : Editor
     {
         internal class Styles
         {
@@ -83,8 +84,8 @@ namespace UnityEditor.Rendering.Universal
 
             // Dropdown menu options
             public static string[] mainLightOptions = { "Disabled", "Per Pixel" };
-            public static string[] shadowCascadeOptions = {"No Cascades", "Two Cascades", "Four Cascades"};
-            public static string[] opaqueDownsamplingOptions = {"None", "2x (Bilinear)", "4x (Box)", "4x (Bilinear)"};
+            public static string[] shadowCascadeOptions = { "No Cascades", "Two Cascades", "Four Cascades" };
+            public static string[] opaqueDownsamplingOptions = { "None", "2x (Bilinear)", "4x (Box)", "4x (Bilinear)" };
         }
 
         SavedBool m_GeneralSettingsFoldout;
@@ -412,13 +413,13 @@ namespace UnityEditor.Rendering.Universal
 
                 EditorGUI.BeginChangeCheck();
                 EditorGUI.ObjectField(objRect, prop.GetArrayElementAtIndex(index), GUIContent.none);
-                if(EditorGUI.EndChangeCheck())
+                if (EditorGUI.EndChangeCheck())
                     EditorUtility.SetDirty(target);
 
                 Rect defaultButton = new Rect(rect.width - 90, rect.y, 86, EditorGUIUtility.singleLineHeight);
                 var defaultRenderer = m_DefaultRendererProp.intValue;
                 GUI.enabled = index != defaultRenderer;
-                if(GUI.Button(defaultButton, !GUI.enabled ? Styles.rendererDefaultText : Styles.rendererSetDefaultText))
+                if (GUI.Button(defaultButton, !GUI.enabled ? Styles.rendererDefaultText : Styles.rendererSetDefaultText))
                 {
                     m_DefaultRendererProp.intValue = index;
                     EditorUtility.SetDirty(target);
@@ -466,7 +467,7 @@ namespace UnityEditor.Rendering.Universal
             {
                 if (li.serializedProperty.arraySize - 1 != m_DefaultRendererProp.intValue)
                 {
-                    if(li.serializedProperty.GetArrayElementAtIndex(li.serializedProperty.arraySize - 1).objectReferenceValue != null)
+                    if (li.serializedProperty.GetArrayElementAtIndex(li.serializedProperty.arraySize - 1).objectReferenceValue != null)
                         li.serializedProperty.DeleteArrayElementAtIndex(li.serializedProperty.arraySize - 1);
                     li.serializedProperty.arraySize--;
                     li.index = li.count - 1;

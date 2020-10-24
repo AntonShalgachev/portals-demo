@@ -17,7 +17,7 @@ namespace UnityEditor.Rendering.Universal
         SerializedDataParameter m_HighlightsEnd;
 
         readonly TrackballUIDrawer m_TrackballUIDrawer = new TrackballUIDrawer();
-        
+
         // Curve drawing utilities
         Rect m_CurveRect;
         Material m_Material;
@@ -26,14 +26,14 @@ namespace UnityEditor.Rendering.Universal
         public override void OnEnable()
         {
             var o = new PropertyFetcher<ShadowsMidtonesHighlights>(serializedObject);
-            
-            m_Shadows         = Unpack(o.Find(x => x.shadows));
-            m_Midtones        = Unpack(o.Find(x => x.midtones));
-            m_Highlights      = Unpack(o.Find(x => x.highlights));
-            m_ShadowsStart    = Unpack(o.Find(x => x.shadowsStart));
-            m_ShadowsEnd      = Unpack(o.Find(x => x.shadowsEnd));
+
+            m_Shadows = Unpack(o.Find(x => x.shadows));
+            m_Midtones = Unpack(o.Find(x => x.midtones));
+            m_Highlights = Unpack(o.Find(x => x.highlights));
+            m_ShadowsStart = Unpack(o.Find(x => x.shadowsStart));
+            m_ShadowsEnd = Unpack(o.Find(x => x.shadowsEnd));
             m_HighlightsStart = Unpack(o.Find(x => x.highlightsStart));
-            m_HighlightsEnd   = Unpack(o.Find(x => x.highlightsEnd));
+            m_HighlightsEnd = Unpack(o.Find(x => x.highlightsEnd));
 
             m_Material = new Material(Shader.Find("Hidden/Universal Render Pipeline/Editor/Shadows Midtones Highlights Curve"));
         }
@@ -91,7 +91,7 @@ namespace UnityEditor.Rendering.Universal
             m_ShadowsEnd.value.floatValue = Mathf.Max(m_ShadowsStart.value.floatValue, m_ShadowsEnd.value.floatValue);
 
             EditorGUILayout.Space();
-            
+
             EditorGUILayout.LabelField("Highlight Limits", EditorStyles.miniLabel);
             PropertyField(m_HighlightsStart, EditorGUIUtility.TrTextContent("Start"));
             m_HighlightsStart.value.floatValue = Mathf.Min(m_HighlightsStart.value.floatValue, m_HighlightsEnd.value.floatValue);

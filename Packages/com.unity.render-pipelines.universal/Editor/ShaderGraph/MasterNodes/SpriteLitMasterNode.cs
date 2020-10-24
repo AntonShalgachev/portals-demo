@@ -17,7 +17,7 @@ namespace UnityEditor.Experimental.Rendering.Universal
         public const string NormalName = "Vertex Normal";
         public const string TangentName = "Vertex Tangent";
         public const string ColorSlotName = "Color";
-        public const string MaskSlotName =  "Mask";
+        public const string MaskSlotName = "Mask";
         public const string NormalSlotName = "Normal";
 
         public const int PositionSlotId = 9;

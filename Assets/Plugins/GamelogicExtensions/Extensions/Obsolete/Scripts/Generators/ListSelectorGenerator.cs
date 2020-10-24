@@ -7,57 +7,57 @@ using Gamelogic.Extensions.Internal;
 
 namespace Gamelogic.Extensions.Obsolete
 {
-	/// <summary>
-	/// Generates items from a list using an index generator.
-	/// </summary>
-	/// <typeparam name="T"></typeparam>
-	[Version(1, 4)]
-	[Obsolete("Use the static functions in Gamelogic.Generators.Generator instead.")]
-	public class ListSelectorGenerator<T> : IGenerator<T>
-	{
-		#region Private Fields
+    /// <summary>
+    /// Generates items from a list using an index generator.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    [Version(1, 4)]
+    [Obsolete("Use the static functions in Gamelogic.Generators.Generator instead.")]
+    public class ListSelectorGenerator<T> : IGenerator<T>
+    {
+        #region Private Fields
 
-		private readonly IIntGenerator indexGenerator;
-		private readonly List<T> list;
+        private readonly IIntGenerator indexGenerator;
+        private readonly List<T> list;
 
-		#endregion
+        #endregion
 
-		#region Constructors
+        #region Constructors
 
-		public ListSelectorGenerator(IEnumerable<T> list, IIntGenerator indexGenerator)
-		{
-			list.ThrowIfNull("list");
+        public ListSelectorGenerator(IEnumerable<T> list, IIntGenerator indexGenerator)
+        {
+            list.ThrowIfNull("list");
 
-			this.list = list.ToList();
+            this.list = list.ToList();
 
-			if (!this.list.Any())
-			{
-				throw new ArgumentException("cannot be empty", "list");
-			}
+            if (!this.list.Any())
+            {
+                throw new ArgumentException("cannot be empty", "list");
+            }
 
-			this.indexGenerator = indexGenerator;
-		}
+            this.indexGenerator = indexGenerator;
+        }
 
-		#endregion
+        #endregion
 
-		#region Public Methods
+        #region Public Methods
 
-		public T Next()
-		{
-			int index = indexGenerator.Next();
+        public T Next()
+        {
+            int index = indexGenerator.Next();
 
-			return list[index];
-		}
+            return list[index];
+        }
 
-		#endregion
+        #endregion
 
-		#region Private Methods
+        #region Private Methods
 
-		object IGenerator.Next()
-		{
-			return Next();
-		}
+        object IGenerator.Next()
+        {
+            return Next();
+        }
 
-		#endregion
-	}
+        #endregion
+    }
 }

@@ -7,7 +7,8 @@ using UnityEngine.Scripting.APIUpdating;
 namespace UnityEditor.Rendering.Universal
 {
     [CustomEditor(typeof(ScriptableRendererData), true)]
-    [MovedFrom("UnityEditor.Rendering.LWRP")] public class ScriptableRendererDataEditor : Editor
+    [MovedFrom("UnityEditor.Rendering.LWRP")]
+    public class ScriptableRendererDataEditor : Editor
     {
         class Styles
         {
@@ -41,17 +42,17 @@ namespace UnityEditor.Rendering.Universal
             m_RenderPasses = serializedObject.FindProperty(nameof(ScriptableRendererData.m_RendererFeatures));
             m_RenderPassMap = serializedObject.FindProperty(nameof(ScriptableRendererData.m_RendererFeatureMap));
             var editorObj = new SerializedObject(this);
-            m_FalseBool =  editorObj.FindProperty(nameof(falseBool));
+            m_FalseBool = editorObj.FindProperty(nameof(falseBool));
         }
 
         public override void OnInspectorGUI()
         {
-            if(m_RenderPasses == null)
+            if (m_RenderPasses == null)
                 OnEnable();
             serializedObject.Update();
             DrawRendererFeatureList();
 
-            if(serializedObject.hasModifiedProperties)
+            if (serializedObject.hasModifiedProperties)
                 serializedObject.ApplyModifiedProperties();
 
             if (m_SaveAsset)

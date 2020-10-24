@@ -5,48 +5,48 @@ using Gamelogic.Extensions.Internal;
 
 namespace Gamelogic.Extensions.Obsolete
 {
-	/// <summary>
-	/// A generator that generates floating values between 0 and 1 with a uniform distribution.
-	/// </summary>
-	[Version(1, 4)]
-	[Obsolete("Use the static functions in Gamelogic.Generators.Generator instead.")]
-	public class UniformFloatGenerator : IGenerator<float>
-	{
-		#region Private Fields
+    /// <summary>
+    /// A generator that generates floating values between 0 and 1 with a uniform distribution.
+    /// </summary>
+    [Version(1, 4)]
+    [Obsolete("Use the static functions in Gamelogic.Generators.Generator instead.")]
+    public class UniformFloatGenerator : IGenerator<float>
+    {
+        #region Private Fields
 
-		private readonly IRandom random;
+        private readonly IRandom random;
 
-		#endregion
+        #endregion
 
-		#region Constructors
+        #region Constructors
 
-		public UniformFloatGenerator():
-			this(GLRandom.GlobalRandom)
-		{}
+        public UniformFloatGenerator() :
+            this(GLRandom.GlobalRandom)
+        { }
 
-		public UniformFloatGenerator(IRandom random)
-		{
-			this.random = random;
-		}
+        public UniformFloatGenerator(IRandom random)
+        {
+            this.random = random;
+        }
 
-		#endregion
+        #endregion
 
-		#region Public Methods
+        #region Public Methods
 
-		public float Next()
-		{
-			return (float) random.NextDouble();
-		}
+        public float Next()
+        {
+            return (float)random.NextDouble();
+        }
 
-		#endregion
+        #endregion
 
-		#region Private Methods
+        #region Private Methods
 
-		object IGenerator.Next()
-		{
-			return Next();
-		}
+        object IGenerator.Next()
+        {
+            return Next();
+        }
 
-		#endregion
-	}
+        #endregion
+    }
 }

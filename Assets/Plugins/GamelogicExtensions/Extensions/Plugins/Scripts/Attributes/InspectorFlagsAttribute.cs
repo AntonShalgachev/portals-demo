@@ -5,9 +5,9 @@ using UnityEngine;
 
 namespace Gamelogic.Extensions
 {
-	/// <summary>
-	/// Mark fields that should be displayed as bit field mask in the inspector
-	/// </summary>
-	[Version(1, 4, 3)]
-	public class InspectorFlagsAttribute : PropertyAttribute {}
+    /// <summary>
+    /// Mark fields that should be displayed as bit field mask in the inspector
+    /// </summary>
+    [Version(1, 4, 3)]
+    public class InspectorFlagsAttribute : PropertyAttribute { }
 }

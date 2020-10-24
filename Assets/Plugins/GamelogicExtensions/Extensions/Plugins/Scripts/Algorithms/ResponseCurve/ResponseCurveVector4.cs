@@ -6,28 +6,28 @@ using UnityEngine;
 
 namespace Gamelogic.Extensions.Algorithms
 {
-	/// <summary>
-	/// A response curve with outputs of Vector4.
-	/// </summary>
-	[Version(1, 2)]
-	public class ResponseCurveVector4 : ResponseCurveBase<Vector4>
-	{
-		#region Constructors
+    /// <summary>
+    /// A response curve with outputs of Vector4.
+    /// </summary>
+    [Version(1, 2)]
+    public class ResponseCurveVector4 : ResponseCurveBase<Vector4>
+    {
+        #region Constructors
 
-		public ResponseCurveVector4(IEnumerable<float> inputSamples, IEnumerable<Vector4> outputSamples)
-			: base(inputSamples, outputSamples)
-		{
-		}
+        public ResponseCurveVector4(IEnumerable<float> inputSamples, IEnumerable<Vector4> outputSamples)
+            : base(inputSamples, outputSamples)
+        {
+        }
 
-		#endregion
+        #endregion
 
-		#region Protected Methods
+        #region Protected Methods
 
-		protected override Vector4 Lerp(Vector4 outputSampleMin, Vector4 outputSampleMax, float t)
-		{
-			return Vector4.Lerp(outputSampleMin, outputSampleMax, t);
-		}
+        protected override Vector4 Lerp(Vector4 outputSampleMin, Vector4 outputSampleMax, float t)
+        {
+            return Vector4.Lerp(outputSampleMin, outputSampleMax, t);
+        }
 
-		#endregion
-	}
+        #endregion
+    }
 }

@@ -5,13 +5,15 @@ using UnityEngine.Scripting.APIUpdating;
 
 namespace UnityEngine.Experimental.Rendering.Universal
 {
-    [MovedFrom("UnityEngine.Experimental.Rendering.LWRP")]public enum RenderQueueType
+    [MovedFrom("UnityEngine.Experimental.Rendering.LWRP")]
+    public enum RenderQueueType
     {
         Opaque,
         Transparent,
     }
 
-    [MovedFrom("UnityEngine.Experimental.Rendering.LWRP")]public class RenderObjects : ScriptableRendererFeature
+    [MovedFrom("UnityEngine.Experimental.Rendering.LWRP")]
+    public class RenderObjects : ScriptableRendererFeature
     {
         [System.Serializable]
         public class RenderObjectsSettings

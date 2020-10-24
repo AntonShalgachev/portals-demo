@@ -6,67 +6,67 @@ using Gamelogic.Extensions.Internal;
 
 namespace Gamelogic.Extensions.Obsolete
 {
-	/// <summary>
-	/// Generates items at the same frequencies as they
-	/// occur in a set from which this generator is constructed.
-	/// </summary>
-	/// <typeparam name="T"></typeparam>
-	[Version(1, 4)]
-	[Obsolete("Use the static functions in Gamelogic.Generators.Generator instead.")]
-	public class FrequencyElementGenerator<T> : IGenerator<T>
-	{
-		#region Private Fields
+    /// <summary>
+    /// Generates items at the same frequencies as they
+    /// occur in a set from which this generator is constructed.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    [Version(1, 4)]
+    [Obsolete("Use the static functions in Gamelogic.Generators.Generator instead.")]
+    public class FrequencyElementGenerator<T> : IGenerator<T>
+    {
+        #region Private Fields
 
-		private readonly ListSelectorGenerator<T> elementGenerator;
+        private readonly ListSelectorGenerator<T> elementGenerator;
 
-		#endregion
+        #endregion
 
-		#region Constructors
+        #region Constructors
 
-		public FrequencyElementGenerator(IEnumerable<T> elements):
-			this(elements, GLRandom.GlobalRandom)
-		{}
+        public FrequencyElementGenerator(IEnumerable<T> elements) :
+            this(elements, GLRandom.GlobalRandom)
+        { }
 
-		public FrequencyElementGenerator(IEnumerable<T> elements, IRandom random)
-		{
-			elements.ThrowIfNull("elements");
+        public FrequencyElementGenerator(IEnumerable<T> elements, IRandom random)
+        {
+            elements.ThrowIfNull("elements");
 
-			var counts = new Dictionary<T, float>();
+            var counts = new Dictionary<T, float>();
 
-			foreach (var element in elements)
-			{
-				if (counts.ContainsKey(element))
-				{
-					counts[element]++;
-				}
-				else
-				{
-					counts[element] = 1;
-				}
-			}
+            foreach (var element in elements)
+            {
+                if (counts.ContainsKey(element))
+                {
+                    counts[element]++;
+                }
+                else
+                {
+                    counts[element] = 1;
+                }
+            }
 
-			var indexGenerator = new FrequencyIntGenerator(counts.Values, random);
-			elementGenerator = new ListSelectorGenerator<T>(counts.Keys, indexGenerator);
-		}
+            var indexGenerator = new FrequencyIntGenerator(counts.Values, random);
+            elementGenerator = new ListSelectorGenerator<T>(counts.Keys, indexGenerator);
+        }
 
-		#endregion
+        #endregion
 
-		#region Public Methods
+        #region Public Methods
 
-		public T Next()
-		{
-			return elementGenerator.Next();
-		}
+        public T Next()
+        {
+            return elementGenerator.Next();
+        }
 
-		#endregion
+        #endregion
 
-		#region Private Methods
+        #region Private Methods
 
-		object IGenerator.Next()
-		{
-			return Next();
-		}
+        object IGenerator.Next()
+        {
+            return Next();
+        }
 
-		#endregion
-	}
+        #endregion
+    }
 }

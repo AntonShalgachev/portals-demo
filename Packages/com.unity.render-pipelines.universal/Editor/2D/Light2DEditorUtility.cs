@@ -8,7 +8,7 @@ namespace UnityEditor.Experimental.Rendering.Universal
     internal static class Light2DEditorUtility
     {
         static Material s_TexCapMaterial = CoreUtils.CreateEngineMaterial(Shader.Find("Hidden/Internal-GUITexture"));
-        
+
         static internal void GUITextureCap(int controlID, Texture texture, Vector3 position, Quaternion rotation, float size, EventType eventType, bool isAngleHandle)
         {
             switch (eventType)
@@ -94,8 +94,8 @@ namespace UnityEditor.Experimental.Rendering.Universal
         public static Renderer2DData GetRenderer2DData()
         {
             UniversalRenderPipelineAsset pipelineAsset = UniversalRenderPipeline.asset;
-            Renderer2DData rendererData  = pipelineAsset != null ? pipelineAsset.scriptableRendererData as Renderer2DData : null;
-            if(rendererData == null)
+            Renderer2DData rendererData = pipelineAsset != null ? pipelineAsset.scriptableRendererData as Renderer2DData : null;
+            if (rendererData == null)
             {
                 foreach (Camera camera in Camera.allCameras)
                 {

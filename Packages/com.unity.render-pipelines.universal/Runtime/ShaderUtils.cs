@@ -4,7 +4,8 @@ using UnityEngine.Scripting.APIUpdating;
 
 namespace UnityEngine.Rendering.Universal
 {
-    [MovedFrom("UnityEngine.Rendering.LWRP")] public enum ShaderPathID
+    [MovedFrom("UnityEngine.Rendering.LWRP")]
+    public enum ShaderPathID
     {
         Lit,
         SimpleLit,
@@ -17,9 +18,10 @@ namespace UnityEngine.Rendering.Universal
         Count
     }
 
-    [MovedFrom("UnityEngine.Rendering.LWRP")] public static class ShaderUtils
+    [MovedFrom("UnityEngine.Rendering.LWRP")]
+    public static class ShaderUtils
     {
-        static readonly string[] s_ShaderPaths  =
+        static readonly string[] s_ShaderPaths =
         {
             "Universal Render Pipeline/Lit",
             "Universal Render Pipeline/Simple Lit",

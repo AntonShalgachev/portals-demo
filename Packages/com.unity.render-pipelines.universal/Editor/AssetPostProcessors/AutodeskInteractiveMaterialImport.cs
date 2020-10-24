@@ -25,8 +25,8 @@ namespace UnityEditor.Rendering.Universal
                 Vector4 vectorProperty;
                 TexturePropertyDescription textureProperty;
 
-                bool isMasked = description.TryGetProperty("mask_threshold",out floatProperty);
-                bool isTransparent = description.TryGetProperty("opacity",out floatProperty);
+                bool isMasked = description.TryGetProperty("mask_threshold", out floatProperty);
+                bool isTransparent = description.TryGetProperty("opacity", out floatProperty);
 
                 Shader shader;
                 if (isMasked)

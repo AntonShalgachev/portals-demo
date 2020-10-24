@@ -2,7 +2,7 @@
 
 namespace Gamelogic
 {
-	/**
+    /**
 		@mainpage_Extensions Gamelogic Extensions for Unity API Documentation
 
 		This extension library contains a few light-weight utility classes and
@@ -43,29 +43,29 @@ namespace Gamelogic
 				in the hierarchy.
 	*/
 
-	/// <summary>
-	/// Contains classes useful for debugging.
-	/// </summary>
-	namespace Diagnostics { }
+    /// <summary>
+    /// Contains classes useful for debugging.
+    /// </summary>
+    namespace Diagnostics { }
 
-	/// <summary>
-	/// Contains classes for Colors that run in the Unity editor.
-	/// </summary>
-	namespace Extensions.Editor { }
+    /// <summary>
+    /// Contains classes for Colors that run in the Unity editor.
+    /// </summary>
+    namespace Extensions.Editor { }
 
-	/// <summary>
-	/// Internal API.
-	/// </summary>
-	namespace Extensions.Editor.Internal { }
+    /// <summary>
+    /// Internal API.
+    /// </summary>
+    namespace Extensions.Editor.Internal { }
 
-	/// <summary>
-	/// Internal API.
-	/// </summary>
-	namespace Internal.BinaryHeap { }
+    /// <summary>
+    /// Internal API.
+    /// </summary>
+    namespace Internal.BinaryHeap { }
 
-	/// <summary>
-	/// Internal API.
-	/// </summary>
-	namespace Extensions.Internal.KDTree { }
+    /// <summary>
+    /// Internal API.
+    /// </summary>
+    namespace Extensions.Internal.KDTree { }
 
 }

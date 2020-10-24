@@ -8,14 +8,16 @@ using Lightmapping = UnityEngine.Experimental.GlobalIllumination.Lightmapping;
 
 namespace UnityEngine.Rendering.Universal
 {
-    [MovedFrom("UnityEngine.Rendering.LWRP")] public enum MixedLightingSetup
+    [MovedFrom("UnityEngine.Rendering.LWRP")]
+    public enum MixedLightingSetup
     {
         None,
         ShadowMask,
         Subtractive,
     };
 
-    [MovedFrom("UnityEngine.Rendering.LWRP")] public struct RenderingData
+    [MovedFrom("UnityEngine.Rendering.LWRP")]
+    public struct RenderingData
     {
         public CullingResults cullResults;
         public CameraData cameraData;
@@ -34,7 +36,8 @@ namespace UnityEngine.Rendering.Universal
         internal bool resolveFinalTarget;
     }
 
-    [MovedFrom("UnityEngine.Rendering.LWRP")] public struct LightData
+    [MovedFrom("UnityEngine.Rendering.LWRP")]
+    public struct LightData
     {
         public int mainLightIndex;
         public int additionalLightsCount;
@@ -44,7 +47,8 @@ namespace UnityEngine.Rendering.Universal
         public bool supportsMixedLighting;
     }
 
-    [MovedFrom("UnityEngine.Rendering.LWRP")] public struct CameraData
+    [MovedFrom("UnityEngine.Rendering.LWRP")]
+    public struct CameraData
     {
         public Camera camera;
         public CameraRenderType renderType;
@@ -92,7 +96,8 @@ namespace UnityEngine.Rendering.Universal
         internal ScriptableRenderer renderer;
     }
 
-    [MovedFrom("UnityEngine.Rendering.LWRP")] public struct ShadowData
+    [MovedFrom("UnityEngine.Rendering.LWRP")]
+    public struct ShadowData
     {
         public bool supportsMainLightShadows;
         public bool requiresScreenSpaceShadowResolve;
@@ -307,7 +312,7 @@ namespace UnityEngine.Rendering.Universal
             {
                 bool use32BitHDR = !needsAlpha && RenderingUtils.SupportsRenderTextureFormat(RenderTextureFormat.RGB111110Float);
                 RenderTextureFormat hdrFormat = (use32BitHDR) ? RenderTextureFormat.RGB111110Float : RenderTextureFormat.DefaultHDR;
-            
+
                 desc.colorFormat = isHdrEnabled ? hdrFormat : renderTextureFormatDefault;
                 desc.depthBufferBits = 32;
                 desc.msaaSamples = msaaSamples;

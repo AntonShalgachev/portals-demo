@@ -17,7 +17,7 @@ namespace UnityEditor.Rendering.Universal
     [FormerName("UnityEngine.Rendering.LWRP.LightWeightUnlitSubShader")]
     class UniversalUnlitSubShader : IUnlitSubShader
     {
-#region Passes
+        #region Passes
         ShaderPass m_UnlitPass = new ShaderPass
         {
             // Definition
@@ -119,7 +119,7 @@ namespace UnityEditor.Rendering.Universal
             lightMode = "ShadowCaster",
             passInclude = "Packages/com.unity.render-pipelines.universal/Editor/ShaderGraph/Includes/ShadowCasterPass.hlsl",
             varyingsInclude = "Packages/com.unity.render-pipelines.universal/Editor/ShaderGraph/Includes/Varyings.hlsl",
-            
+
             // Port mask
             vertexPorts = new List<int>()
             {
@@ -136,7 +136,7 @@ namespace UnityEditor.Rendering.Universal
             // Required fields
             requiredAttributes = new List<string>()
             {
-                "Attributes.normalOS", 
+                "Attributes.normalOS",
             },
 
             // Render State Overrides
@@ -164,9 +164,9 @@ namespace UnityEditor.Rendering.Universal
                 s_SmoothnessChannelKeyword,
             },
         };
-#endregion
-        
-#region Keywords
+        #endregion
+
+        #region Keywords
         static KeywordDescriptor s_LightmapKeyword = new KeywordDescriptor()
         {
             displayName = "Lightmap",
@@ -202,7 +202,7 @@ namespace UnityEditor.Rendering.Universal
             definition = KeywordDefinition.ShaderFeature,
             scope = KeywordScope.Global,
         };
-#endregion
+        #endregion
 
         public int GetPreviewPassIndex() { return 0; }
 
@@ -212,8 +212,8 @@ namespace UnityEditor.Rendering.Universal
             var baseActiveFields = activeFields.baseInstance;
 
             // Graph Vertex
-            if(masterNode.IsSlotConnected(UnlitMasterNode.PositionSlotId) || 
-               masterNode.IsSlotConnected(UnlitMasterNode.VertNormalSlotId) || 
+            if (masterNode.IsSlotConnected(UnlitMasterNode.PositionSlotId) ||
+               masterNode.IsSlotConnected(UnlitMasterNode.VertNormalSlotId) ||
                masterNode.IsSlotConnected(UnlitMasterNode.VertTangentSlotId))
             {
                 baseActiveFields.Add("features.graphVertex");
@@ -285,10 +285,10 @@ namespace UnityEditor.Rendering.Universal
                 var tagsBuilder = new ShaderStringBuilder(0);
                 surfaceTags.GetTags(tagsBuilder, "UniversalPipeline");
                 subShader.AddShaderChunk(tagsBuilder.ToString());
-                
+
                 GenerateShaderPass(unlitMasterNode, m_UnlitPass, mode, subShader, sourceAssetDependencyPaths);
                 GenerateShaderPass(unlitMasterNode, m_ShadowCasterPass, mode, subShader, sourceAssetDependencyPaths);
-                GenerateShaderPass(unlitMasterNode, m_DepthOnlyPass, mode, subShader, sourceAssetDependencyPaths);   
+                GenerateShaderPass(unlitMasterNode, m_DepthOnlyPass, mode, subShader, sourceAssetDependencyPaths);
             }
             subShader.Deindent();
             subShader.AddShaderChunk("}", true);

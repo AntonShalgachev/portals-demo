@@ -39,7 +39,7 @@ namespace UnityEditor.Experimental.Rendering.Universal
             m_UseRendererSilhouette = serializedObject.FindProperty("m_UseRendererSilhouette");
             m_SelfShadows = serializedObject.FindProperty("m_SelfShadows");
             m_CastsShadows = serializedObject.FindProperty("m_CastsShadows");
-            m_HasRenderer = serializedObject.FindProperty("m_HasRenderer"); 
+            m_HasRenderer = serializedObject.FindProperty("m_HasRenderer");
 
             m_SortingLayerDropDown = new SortingLayerDropDown();
             m_SortingLayerDropDown.OnEnable(serializedObject, "m_ApplyToSortingLayers");
@@ -82,7 +82,7 @@ namespace UnityEditor.Experimental.Rendering.Universal
 
             using (new EditorGUI.DisabledScope(!m_HasRenderer.boolValue))  // Done to support multiedit
             {
-                EditorGUILayout.PropertyField(m_UseRendererSilhouette, Styles.shadowMode);  
+                EditorGUILayout.PropertyField(m_UseRendererSilhouette, Styles.shadowMode);
             }
 
             EditorGUILayout.PropertyField(m_CastsShadows, Styles.castsShadows);

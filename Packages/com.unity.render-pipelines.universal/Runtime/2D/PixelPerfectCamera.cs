@@ -9,7 +9,8 @@ namespace UnityEngine.Experimental.Rendering.Universal
     [DisallowMultipleComponent]
     [AddComponentMenu("Rendering/2D/Pixel Perfect Camera (Experimental)")]
     [RequireComponent(typeof(Camera))]
-    [MovedFrom("UnityEngine.Experimental.Rendering.LWRP")] public class PixelPerfectCamera : MonoBehaviour, IPixelPerfectCamera
+    [MovedFrom("UnityEngine.Experimental.Rendering.LWRP")]
+    public class PixelPerfectCamera : MonoBehaviour, IPixelPerfectCamera
     {
         /// <summary>
         /// Match this value to to the Pixels Per Unit values of all Sprites within the Scene.
@@ -112,14 +113,14 @@ namespace UnityEngine.Experimental.Rendering.Universal
                 return m_Internal.CorrectCinemachineOrthoSize(targetOrthoSize);
         }
 
-        [SerializeField] int    m_AssetsPPU         = 100;
-        [SerializeField] int    m_RefResolutionX    = 320;
-        [SerializeField] int    m_RefResolutionY    = 180;
-        [SerializeField] bool   m_UpscaleRT;
-        [SerializeField] bool   m_PixelSnapping;
-        [SerializeField] bool   m_CropFrameX;
-        [SerializeField] bool   m_CropFrameY;
-        [SerializeField] bool   m_StretchFill;
+        [SerializeField] int m_AssetsPPU = 100;
+        [SerializeField] int m_RefResolutionX = 320;
+        [SerializeField] int m_RefResolutionY = 180;
+        [SerializeField] bool m_UpscaleRT;
+        [SerializeField] bool m_PixelSnapping;
+        [SerializeField] bool m_CropFrameX;
+        [SerializeField] bool m_CropFrameY;
+        [SerializeField] bool m_StretchFill;
 
         Camera m_Camera;
         PixelPerfectCameraInternal m_Internal;

@@ -43,162 +43,162 @@
 
 namespace Gamelogic.Extensions.Internal.HashFunctions
 {
-	/// <summary>
-	/// An implementation of HashFunction using MurmurHash3. 
-	/// See https://en.wikipedia.org/wiki/MurmurHash .
-	/// </summary>
-	/// <seealso cref="Gamelogic.Extensions.Internal.HashFunctions.HashFunction" />
-	public sealed class MurmurHash : HashFunction
-	{
-		private readonly uint seed; /* Define your own seed here */
+    /// <summary>
+    /// An implementation of HashFunction using MurmurHash3. 
+    /// See https://en.wikipedia.org/wiki/MurmurHash .
+    /// </summary>
+    /// <seealso cref="Gamelogic.Extensions.Internal.HashFunctions.HashFunction" />
+    public sealed class MurmurHash : HashFunction
+    {
+        private readonly uint seed; /* Define your own seed here */
 
-		private const uint c1 = 0xcc9e2d51;
-		private const uint c2 = 0x1b873593;
+        private const uint c1 = 0xcc9e2d51;
+        private const uint c2 = 0x1b873593;
 
-		public MurmurHash(int seed)
-		{
-			this.seed = (uint) seed;
-		}
+        public MurmurHash(int seed)
+        {
+            this.seed = (uint)seed;
+        }
 
-		public uint GetHash(byte[] data)
-		{
-			int curLength = data.Length; // Current position in byte array
-			int length = curLength; // The const length we need to fix tail
-			uint h1 = seed;
-			uint k1 = 0;
+        public uint GetHash(byte[] data)
+        {
+            int curLength = data.Length; // Current position in byte array
+            int length = curLength; // The const length we need to fix tail
+            uint h1 = seed;
+            uint k1 = 0;
 
-			// Body, eat stream a 32-bit int at a time
-			int currentIndex = 0;
-			while (curLength >= 4)
-			{
-				// Get four bytes from the input into an uint
-				k1 = (uint) (data[currentIndex++]
-				             | data[currentIndex++] << 8
-				             | data[currentIndex++] << 16
-				             | data[currentIndex++] << 24);
+            // Body, eat stream a 32-bit int at a time
+            int currentIndex = 0;
+            while (curLength >= 4)
+            {
+                // Get four bytes from the input into an uint
+                k1 = (uint)(data[currentIndex++]
+                             | data[currentIndex++] << 8
+                             | data[currentIndex++] << 16
+                             | data[currentIndex++] << 24);
 
-				// Bitmagic hash
-				k1 *= c1;
-				k1 = rotl32(k1, 15);
-				k1 *= c2;
+                // Bitmagic hash
+                k1 *= c1;
+                k1 = rotl32(k1, 15);
+                k1 *= c2;
 
-				h1 ^= k1;
-				h1 = rotl32(h1, 13);
-				h1 = h1*5 + 0xe6546b64;
-				curLength -= 4;
-			}
+                h1 ^= k1;
+                h1 = rotl32(h1, 13);
+                h1 = h1 * 5 + 0xe6546b64;
+                curLength -= 4;
+            }
 
-			// Tail, the reminder bytes that did not make it to a full int.
-			// (This switch is slightly more ugly than the C++ implementation 
-			// because we can't fall through.)
-			switch (curLength)
-			{
-				case 3:
-					k1 = (uint) (data[currentIndex++]
-					             | data[currentIndex++] << 8
-					             | data[currentIndex++] << 16);
-					k1 *= c1;
-					k1 = rotl32(k1, 15);
-					k1 *= c2;
-					h1 ^= k1;
-					break;
-				case 2:
-					k1 = (uint) (data[currentIndex++]
-					             | data[currentIndex++] << 8);
-					k1 *= c1;
-					k1 = rotl32(k1, 15);
-					k1 *= c2;
-					h1 ^= k1;
-					break;
-				case 1:
-					k1 = (uint) (data[currentIndex++]);
-					k1 *= c1;
-					k1 = rotl32(k1, 15);
-					k1 *= c2;
-					h1 ^= k1;
-					break;
-			}
-			;
+            // Tail, the reminder bytes that did not make it to a full int.
+            // (This switch is slightly more ugly than the C++ implementation 
+            // because we can't fall through.)
+            switch (curLength)
+            {
+                case 3:
+                    k1 = (uint)(data[currentIndex++]
+                                 | data[currentIndex++] << 8
+                                 | data[currentIndex++] << 16);
+                    k1 *= c1;
+                    k1 = rotl32(k1, 15);
+                    k1 *= c2;
+                    h1 ^= k1;
+                    break;
+                case 2:
+                    k1 = (uint)(data[currentIndex++]
+                                 | data[currentIndex++] << 8);
+                    k1 *= c1;
+                    k1 = rotl32(k1, 15);
+                    k1 *= c2;
+                    h1 ^= k1;
+                    break;
+                case 1:
+                    k1 = (uint)(data[currentIndex++]);
+                    k1 *= c1;
+                    k1 = rotl32(k1, 15);
+                    k1 *= c2;
+                    h1 ^= k1;
+                    break;
+            }
+            ;
 
-			// Finalization, magic chants to wrap it all up
-			h1 ^= (uint) length;
-			h1 = fmix(h1);
+            // Finalization, magic chants to wrap it all up
+            h1 ^= (uint)length;
+            h1 = fmix(h1);
 
-			return h1;
-		}
+            return h1;
+        }
 
-		// Overload optimized for int input.
-		public override uint GetHash(params int[] data)
-		{
-			uint h1 = seed;
-			uint k1 = 0;
+        // Overload optimized for int input.
+        public override uint GetHash(params int[] data)
+        {
+            uint h1 = seed;
+            uint k1 = 0;
 
-			// Body, eat stream a 32-bit int at a time
-			int length = data.Length;
-			for (int i = 0; i < length; i++)
-			{
-				unchecked
-				{
-					k1 = (uint) data[i];
-				}
+            // Body, eat stream a 32-bit int at a time
+            int length = data.Length;
+            for (int i = 0; i < length; i++)
+            {
+                unchecked
+                {
+                    k1 = (uint)data[i];
+                }
 
-				// Bitmagic hash
-				k1 *= c1;
-				k1 = rotl32(k1, 15);
-				k1 *= c2;
+                // Bitmagic hash
+                k1 *= c1;
+                k1 = rotl32(k1, 15);
+                k1 *= c2;
 
-				h1 ^= k1;
-				h1 = rotl32(h1, 13);
-				h1 = h1*5 + 0xe6546b64;
-			}
+                h1 ^= k1;
+                h1 = rotl32(h1, 13);
+                h1 = h1 * 5 + 0xe6546b64;
+            }
 
-			// Finalization, magic chants to wrap it all up
-			h1 ^= (uint) (length*4);
-			h1 = fmix(h1);
+            // Finalization, magic chants to wrap it all up
+            h1 ^= (uint)(length * 4);
+            h1 = fmix(h1);
 
-			return h1;
-		}
+            return h1;
+        }
 
-		// Overload optimized for single int input.
-		public override uint GetHash(int data)
-		{
-			uint h1 = seed;
-			uint k1 = 0;
+        // Overload optimized for single int input.
+        public override uint GetHash(int data)
+        {
+            uint h1 = seed;
+            uint k1 = 0;
 
-			unchecked
-			{
-				k1 = (uint) data;
-			}
+            unchecked
+            {
+                k1 = (uint)data;
+            }
 
-			// Bitmagic hash
-			k1 *= c1;
-			k1 = rotl32(k1, 15);
-			k1 *= c2;
+            // Bitmagic hash
+            k1 *= c1;
+            k1 = rotl32(k1, 15);
+            k1 *= c2;
 
-			h1 ^= k1;
-			h1 = rotl32(h1, 13);
-			h1 = h1*5 + 0xe6546b64;
+            h1 ^= k1;
+            h1 = rotl32(h1, 13);
+            h1 = h1 * 5 + 0xe6546b64;
 
-			// Finalization, magic chants to wrap it all up
-			h1 ^= 4U;
-			h1 = fmix(h1);
+            // Finalization, magic chants to wrap it all up
+            h1 ^= 4U;
+            h1 = fmix(h1);
 
-			return h1;
-		}
+            return h1;
+        }
 
-		private static uint rotl32(uint x, byte r)
-		{
-			return (x << r) | (x >> (32 - r));
-		}
+        private static uint rotl32(uint x, byte r)
+        {
+            return (x << r) | (x >> (32 - r));
+        }
 
-		private static uint fmix(uint h)
-		{
-			h ^= h >> 16;
-			h *= 0x85ebca6b;
-			h ^= h >> 13;
-			h *= 0xc2b2ae35;
-			h ^= h >> 16;
-			return h;
-		}
-	};
+        private static uint fmix(uint h)
+        {
+            h ^= h >> 16;
+            h *= 0x85ebca6b;
+            h ^= h >> 13;
+            h *= 0xc2b2ae35;
+            h ^= h >> 16;
+            return h;
+        }
+    };
 }

@@ -11,7 +11,8 @@ namespace UnityEngine.Rendering.Universal
     /// Class <c>ScriptableRendererData</c> contains resources for a <c>ScriptableRenderer</c>.
     /// <seealso cref="ScriptableRenderer"/>
     /// </summary>
-    [MovedFrom("UnityEngine.Rendering.LWRP")] public abstract class ScriptableRendererData : ScriptableObject
+    [MovedFrom("UnityEngine.Rendering.LWRP")]
+    public abstract class ScriptableRendererData : ScriptableObject
     {
         internal bool isInvalidated { get; set; }
 
@@ -94,7 +95,7 @@ namespace UnityEngine.Rendering.Universal
             // Collect assets that are connected to the list
             for (var i = 0; i < m_RendererFeatures?.Count; i++)
             {
-                if(!m_RendererFeatures[i]) continue;
+                if (!m_RendererFeatures[i]) continue;
                 if (AssetDatabase.TryGetGUIDAndLocalFileIdentifier(m_RendererFeatures[i], out var guid, out long localId))
                 {
                     linkedIds.Add(localId);
@@ -122,7 +123,7 @@ namespace UnityEngine.Rendering.Universal
                 }
                 debugOutput += m_RendererFeatures[i] != null ? $"-{i}:Linked\n" : $"-{i}:Missing\n";
             }
-            if(UniversalRenderPipeline.asset.debugLevel != PipelineDebugLevel.Disabled)
+            if (UniversalRenderPipeline.asset.debugLevel != PipelineDebugLevel.Disabled)
                 Debug.LogWarning(debugOutput);
 
             UpdateMap();
@@ -157,7 +158,7 @@ namespace UnityEngine.Rendering.Universal
 
             for (var i = 0; i < rendererFeatures.Count; i++)
             {
-                if(m_RendererFeatures[i] == null) continue;
+                if (m_RendererFeatures[i] == null) continue;
                 if (!AssetDatabase.TryGetGUIDAndLocalFileIdentifier(m_RendererFeatures[i], out var guid,
                     out long localId)) continue;
                 m_RendererFeatureMap[i] = localId;

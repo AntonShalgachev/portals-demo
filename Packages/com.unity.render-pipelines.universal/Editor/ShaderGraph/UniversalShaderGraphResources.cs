@@ -24,25 +24,35 @@ namespace UnityEditor.Rendering.Universal
         {
             [Semantic("POSITION")]
             Vector3 positionOS;
-            [Semantic("NORMAL")][Optional]
+            [Semantic("NORMAL")]
+            [Optional]
             Vector3 normalOS;
-            [Semantic("TANGENT")][Optional]
+            [Semantic("TANGENT")]
+            [Optional]
             Vector4 tangentOS;
-            [Semantic("TEXCOORD0")][Optional]
+            [Semantic("TEXCOORD0")]
+            [Optional]
             Vector4 uv0;
-            [Semantic("TEXCOORD1")][Optional]
+            [Semantic("TEXCOORD1")]
+            [Optional]
             Vector4 uv1;
-            [Semantic("TEXCOORD2")][Optional]
+            [Semantic("TEXCOORD2")]
+            [Optional]
             Vector4 uv2;
-            [Semantic("TEXCOORD3")][Optional]
+            [Semantic("TEXCOORD3")]
+            [Optional]
             Vector4 uv3;
-            [Semantic("COLOR")][Optional]
+            [Semantic("COLOR")]
+            [Optional]
             Vector4 color;
-            [Semantic("BLENDWEIGHTS")][Optional]
+            [Semantic("BLENDWEIGHTS")]
+            [Optional]
             Vector4 weights;
-            [Semantic("BLENDINDICES")][Optional]
+            [Semantic("BLENDINDICES")]
+            [Optional]
             UInt32_4 indices;
-            [Semantic("INSTANCEID_SEMANTIC")] [PreprocessorIf("UNITY_ANY_INSTANCING_ENABLED")]
+            [Semantic("INSTANCEID_SEMANTIC")]
+            [PreprocessorIf("UNITY_ANY_INSTANCING_ENABLED")]
             uint instanceID;
         };
 
@@ -71,15 +81,18 @@ namespace UnityEditor.Rendering.Universal
             Vector3 viewDirectionWS;
             [Optional]
             Vector4 screenPosition;
-            [Optional][PreprocessorIf("defined(LIGHTMAP_ON)")]
+            [Optional]
+            [PreprocessorIf("defined(LIGHTMAP_ON)")]
             Vector2 lightmapUV;
-            [Optional][PreprocessorIf("!defined(LIGHTMAP_ON)")]
+            [Optional]
+            [PreprocessorIf("!defined(LIGHTMAP_ON)")]
             Vector3 sh;
             [Optional]
             Vector4 fogFactorAndVertexLight;
             [Optional]
             Vector4 shadowCoord;
-            [Semantic("CUSTOM_INSTANCE_ID")] [PreprocessorIf("UNITY_ANY_INSTANCING_ENABLED")]
+            [Semantic("CUSTOM_INSTANCE_ID")]
+            [PreprocessorIf("UNITY_ANY_INSTANCING_ENABLED")]
             uint instanceID;
             [Semantic("SV_RenderTargetArrayIndex")]
             [SystemGenerated]
@@ -135,7 +148,7 @@ namespace UnityEditor.Rendering.Universal
             [Optional] Vector4 BoneWeights;
             [Optional] UInt32_4 BoneIndices;
         };
-        
+
         internal struct SurfaceDescriptionInputs
         {
             [Optional] Vector3 ObjectSpaceNormal;

@@ -6,80 +6,80 @@ using UnityEngine;
 
 namespace Gamelogic.Extensions.Algorithms
 {
-	/// <summary>
-	/// A response curve with outputs of float.
-	/// </summary>
-	[Version(1, 2)]
-	public class ResponseCurveFloat : ResponseCurveBase<float>
-	{
-		#region Static Methods
+    /// <summary>
+    /// A response curve with outputs of float.
+    /// </summary>
+    [Version(1, 2)]
+    public class ResponseCurveFloat : ResponseCurveBase<float>
+    {
+        #region Static Methods
 
-		public static ResponseCurveFloat GetLerp(float x0, float x1, float y0, float y1)
-		{
-			var input = new List<float>{x0, x1};
-			var output = new List<float>{y0, y1};
-			
-			var responseCurve = new ResponseCurveFloat(input, output);
+        public static ResponseCurveFloat GetLerp(float x0, float x1, float y0, float y1)
+        {
+            var input = new List<float> { x0, x1 };
+            var output = new List<float> { y0, y1 };
 
-			return responseCurve;
-		}
+            var responseCurve = new ResponseCurveFloat(input, output);
 
-		#endregion
+            return responseCurve;
+        }
 
-		#region Constructors
+        #endregion
 
-		public ResponseCurveFloat(IEnumerable<float> inputSamples, IEnumerable<float> outputSamples)
-			: base(inputSamples, outputSamples)
-		{}
+        #region Constructors
 
-		#endregion
+        public ResponseCurveFloat(IEnumerable<float> inputSamples, IEnumerable<float> outputSamples)
+            : base(inputSamples, outputSamples)
+        { }
 
-		#region Protected Methods
+        #endregion
 
-		protected override float Lerp(float outputSampleMin, float outputSampleMax, float t)
-		{
-			return outputSampleMin + (outputSampleMax - outputSampleMin) * Mathf.Clamp01(t);
-		}
+        #region Protected Methods
 
-		#endregion
-	}
+        protected override float Lerp(float outputSampleMin, float outputSampleMax, float t)
+        {
+            return outputSampleMin + (outputSampleMax - outputSampleMin) * Mathf.Clamp01(t);
+        }
 
-	/// <summary>
-	/// A response curve with outputs of float.
-	/// </summary>
-	[Version(1, 2)]
-	public class ResponseCurveInt : ResponseCurveBase<int>
-	{
-		#region Static Methods
+        #endregion
+    }
 
-		public static ResponseCurveInt GetLerp(float x0, float x1, int y0, int y1)
-		{
-			var input = new List<float> { x0, x1 };
-			var output = new List<int> { y0, y1 };
+    /// <summary>
+    /// A response curve with outputs of float.
+    /// </summary>
+    [Version(1, 2)]
+    public class ResponseCurveInt : ResponseCurveBase<int>
+    {
+        #region Static Methods
 
-			var responseCurve = new ResponseCurveInt(input, output);
+        public static ResponseCurveInt GetLerp(float x0, float x1, int y0, int y1)
+        {
+            var input = new List<float> { x0, x1 };
+            var output = new List<int> { y0, y1 };
 
-			return responseCurve;
-		}
+            var responseCurve = new ResponseCurveInt(input, output);
 
-		#endregion
+            return responseCurve;
+        }
 
-		#region Constructors
+        #endregion
 
-		public ResponseCurveInt(IEnumerable<float> inputSamples, IEnumerable<int> outputSamples)
-			: base(inputSamples, outputSamples)
-		{ }
+        #region Constructors
 
-		#endregion
+        public ResponseCurveInt(IEnumerable<float> inputSamples, IEnumerable<int> outputSamples)
+            : base(inputSamples, outputSamples)
+        { }
 
-		#region Protected Methods
+        #endregion
 
-		protected override int Lerp(int outputSampleMin, int outputSampleMax, float t)
-		{
-			return Mathf.RoundToInt(outputSampleMin + (outputSampleMax - outputSampleMin) * Mathf.Clamp01(t));
-		}
+        #region Protected Methods
 
-		#endregion
-	}
+        protected override int Lerp(int outputSampleMin, int outputSampleMax, float t)
+        {
+            return Mathf.RoundToInt(outputSampleMin + (outputSampleMax - outputSampleMin) * Mathf.Clamp01(t));
+        }
+
+        #endregion
+    }
 
 }

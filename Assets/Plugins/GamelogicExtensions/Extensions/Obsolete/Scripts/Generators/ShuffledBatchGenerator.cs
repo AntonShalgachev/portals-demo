@@ -8,99 +8,99 @@ using Gamelogic.Extensions.Internal;
 
 namespace Gamelogic.Extensions.Obsolete
 {
-	/// <summary>
-	/// Returns elements from a batch generator, but shuffles each batch before doing so.
-	/// </summary>
-	/// <typeparam name="T"></typeparam>
-	[Version(1, 2)]
-	[Obsolete("Use the static functions in Gamelogic.Generators.Generator instead.")]
-	public class ShuffledBatchGenerator<T> : IGenerator<T>
-	{
-		#region Private Fields
+    /// <summary>
+    /// Returns elements from a batch generator, but shuffles each batch before doing so.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    [Version(1, 2)]
+    [Obsolete("Use the static functions in Gamelogic.Generators.Generator instead.")]
+    public class ShuffledBatchGenerator<T> : IGenerator<T>
+    {
+        #region Private Fields
 
-		private readonly Queue<T> currentBatch;
-		private readonly BatchGenerator<T> batchGenerator;
-		private readonly IRandom random;
+        private readonly Queue<T> currentBatch;
+        private readonly BatchGenerator<T> batchGenerator;
+        private readonly IRandom random;
 
-		#endregion
+        #endregion
 
-		#region Constructors
+        #region Constructors
 
-		/// <summary>
-		/// Constructs a new ShuffledBatchGenerator that uses the given 
-		/// BatchGenerator.
-		/// </summary>
-		/// <param name="batchGenerator"></param>
-		public ShuffledBatchGenerator(BatchGenerator<T> batchGenerator)
-		{
-		}
+        /// <summary>
+        /// Constructs a new ShuffledBatchGenerator that uses the given 
+        /// BatchGenerator.
+        /// </summary>
+        /// <param name="batchGenerator"></param>
+        public ShuffledBatchGenerator(BatchGenerator<T> batchGenerator)
+        {
+        }
 
-		/// <summary>
-		/// Constructs a new ShuffledBatchGenerator that uses the given 
-		/// BatchGenerator.
-		/// </summary>
-		/// <param name="batchGenerator"></param>
-		/// <param name="random">The random generator to use.</param>
-		public ShuffledBatchGenerator(BatchGenerator<T> batchGenerator, IRandom random)
-		{
-			this.batchGenerator = batchGenerator;
-			this.random = random;
-			currentBatch = new Queue<T>();
+        /// <summary>
+        /// Constructs a new ShuffledBatchGenerator that uses the given 
+        /// BatchGenerator.
+        /// </summary>
+        /// <param name="batchGenerator"></param>
+        /// <param name="random">The random generator to use.</param>
+        public ShuffledBatchGenerator(BatchGenerator<T> batchGenerator, IRandom random)
+        {
+            this.batchGenerator = batchGenerator;
+            this.random = random;
+            currentBatch = new Queue<T>();
 
-			FillCurrentBatch();
-		}
+            FillCurrentBatch();
+        }
 
-		/// <summary>
-		/// Constructs a new ShuffledBatchGenerator that uses the given 
-		/// batch template to make a new batch generator to use.
-		/// </summary>
-		public ShuffledBatchGenerator(IEnumerable<T> batchTemplate):
-			this(new BatchGenerator<T>(batchTemplate))
-		{}
+        /// <summary>
+        /// Constructs a new ShuffledBatchGenerator that uses the given 
+        /// batch template to make a new batch generator to use.
+        /// </summary>
+        public ShuffledBatchGenerator(IEnumerable<T> batchTemplate) :
+            this(new BatchGenerator<T>(batchTemplate))
+        { }
 
-		/// <summary>
-		/// Constructs a new ShuffledBatchGenerator that uses the given 
-		/// batch template to make a new batch generator to use.
-		/// </summary>
-		public ShuffledBatchGenerator(IEnumerable<T> batchTemplate, IRandom random) :
-			this(new BatchGenerator<T>(batchTemplate), random)
-		{ }
+        /// <summary>
+        /// Constructs a new ShuffledBatchGenerator that uses the given 
+        /// batch template to make a new batch generator to use.
+        /// </summary>
+        public ShuffledBatchGenerator(IEnumerable<T> batchTemplate, IRandom random) :
+            this(new BatchGenerator<T>(batchTemplate), random)
+        { }
 
-		#endregion
+        #endregion
 
-		#region Public Methods
+        #region Public Methods
 
-		public T Next()
-		{
-			if (!currentBatch.Any())
-			{
-				FillCurrentBatch();
-			}
+        public T Next()
+        {
+            if (!currentBatch.Any())
+            {
+                FillCurrentBatch();
+            }
 
-			return currentBatch.Dequeue();
-		}
+            return currentBatch.Dequeue();
+        }
 
-		#endregion
+        #endregion
 
-		#region Private Methods
+        #region Private Methods
 
-		private void FillCurrentBatch()
-		{
-			var batch = batchGenerator.Next().ToList();
-			
-			batch.Shuffle(random);
+        private void FillCurrentBatch()
+        {
+            var batch = batchGenerator.Next().ToList();
 
-			foreach (var obj in batch)
-			{
-				currentBatch.Enqueue(obj);
-			}
-		}
+            batch.Shuffle(random);
 
-		object IGenerator.Next()
-		{
-			return Next();
-		}
+            foreach (var obj in batch)
+            {
+                currentBatch.Enqueue(obj);
+            }
+        }
 
-		#endregion
-	}
+        object IGenerator.Next()
+        {
+            return Next();
+        }
+
+        #endregion
+    }
 }

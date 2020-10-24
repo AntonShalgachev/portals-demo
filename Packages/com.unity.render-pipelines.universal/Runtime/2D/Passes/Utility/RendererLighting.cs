@@ -36,7 +36,7 @@ namespace UnityEngine.Experimental.Rendering.Universal
         };
 
         static Renderer2DData s_Renderer2DData;
-        static RenderingData  s_RenderingData;
+        static RenderingData s_RenderingData;
         static Light2DBlendStyle[] s_BlendStyles;
         static RenderTargetHandle[] s_LightRenderTargets;
         static bool[] s_LightRenderTargetsDirty;
@@ -238,7 +238,7 @@ namespace UnityEngine.Experimental.Rendering.Universal
 
                                 if (shadowCaster != null && shadowMaterial != null && shadowCaster.IsShadowedLayer(layerToRender))
                                 {
-                                    if (shadowCaster.useRendererSilhouette) 
+                                    if (shadowCaster.useRendererSilhouette)
                                     {
                                         Renderer renderer = shadowCaster.GetComponent<Renderer>();
                                         if (renderer != null)
@@ -271,7 +271,7 @@ namespace UnityEngine.Experimental.Rendering.Universal
         static private bool RenderLightSet(Camera camera, int blendStyleIndex, CommandBuffer cmdBuffer, int layerToRender, RenderTargetIdentifier renderTexture, List<Light2D> lights)
         {
             bool renderedAnyLight = false;
-            
+
             foreach (var light in lights)
             {
                 if (light != null && light.lightType != Light2D.LightType.Global && light.blendStyleIndex == blendStyleIndex && light.IsLitLayer(layerToRender) && light.IsLightVisible(camera))
@@ -296,7 +296,7 @@ namespace UnityEngine.Experimental.Rendering.Universal
                             cmdBuffer.SetGlobalColor("_LightColor", light.intensity * light.color);
                             cmdBuffer.SetGlobalFloat("_VolumeOpacity", light.volumeOpacity);
 
-                            if(light.useNormalMap || light.lightType == Light2D.LightType.Point)
+                            if (light.useNormalMap || light.lightType == Light2D.LightType.Point)
                                 RendererLighting.SetPointLightShaderGlobals(cmdBuffer, light);
 
                             // Light code could be combined...
@@ -304,7 +304,7 @@ namespace UnityEngine.Experimental.Rendering.Universal
                             {
                                 cmdBuffer.DrawMesh(lightMesh, light.transform.localToWorldMatrix, lightMaterial);
                             }
-                            else if(light.lightType == Light2D.LightType.Point)
+                            else if (light.lightType == Light2D.LightType.Point)
                             {
                                 Vector3 scale = new Vector3(light.pointLightOuterRadius, light.pointLightOuterRadius, light.pointLightOuterRadius);
                                 Matrix4x4 matrix = Matrix4x4.TRS(light.transform.position, Quaternion.identity, scale);
@@ -494,7 +494,7 @@ namespace UnityEngine.Experimental.Rendering.Universal
         {
             for (int i = 0; i < s_BlendStyles.Length; ++i)
             {
-                if ((blendStylesUsed & (uint)(1<<i)) == 0)
+                if ((blendStylesUsed & (uint)(1 << i)) == 0)
                     continue;
 
                 string sampleName = s_BlendStyles[i].name;
@@ -543,7 +543,7 @@ namespace UnityEngine.Experimental.Rendering.Universal
                     cmdBuffer,
                     layerToRender,
                     renderTarget,
-                    Light2D.GetLightsByBlendStyle(i)                  
+                    Light2D.GetLightsByBlendStyle(i)
                 );
 
                 cmdBuffer.EndSample(sampleName);
@@ -624,7 +624,7 @@ namespace UnityEngine.Experimental.Rendering.Universal
         static Material GetShadowMaterial(int index)
         {
             int shadowMaterialIndex = index % 255;
-            if(s_ShadowMaterials[shadowMaterialIndex] == null)
+            if (s_ShadowMaterials[shadowMaterialIndex] == null)
             {
                 s_ShadowMaterials[shadowMaterialIndex] = CoreUtils.CreateEngineMaterial(s_Renderer2DData.shadowGroupShader);
                 s_ShadowMaterials[shadowMaterialIndex].SetFloat("_ShadowStencilGroup", index);

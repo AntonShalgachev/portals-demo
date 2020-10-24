@@ -21,7 +21,7 @@ namespace UnityEditor.Rendering.Universal
         {
             return k_Order;
         }
-        
+
         static bool Is3DsMaxPhysicalMaterial(MaterialDescription description)
         {
             float classIdA;
@@ -144,7 +144,7 @@ namespace UnityEditor.Rendering.Universal
                 material.SetTexture(outPropName + "_MAP", textureProperty.texture);
                 material.SetColor(outPropName, Color.white);
             }
-            else if(description.TryGetProperty(inPropName, out Vector4 color))
+            else if (description.TryGetProperty(inPropName, out Vector4 color))
             {
                 material.SetColor(outPropName, color);
             }
@@ -158,7 +158,7 @@ namespace UnityEditor.Rendering.Universal
                 material.SetTexture(outPropName + "_MAP", textureProperty.texture);
                 material.SetFloat(outPropName, 1.0f);
             }
-            else if(description.TryGetProperty(inPropName, out float floatProperty))
+            else if (description.TryGetProperty(inPropName, out float floatProperty))
             {
                 material.SetFloat(outPropName, floatProperty);
             }

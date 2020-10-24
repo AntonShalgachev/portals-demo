@@ -8,7 +8,8 @@ namespace UnityEngine.Rendering.Universal
     /// <seealso cref="ScriptableRenderer"/>
     /// <seealso cref="ScriptableRenderPass"/>
     [ExcludeFromPreset]
-    [MovedFrom("UnityEngine.Rendering.LWRP")] public abstract class ScriptableRendererFeature : ScriptableObject
+    [MovedFrom("UnityEngine.Rendering.LWRP")]
+    public abstract class ScriptableRendererFeature : ScriptableObject
     {
         [SerializeField, HideInInspector] private bool m_Active = true;
         /// <summary>

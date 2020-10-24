@@ -78,7 +78,7 @@ namespace UnityEngine.Experimental.Rendering.Universal
                 sides = 4;
             }
 
-            if(sides == 4)
+            if (sides == 4)
             {
                 angleOffset = Mathf.PI / 4.0f + Mathf.Deg2Rad * angle;
             }
@@ -99,7 +99,7 @@ namespace UnityEngine.Experimental.Rendering.Universal
             vertices[centerIndex] = Vector3.zero;
             colors[centerIndex] = color;
             float radiansPerSide = 2 * Mathf.PI / sides;
-            
+
             for (int i = 0; i < sides; i++)
             {
                 float endAngle = (i + 1) * radiansPerSide;
@@ -162,7 +162,7 @@ namespace UnityEngine.Experimental.Rendering.Universal
                 {
                     Vector3 pos = new Vector3(vertices2d[vertexIdx].x, vertices2d[vertexIdx].y) - center;
                     vertices3d[vertexIdx] = scale * pos;
-                    colors[vertexIdx] = new Color(0,0,0,1);  // This will not have any extrusion available. Alpha will be 1 * the pixel alpha
+                    colors[vertexIdx] = new Color(0, 0, 0, 1);  // This will not have any extrusion available. Alpha will be 1 * the pixel alpha
                 }
 
                 for (int triangleIdx = 0; triangleIdx < triangles2d.Length; triangleIdx++)
@@ -234,7 +234,7 @@ namespace UnityEngine.Experimental.Rendering.Universal
         public static Bounds GenerateShapeMesh(ref Mesh mesh, Vector3[] shapePath, float falloffDistance)
         {
             Bounds localBounds;
-            Color meshInteriorColor = new Color(0,0,0,1);
+            Color meshInteriorColor = new Color(0, 0, 0, 1);
             List<Vector3> finalVertices = new List<Vector3>();
             List<int> finalIndices = new List<int>();
             List<Color> finalColors = new List<Color>();
@@ -275,17 +275,17 @@ namespace UnityEngine.Experimental.Rendering.Universal
                 Vector3 point = shapePath[i];
 
                 // We are making degenerate triangles which will be extruded by the shader
-                finalVertices.Add(point);        
-                finalVertices.Add(point);        
+                finalVertices.Add(point);
+                finalVertices.Add(point);
 
-                finalIndices.Add(aIndex);  
-                finalIndices.Add(bIndex);  
-                finalIndices.Add(dIndex);  
+                finalIndices.Add(aIndex);
+                finalIndices.Add(bIndex);
+                finalIndices.Add(dIndex);
 
                 finalIndices.Add(dIndex);
                 finalIndices.Add(cIndex);
                 finalIndices.Add(aIndex);
-                
+
                 Color aColor = new Color(0, 0, 0, 1);
                 Color bColor = new Color(extrusionDirs[i].x, extrusionDirs[i].y, 0, 0);
 
@@ -330,7 +330,7 @@ namespace UnityEngine.Experimental.Rendering.Universal
             CompositeShadowCaster2D retGroup = null;
 
             Transform transformToCheck = shadowCaster.transform.parent;
-            while(transformToCheck != null)
+            while (transformToCheck != null)
             {
                 CompositeShadowCaster2D currentGroup = transformToCheck.GetComponent<CompositeShadowCaster2D>();
                 if (currentGroup != null)
@@ -362,7 +362,7 @@ namespace UnityEngine.Experimental.Rendering.Universal
 
         public static void RemoveFromShadowCasterGroup(ShadowCaster2D shadowCaster, ShadowCasterGroup2D shadowCasterGroup)
         {
-            if(shadowCasterGroup != null)
+            if (shadowCasterGroup != null)
                 shadowCasterGroup.UnregisterShadowCaster2D(shadowCaster);
         }
 

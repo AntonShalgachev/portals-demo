@@ -76,7 +76,7 @@ namespace UnityEngine.Rendering.Universal.Internal
                     cmd.EnableShaderKeyword(ShaderKeywordStrings.DepthMsaa2);
                     cmd.DisableShaderKeyword(ShaderKeywordStrings.DepthMsaa4);
                 }
-                
+
                 Blit(cmd, depthSurface, copyDepthSurface, m_CopyDepthMaterial);
             }
             else

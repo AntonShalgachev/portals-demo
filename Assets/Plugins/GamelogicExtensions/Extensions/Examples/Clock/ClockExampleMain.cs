@@ -3,47 +3,47 @@ using UnityEngine.UI;
 
 namespace Gamelogic.Extensions.Examples
 {
-	public class ClockExampleMain : GLMonoBehaviour
-	{
-		public Text clockCountText;
-		public Text message;
-		public Button pauseButton;
+    public class ClockExampleMain : GLMonoBehaviour
+    {
+        public Text clockCountText;
+        public Text message;
+        public Button pauseButton;
 
-		private Clock clock;
+        private Clock clock;
 
-		public void Start()
-		{
-			clock = new Clock();
+        public void Start()
+        {
+            clock = new Clock();
 
-			clock.OnClockExpired += () => { message.text = "Clock Expired"; };
-			clock.OnSecondsChanged += () => { clockCountText.text = clock.TimeInSeconds.ToString(); };
+            clock.OnClockExpired += () => { message.text = "Clock Expired"; };
+            clock.OnSecondsChanged += () => { clockCountText.text = clock.TimeInSeconds.ToString(); };
 
-			TogglePause();
-		}
+            TogglePause();
+        }
 
-		public void Update()
-		{
-			clock.Update(Time.deltaTime);
-		}
+        public void Update()
+        {
+            clock.Update(Time.deltaTime);
+        }
 
-		public void ResetClock()
-		{
-			clock.Reset(10);
-			message.text = "";
-		}
+        public void ResetClock()
+        {
+            clock.Reset(10);
+            message.text = "";
+        }
 
-		public void TogglePause()
-		{
-			if(clock.IsPaused)
-			{
-				clock.Unpause();
-				pauseButton.GetComponentInChildren<Text>().text = "Pause";
-			}
-			else
-			{
-				clock.Pause();
-				pauseButton.GetComponentInChildren<Text>().text = "Unpause";
-			}
-		}
-	}
+        public void TogglePause()
+        {
+            if (clock.IsPaused)
+            {
+                clock.Unpause();
+                pauseButton.GetComponentInChildren<Text>().text = "Pause";
+            }
+            else
+            {
+                clock.Pause();
+                pauseButton.GetComponentInChildren<Text>().text = "Unpause";
+            }
+        }
+    }
 }

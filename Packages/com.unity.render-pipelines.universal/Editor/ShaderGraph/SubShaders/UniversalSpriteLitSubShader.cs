@@ -13,7 +13,7 @@ namespace UnityEditor.Experimental.Rendering.Universal
     [FormerName("UnityEditor.Experimental.Rendering.LWRP.LightWeightSpriteLitSubShader")]
     class UniversalSpriteLitSubShader : ISpriteLitSubShader
     {
-#region Passes
+        #region Passes
         ShaderPass m_LitPass = new ShaderPass
         {
             // Definition
@@ -44,7 +44,7 @@ namespace UnityEditor.Experimental.Rendering.Universal
                 "Varyings.texCoord0",
                 "Varyings.screenPosition",
             },
-            
+
             // Pass setup
             includes = new List<string>()
             {
@@ -146,7 +146,7 @@ namespace UnityEditor.Experimental.Rendering.Universal
                 "Varyings.color",
                 "Varyings.texCoord0",
             },
-            
+
             // Pass setup
             includes = new List<string>()
             {
@@ -166,9 +166,9 @@ namespace UnityEditor.Experimental.Rendering.Universal
                 s_ETCExternalAlphaKeyword,
             },
         };
-#endregion
+        #endregion
 
-#region Keywords
+        #region Keywords
         static KeywordDescriptor s_ETCExternalAlphaKeyword = new KeywordDescriptor()
         {
             displayName = "ETC External Alpha",
@@ -213,7 +213,7 @@ namespace UnityEditor.Experimental.Rendering.Universal
             definition = KeywordDefinition.MultiCompile,
             scope = KeywordScope.Global,
         };
-#endregion
+        #endregion
 
         public int GetPreviewPassIndex() { return 0; }
 
@@ -223,8 +223,8 @@ namespace UnityEditor.Experimental.Rendering.Universal
             var baseActiveFields = activeFields.baseInstance;
 
             // Graph Vertex
-            if(masterNode.IsSlotConnected(SpriteLitMasterNode.PositionSlotId) || 
-               masterNode.IsSlotConnected(SpriteLitMasterNode.VertNormalSlotId) || 
+            if (masterNode.IsSlotConnected(SpriteLitMasterNode.PositionSlotId) ||
+               masterNode.IsSlotConnected(SpriteLitMasterNode.VertNormalSlotId) ||
                masterNode.IsSlotConnected(SpriteLitMasterNode.VertTangentSlotId))
             {
                 baseActiveFields.Add("features.graphVertex");
@@ -287,6 +287,6 @@ namespace UnityEditor.Experimental.Rendering.Universal
             return renderPipelineAsset is UniversalRenderPipelineAsset;
         }
 
-        public UniversalSpriteLitSubShader () { }
+        public UniversalSpriteLitSubShader() { }
     }
 }

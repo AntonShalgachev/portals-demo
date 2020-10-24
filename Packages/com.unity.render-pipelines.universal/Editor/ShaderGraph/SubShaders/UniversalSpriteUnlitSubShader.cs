@@ -13,7 +13,7 @@ namespace UnityEditor.Experimental.Rendering.Universal
     [FormerName("UnityEditor.Experimental.Rendering.LWRP.LightWeightSpriteUnlitSubShader")]
     class UniversalSpriteUnlitSubShader : ISpriteUnlitSubShader
     {
-#region Passes
+        #region Passes
         ShaderPass m_UnlitPass = new ShaderPass
         {
             // Definition
@@ -45,7 +45,7 @@ namespace UnityEditor.Experimental.Rendering.Universal
                 "Varyings.color",
                 "Varyings.texCoord0",
             },
-            
+
             // Pass setup
             includes = new List<string>()
             {
@@ -65,9 +65,9 @@ namespace UnityEditor.Experimental.Rendering.Universal
                 s_ETCExternalAlphaKeyword,
             },
         };
-#endregion
+        #endregion
 
-#region Keywords
+        #region Keywords
         static KeywordDescriptor s_ETCExternalAlphaKeyword = new KeywordDescriptor()
         {
             displayName = "ETC External Alpha",
@@ -76,7 +76,7 @@ namespace UnityEditor.Experimental.Rendering.Universal
             definition = KeywordDefinition.MultiCompile,
             scope = KeywordScope.Global,
         };
-#endregion
+        #endregion
 
         public int GetPreviewPassIndex() { return 0; }
 
@@ -86,8 +86,8 @@ namespace UnityEditor.Experimental.Rendering.Universal
             var baseActiveFields = activeFields.baseInstance;
 
             // Graph Vertex
-            if(masterNode.IsSlotConnected(SpriteUnlitMasterNode.PositionSlotId) || 
-               masterNode.IsSlotConnected(SpriteUnlitMasterNode.VertNormalSlotId) || 
+            if (masterNode.IsSlotConnected(SpriteUnlitMasterNode.PositionSlotId) ||
+               masterNode.IsSlotConnected(SpriteUnlitMasterNode.VertNormalSlotId) ||
                masterNode.IsSlotConnected(SpriteUnlitMasterNode.VertTangentSlotId))
             {
                 baseActiveFields.Add("features.graphVertex");

@@ -17,24 +17,24 @@ namespace UnityEditor.Rendering.Universal
         {
             // Get default render state from Master Node
             var options = ShaderGenerator.GetMaterialOptions(surfaceType, alphaMode, twoSided);
-            
+
             // Update render state on ShaderPass if there is no active override
-            if(string.IsNullOrEmpty(pass.ZWriteOverride))
+            if (string.IsNullOrEmpty(pass.ZWriteOverride))
             {
                 pass.ZWriteOverride = "ZWrite " + options.zWrite.ToString();
             }
 
-            if(string.IsNullOrEmpty(pass.ZTestOverride))
+            if (string.IsNullOrEmpty(pass.ZTestOverride))
             {
                 pass.ZTestOverride = "ZTest " + options.zTest.ToString();
             }
 
-            if(string.IsNullOrEmpty(pass.CullOverride))
+            if (string.IsNullOrEmpty(pass.CullOverride))
             {
                 pass.CullOverride = "Cull " + options.cullMode.ToString();
             }
-            
-            if(string.IsNullOrEmpty(pass.BlendOverride))
+
+            if (string.IsNullOrEmpty(pass.BlendOverride))
             {
                 pass.BlendOverride = string.Format("Blend {0} {1}, {2} {3}", options.srcBlend, options.dstBlend, options.alphaSrcBlend, options.alphaDstBlend);
             }

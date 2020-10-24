@@ -5,7 +5,8 @@ using UnityEngine.Scripting.APIUpdating;
 
 namespace UnityEditor.Rendering.Universal.ShaderGUI
 {
-    [MovedFrom("UnityEditor.Rendering.LWRP.ShaderGUI")] public static class LitGUI
+    [MovedFrom("UnityEditor.Rendering.LWRP.ShaderGUI")]
+    public static class LitGUI
     {
         public enum WorkflowMode
         {
@@ -47,8 +48,8 @@ namespace UnityEditor.Rendering.Universal.ShaderGUI
             public static GUIContent occlusionText = new GUIContent("Occlusion Map",
                 "Sets an occlusion map to simulate shadowing from ambient lighting.");
 
-            public static readonly string[] metallicSmoothnessChannelNames = {"Metallic Alpha", "Albedo Alpha"};
-            public static readonly string[] specularSmoothnessChannelNames = {"Specular Alpha", "Albedo Alpha"};
+            public static readonly string[] metallicSmoothnessChannelNames = { "Metallic Alpha", "Albedo Alpha" };
+            public static readonly string[] specularSmoothnessChannelNames = { "Specular Alpha", "Albedo Alpha" };
         }
 
         public struct LitProperties
@@ -110,7 +111,7 @@ namespace UnityEditor.Rendering.Universal.ShaderGUI
             string[] smoothnessChannelNames;
             bool hasGlossMap = false;
             if (properties.workflowMode == null ||
-                (WorkflowMode) properties.workflowMode.floatValue == WorkflowMode.Metallic)
+                (WorkflowMode)properties.workflowMode.floatValue == WorkflowMode.Metallic)
             {
                 hasGlossMap = properties.metallicGlossMap.textureValue != null;
                 smoothnessChannelNames = Styles.metallicSmoothnessChannelNames;
@@ -131,7 +132,7 @@ namespace UnityEditor.Rendering.Universal.ShaderGUI
 
         public static void DoSmoothness(LitProperties properties, Material material, string[] smoothnessChannelNames)
         {
-            var opaque = ((BaseShaderGUI.SurfaceType) material.GetFloat("_Surface") ==
+            var opaque = ((BaseShaderGUI.SurfaceType)material.GetFloat("_Surface") ==
                           BaseShaderGUI.SurfaceType.Opaque);
             EditorGUI.indentLevel++;
             EditorGUI.BeginChangeCheck();
@@ -147,7 +148,7 @@ namespace UnityEditor.Rendering.Universal.ShaderGUI
                 EditorGUI.BeginDisabledGroup(!opaque);
                 EditorGUI.BeginChangeCheck();
                 EditorGUI.showMixedValue = properties.smoothnessMapChannel.hasMixedValue;
-                var smoothnessSource = (int) properties.smoothnessMapChannel.floatValue;
+                var smoothnessSource = (int)properties.smoothnessMapChannel.floatValue;
                 if (opaque)
                     smoothnessSource = EditorGUILayout.Popup(Styles.smoothnessMapChannelText, smoothnessSource,
                         smoothnessChannelNames);
@@ -164,8 +165,8 @@ namespace UnityEditor.Rendering.Universal.ShaderGUI
 
         public static SmoothnessMapChannel GetSmoothnessMapChannel(Material material)
         {
-            int ch = (int) material.GetFloat("_SmoothnessTextureChannel");
-            if (ch == (int) SmoothnessMapChannel.AlbedoAlpha)
+            int ch = (int)material.GetFloat("_SmoothnessTextureChannel");
+            if (ch == (int)SmoothnessMapChannel.AlbedoAlpha)
                 return SmoothnessMapChannel.AlbedoAlpha;
 
             return SmoothnessMapChannel.SpecularMetallicAlpha;
@@ -177,11 +178,11 @@ namespace UnityEditor.Rendering.Universal.ShaderGUI
             // (MaterialProperty value might come from renderer material property block)
             var hasGlossMap = false;
             var isSpecularWorkFlow = false;
-            var opaque = ((BaseShaderGUI.SurfaceType) material.GetFloat("_Surface") ==
+            var opaque = ((BaseShaderGUI.SurfaceType)material.GetFloat("_Surface") ==
                           BaseShaderGUI.SurfaceType.Opaque);
             if (material.HasProperty("_WorkflowMode"))
             {
-                isSpecularWorkFlow = (WorkflowMode) material.GetFloat("_WorkflowMode") == WorkflowMode.Specular;
+                isSpecularWorkFlow = (WorkflowMode)material.GetFloat("_WorkflowMode") == WorkflowMode.Specular;
                 if (isSpecularWorkFlow)
                     hasGlossMap = material.GetTexture("_SpecGlossMap") != null;
                 else

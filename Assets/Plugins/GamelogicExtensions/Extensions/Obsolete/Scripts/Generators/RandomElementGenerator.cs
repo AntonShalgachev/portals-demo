@@ -7,51 +7,51 @@ using Gamelogic.Extensions.Internal;
 
 namespace Gamelogic.Extensions.Obsolete
 {
-	/// <summary>
-	/// Generates elements chosen randomly (with uniform distribution).
-	/// </summary>
-	/// <typeparam name="T"></typeparam>
-	[Version(1, 4)]
-	[Obsolete("Use the static functions in Gamelogic.Generators.Generator instead.")]
-	public class RandomElementGenerator<T> : IGenerator<T>
-	{
-		#region Private Fields
+    /// <summary>
+    /// Generates elements chosen randomly (with uniform distribution).
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    [Version(1, 4)]
+    [Obsolete("Use the static functions in Gamelogic.Generators.Generator instead.")]
+    public class RandomElementGenerator<T> : IGenerator<T>
+    {
+        #region Private Fields
 
-		private readonly ListSelectorGenerator<T> generator;
+        private readonly ListSelectorGenerator<T> generator;
 
-		#endregion
+        #endregion
 
-		#region Constructors
+        #region Constructors
 
-		public RandomElementGenerator(IEnumerable<T> list):
-			this(list, GLRandom.GlobalRandom)
-		{}
+        public RandomElementGenerator(IEnumerable<T> list) :
+            this(list, GLRandom.GlobalRandom)
+        { }
 
-		public RandomElementGenerator(IEnumerable<T> list, IRandom random) 
-		{
-			list.ThrowIfNull("list");
+        public RandomElementGenerator(IEnumerable<T> list, IRandom random)
+        {
+            list.ThrowIfNull("list");
 
-			generator = new ListSelectorGenerator<T>(list, new UniformIntGenerator(list.Count(), random));
-		}
+            generator = new ListSelectorGenerator<T>(list, new UniformIntGenerator(list.Count(), random));
+        }
 
-		#endregion
+        #endregion
 
-		#region Public Methods
+        #region Public Methods
 
-		public T Next()
-		{
-			return generator.Next();
-		}
+        public T Next()
+        {
+            return generator.Next();
+        }
 
-		#endregion
+        #endregion
 
-		#region Private Methods
+        #region Private Methods
 
-		object IGenerator.Next()
-		{
-			return Next();
-		}
+        object IGenerator.Next()
+        {
+            return Next();
+        }
 
-		#endregion
-	}
+        #endregion
+    }
 }

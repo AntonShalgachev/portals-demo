@@ -7,126 +7,126 @@ using UnityEngine;
 
 namespace Gamelogic.Extensions
 {
-	/// <summary>
-	/// A component that makes it easy to take screenshots, usually for development purposes.
-	/// </summary>
-	[HelpURL("http://gamelogic.co.za/documentation/extensions/?topic=html/T-Gamelogic.Extensions.ScreenshotTaker.htm")]
-	[AddComponentMenu("Gamelogic/Extensions/ScreenshotTaker")]
-	[ExecuteInEditMode]
-	public sealed class ScreenshotTaker : Singleton<ScreenshotTaker>
-	{
-		#region Configuration
+    /// <summary>
+    /// A component that makes it easy to take screenshots, usually for development purposes.
+    /// </summary>
+    [HelpURL("http://gamelogic.co.za/documentation/extensions/?topic=html/T-Gamelogic.Extensions.ScreenshotTaker.htm")]
+    [AddComponentMenu("Gamelogic/Extensions/ScreenshotTaker")]
+    [ExecuteInEditMode]
+    public sealed class ScreenshotTaker : Singleton<ScreenshotTaker>
+    {
+        #region Configuration
 
-		[Tooltip("The key to use for taking a screenshot.")]
-		[SerializeField]
-		private KeyCode screenshotKey = KeyCode.Q;
+        [Tooltip("The key to use for taking a screenshot.")]
+        [SerializeField]
+        private KeyCode screenshotKey = KeyCode.Q;
 
-		[Tooltip("The scale at which to take the screen shot.")]
-		[Positive]
-		[SerializeField]
-		private int scale = 1;
+        [Tooltip("The scale at which to take the screen shot.")]
+        [Positive]
+        [SerializeField]
+        private int scale = 1;
 
-		[Tooltip("The fist part of the file name")]
-		[SerializeField]
-		private string fileNamePrefix = "screen_";
+        [Tooltip("The fist part of the file name")]
+        [SerializeField]
+        private string fileNamePrefix = "screen_";
 
-		//[Tooltip("Set this to true to have screenshots taken periodically and specify the interval in seconds.")]
-		[SerializeField]
-		private OptionalFloat automaticScreenshotInterval = new OptionalFloat { UseValue = false, Value = 60f};
-		
-		[Tooltip("Objects to disable when taking a screenshot.")]
-		[SerializeField]
-		private GameObject[] dirtyObjects = new GameObject[0];
+        //[Tooltip("Set this to true to have screenshots taken periodically and specify the interval in seconds.")]
+        [SerializeField]
+        private OptionalFloat automaticScreenshotInterval = new OptionalFloat { UseValue = false, Value = 60f };
 
-		private Dictionary<GameObject, bool> stateOfDirtyObjects;
+        [Tooltip("Objects to disable when taking a screenshot.")]
+        [SerializeField]
+        private GameObject[] dirtyObjects = new GameObject[0];
 
-		#endregion
+        private Dictionary<GameObject, bool> stateOfDirtyObjects;
 
-		#region Unity Messages
+        #endregion
 
-		public void Start()
-		{
-			if (Application.isPlaying && automaticScreenshotInterval.UseValue)
-			{
-				if (dirtyObjects.Length > 0)
-				{
-					InvokeRepeating(TakeCleanImpl, automaticScreenshotInterval.Value, automaticScreenshotInterval.Value);
-				}
-				else
-				{
-					InvokeRepeating(TakeImpl, automaticScreenshotInterval.Value, automaticScreenshotInterval.Value);
-				}
-			}
-		}
+        #region Unity Messages
 
-		public void Update()
-		{
-			if (Input.GetKeyDown(screenshotKey))
-			{
-				if (dirtyObjects.Length > 0)
-				{
-					TakeClean();
-				}
-				else
-				{
-					Take();
-				}
-			}
-		}
+        public void Start()
+        {
+            if (Application.isPlaying && automaticScreenshotInterval.UseValue)
+            {
+                if (dirtyObjects.Length > 0)
+                {
+                    InvokeRepeating(TakeCleanImpl, automaticScreenshotInterval.Value, automaticScreenshotInterval.Value);
+                }
+                else
+                {
+                    InvokeRepeating(TakeImpl, automaticScreenshotInterval.Value, automaticScreenshotInterval.Value);
+                }
+            }
+        }
 
-		#endregion
+        public void Update()
+        {
+            if (Input.GetKeyDown(screenshotKey))
+            {
+                if (dirtyObjects.Length > 0)
+                {
+                    TakeClean();
+                }
+                else
+                {
+                    Take();
+                }
+            }
+        }
 
-		#region Public Methods
+        #endregion
 
-		[InspectorButton]
-		public static void Take()
-		{
-			Instance.TakeImpl();
-		}
+        #region Public Methods
 
-		[InspectorButton]
-		public static void TakeClean()
-		{
-			Instance.TakeCleanImpl();
-		}
+        [InspectorButton]
+        public static void Take()
+        {
+            Instance.TakeImpl();
+        }
 
-		#endregion
+        [InspectorButton]
+        public static void TakeClean()
+        {
+            Instance.TakeCleanImpl();
+        }
 
-		#region Implementation
+        #endregion
 
-		private void TakeCleanImpl()
-		{
-			StartCoroutine(TakeCleanEnumerator());
-		}
+        #region Implementation
 
-		private IEnumerator TakeCleanEnumerator()
-		{
-			stateOfDirtyObjects = new Dictionary<GameObject, bool>();
+        private void TakeCleanImpl()
+        {
+            StartCoroutine(TakeCleanEnumerator());
+        }
 
-			foreach (var dirtyObject in dirtyObjects)
-			{
-				stateOfDirtyObjects.Add(dirtyObject, dirtyObject.activeSelf);
-				dirtyObject.SetActive(false);
-			}
+        private IEnumerator TakeCleanEnumerator()
+        {
+            stateOfDirtyObjects = new Dictionary<GameObject, bool>();
 
-			yield return new WaitForEndOfFrame();
+            foreach (var dirtyObject in dirtyObjects)
+            {
+                stateOfDirtyObjects.Add(dirtyObject, dirtyObject.activeSelf);
+                dirtyObject.SetActive(false);
+            }
 
-			TakeImpl();
+            yield return new WaitForEndOfFrame();
 
-			yield return new WaitForEndOfFrame();
+            TakeImpl();
 
-			foreach (var stateOfDirtyObject in stateOfDirtyObjects)
-			{
-				stateOfDirtyObject.Key.SetActive(stateOfDirtyObject.Value);
-			}
-		}
+            yield return new WaitForEndOfFrame();
 
-		private void TakeImpl()
-		{
-			string path = fileNamePrefix + DateTime.Now.Ticks + ".png";
-			ScreenCapture.CaptureScreenshot(path, scale);
-		}
+            foreach (var stateOfDirtyObject in stateOfDirtyObjects)
+            {
+                stateOfDirtyObject.Key.SetActive(stateOfDirtyObject.Value);
+            }
+        }
 
-		#endregion
-	}
+        private void TakeImpl()
+        {
+            string path = fileNamePrefix + DateTime.Now.Ticks + ".png";
+            ScreenCapture.CaptureScreenshot(path, scale);
+        }
+
+        #endregion
+    }
 }

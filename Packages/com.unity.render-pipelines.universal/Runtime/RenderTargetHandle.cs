@@ -2,11 +2,12 @@ using UnityEngine.Scripting.APIUpdating;
 
 namespace UnityEngine.Rendering.Universal
 {
-    [MovedFrom("UnityEngine.Rendering.LWRP")] public struct RenderTargetHandle
+    [MovedFrom("UnityEngine.Rendering.LWRP")]
+    public struct RenderTargetHandle
     {
         public int id { set; get; }
 
-        public static readonly RenderTargetHandle CameraTarget = new RenderTargetHandle {id = -1};
+        public static readonly RenderTargetHandle CameraTarget = new RenderTargetHandle { id = -1 };
 
         public void Init(string shaderProperty)
         {
@@ -38,12 +39,12 @@ namespace UnityEngine.Rendering.Universal
             return id;
         }
 
-        public static bool operator==(RenderTargetHandle c1, RenderTargetHandle c2)
+        public static bool operator ==(RenderTargetHandle c1, RenderTargetHandle c2)
         {
             return c1.Equals(c2);
         }
 
-        public static bool operator!=(RenderTargetHandle c1, RenderTargetHandle c2)
+        public static bool operator !=(RenderTargetHandle c1, RenderTargetHandle c2)
         {
             return !c1.Equals(c2);
         }

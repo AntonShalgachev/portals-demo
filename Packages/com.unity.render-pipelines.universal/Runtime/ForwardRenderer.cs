@@ -140,7 +140,7 @@ namespace UnityEngine.Rendering.Universal
 
                 for (int i = 0; i < rendererFeatures.Count; ++i)
                 {
-                    if(rendererFeatures[i].isActive)
+                    if (rendererFeatures[i].isActive)
                         rendererFeatures[i].AddRenderPasses(this, ref renderingData);
                 }
 
@@ -215,7 +215,7 @@ namespace UnityEngine.Rendering.Universal
                 int backbufferMsaaSamples = (intermediateRenderTexture) ? 1 : cameraTargetDescriptor.msaaSamples;
 
                 if (Camera.main == camera && camera.cameraType == CameraType.Game && cameraData.targetTexture == null)
-                SetupBackbufferFormat(backbufferMsaaSamples, isStereoEnabled);
+                    SetupBackbufferFormat(backbufferMsaaSamples, isStereoEnabled);
             }
             else
             {
@@ -227,14 +227,14 @@ namespace UnityEngine.Rendering.Universal
 
             for (int i = 0; i < rendererFeatures.Count; ++i)
             {
-                if(rendererFeatures[i].isActive)
+                if (rendererFeatures[i].isActive)
                     rendererFeatures[i].AddRenderPasses(this, ref renderingData);
             }
 
             int count = activeRenderPassQueue.Count;
             for (int i = count - 1; i >= 0; i--)
             {
-                if(activeRenderPassQueue[i] == null)
+                if (activeRenderPassQueue[i] == null)
                     activeRenderPassQueue.RemoveAt(i);
             }
             bool hasPassesAfterPostProcessing = activeRenderPassQueue.Find(x => x.renderPassEvent == RenderPassEvent.AfterRendering) != null;
@@ -358,60 +358,60 @@ namespace UnityEngine.Rendering.Universal
             #endregion
             {
 
-            if (lastCameraInTheStack)
-            {
-                // Post-processing will resolve to final target. No need for final blit pass.
-                if (applyPostProcessing)
+                if (lastCameraInTheStack)
                 {
-                    var destination = dontResolvePostProcessingToCameraTarget ? m_AfterPostProcessColor : RenderTargetHandle.CameraTarget;
+                    // Post-processing will resolve to final target. No need for final blit pass.
+                    if (applyPostProcessing)
+                    {
+                        var destination = dontResolvePostProcessingToCameraTarget ? m_AfterPostProcessColor : RenderTargetHandle.CameraTarget;
 
-                    // if resolving to screen we need to be able to perform sRGBConvertion in post-processing if necessary
-                    bool doSRGBConvertion = !(dontResolvePostProcessingToCameraTarget || (m_ActiveCameraColorAttachment != RenderTargetHandle.CameraTarget));
-                    m_PostProcessPass.Setup(cameraTargetDescriptor, m_ActiveCameraColorAttachment, destination, m_ActiveCameraDepthAttachment, m_ColorGradingLut, applyFinalPostProcessing, doSRGBConvertion);
-                    Debug.Assert(applyPostProcessing || doSRGBConvertion, "This will do unnecessary blit!");
+                        // if resolving to screen we need to be able to perform sRGBConvertion in post-processing if necessary
+                        bool doSRGBConvertion = !(dontResolvePostProcessingToCameraTarget || (m_ActiveCameraColorAttachment != RenderTargetHandle.CameraTarget));
+                        m_PostProcessPass.Setup(cameraTargetDescriptor, m_ActiveCameraColorAttachment, destination, m_ActiveCameraDepthAttachment, m_ColorGradingLut, applyFinalPostProcessing, doSRGBConvertion);
+                        Debug.Assert(applyPostProcessing || doSRGBConvertion, "This will do unnecessary blit!");
+                        EnqueuePass(m_PostProcessPass);
+                    }
+
+                    if (renderingData.cameraData.captureActions != null)
+                    {
+                        m_CapturePass.Setup(m_ActiveCameraColorAttachment);
+                        EnqueuePass(m_CapturePass);
+                    }
+
+                    // if we applied post-processing for this camera it means current active texture is m_AfterPostProcessColor
+                    var sourceForFinalPass = (applyPostProcessing) ? m_AfterPostProcessColor : m_ActiveCameraColorAttachment;
+
+                    // Do FXAA or any other final post-processing effect that might need to run after AA.
+                    if (applyFinalPostProcessing)
+                    {
+                        m_FinalPostProcessPass.SetupFinalPass(sourceForFinalPass);
+                        EnqueuePass(m_FinalPostProcessPass);
+                    }
+
+                    // if post-processing then we already resolved to camera target while doing post.
+                    // Also only do final blit if camera is not rendering to RT.
+                    bool cameraTargetResolved =
+                        // final PP always blit to camera target
+                        applyFinalPostProcessing ||
+                        // no final PP but we have PP stack. In that case it blit unless there are render pass after PP
+                        (applyPostProcessing && !hasPassesAfterPostProcessing) ||
+                        // offscreen camera rendering to a texture, we don't need a blit pass to resolve to screen
+                        m_ActiveCameraColorAttachment == RenderTargetHandle.CameraTarget;
+
+                    // We need final blit to resolve to screen
+                    if (!cameraTargetResolved)
+                    {
+                        m_FinalBlitPass.Setup(cameraTargetDescriptor, sourceForFinalPass);
+                        EnqueuePass(m_FinalBlitPass);
+                    }
+                }
+
+                // stay in RT so we resume rendering on stack after post-processing
+                else if (applyPostProcessing)
+                {
+                    m_PostProcessPass.Setup(cameraTargetDescriptor, m_ActiveCameraColorAttachment, m_AfterPostProcessColor, m_ActiveCameraDepthAttachment, m_ColorGradingLut, false, false);
                     EnqueuePass(m_PostProcessPass);
                 }
-
-                if (renderingData.cameraData.captureActions != null)
-                {
-                    m_CapturePass.Setup(m_ActiveCameraColorAttachment);
-                    EnqueuePass(m_CapturePass);
-                }
-
-                // if we applied post-processing for this camera it means current active texture is m_AfterPostProcessColor
-                var sourceForFinalPass = (applyPostProcessing) ? m_AfterPostProcessColor : m_ActiveCameraColorAttachment;
-
-                // Do FXAA or any other final post-processing effect that might need to run after AA.
-                if (applyFinalPostProcessing)
-                {
-                    m_FinalPostProcessPass.SetupFinalPass(sourceForFinalPass);
-                    EnqueuePass(m_FinalPostProcessPass);
-                }
-
-                // if post-processing then we already resolved to camera target while doing post.
-                // Also only do final blit if camera is not rendering to RT.
-                bool cameraTargetResolved =
-                    // final PP always blit to camera target
-                    applyFinalPostProcessing ||
-                    // no final PP but we have PP stack. In that case it blit unless there are render pass after PP
-                    (applyPostProcessing && !hasPassesAfterPostProcessing) ||
-                    // offscreen camera rendering to a texture, we don't need a blit pass to resolve to screen
-                    m_ActiveCameraColorAttachment == RenderTargetHandle.CameraTarget;
-
-                // We need final blit to resolve to screen
-                if (!cameraTargetResolved)
-                {
-                    m_FinalBlitPass.Setup(cameraTargetDescriptor, sourceForFinalPass);
-                    EnqueuePass(m_FinalBlitPass);
-                }
-            }
-
-            // stay in RT so we resume rendering on stack after post-processing
-            else if (applyPostProcessing)
-            {
-                m_PostProcessPass.Setup(cameraTargetDescriptor, m_ActiveCameraColorAttachment, m_AfterPostProcessColor, m_ActiveCameraDepthAttachment, m_ColorGradingLut, false, false);
-                EnqueuePass(m_PostProcessPass);
-            }
 
             }
 

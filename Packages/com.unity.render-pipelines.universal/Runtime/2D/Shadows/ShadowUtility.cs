@@ -53,7 +53,7 @@ namespace UnityEngine.Experimental.Rendering.Universal
             Edge retEdge = new Edge();
 
             retEdge.AssignVertexIndices(triangles[triangleIndexA], triangles[triangleIndexB]);
-            
+
             Vector3 vertex0 = vertices[retEdge.vertexIndex0];
             Vector3 vertex1 = vertices[retEdge.vertexIndex1];
 
@@ -65,11 +65,11 @@ namespace UnityEngine.Experimental.Rendering.Universal
 
         static void PopulateEdgeArray(List<Vector3> vertices, List<int> triangles, List<Edge> edges)
         {
-            for(int triangleIndex=0;triangleIndex<triangles.Count;triangleIndex+=3)
+            for (int triangleIndex = 0; triangleIndex < triangles.Count; triangleIndex += 3)
             {
                 edges.Add(CreateEdge(triangleIndex, triangleIndex + 1, vertices, triangles));
-                edges.Add(CreateEdge(triangleIndex+1, triangleIndex + 2, vertices, triangles));
-                edges.Add(CreateEdge(triangleIndex+2, triangleIndex, vertices, triangles));
+                edges.Add(CreateEdge(triangleIndex + 1, triangleIndex + 2, vertices, triangles));
+                edges.Add(CreateEdge(triangleIndex + 2, triangleIndex, vertices, triangles));
             }
         }
 
@@ -90,9 +90,9 @@ namespace UnityEngine.Experimental.Rendering.Universal
 
         static void CreateShadowTriangles(List<Vector3> vertices, List<int> triangles, List<Vector4> tangents, List<Edge> edges)
         {
-            for(int edgeIndex=0; edgeIndex<edges.Count; edgeIndex++)
+            for (int edgeIndex = 0; edgeIndex < edges.Count; edgeIndex++)
             {
-                if(IsOutsideEdge(edgeIndex, edges))
+                if (IsOutsideEdge(edgeIndex, edges))
                 {
                     Edge edge = edges[edgeIndex];
                     tangents[edge.vertexIndex1] = -edge.tangent;

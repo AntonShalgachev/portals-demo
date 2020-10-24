@@ -6,57 +6,57 @@ using Gamelogic.Extensions.Internal;
 
 namespace Gamelogic.Extensions.Obsolete
 {
-	/// <summary>
-	/// A generator that repeats a given sequence.
-	/// </summary>
-	/// <typeparam name="T"></typeparam>
-	[Version(1, 4)]
-	[Obsolete("Use the static functions in Gamelogic.Generators.Generator instead.")]
-	public class RepeatSequenceGenerator<T> : IGenerator<T>
-	{
-		#region Private Fields
+    /// <summary>
+    /// A generator that repeats a given sequence.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    [Version(1, 4)]
+    [Obsolete("Use the static functions in Gamelogic.Generators.Generator instead.")]
+    public class RepeatSequenceGenerator<T> : IGenerator<T>
+    {
+        #region Private Fields
 
-		private readonly IEnumerator<T> enumerator;
+        private readonly IEnumerator<T> enumerator;
 
-		#endregion
+        #endregion
 
-		#region Constructors
+        #region Constructors
 
-		/// <summary>
-		/// Construts a new RepeateSequenceGenerator.
-		/// </summary>
-		/// <param name="sequence">The sequence that this sequence will repeat.</param>
-		public RepeatSequenceGenerator(IEnumerable<T> sequence)
-		{
-			enumerator = sequence.GetEnumerator();
-		}
+        /// <summary>
+        /// Construts a new RepeateSequenceGenerator.
+        /// </summary>
+        /// <param name="sequence">The sequence that this sequence will repeat.</param>
+        public RepeatSequenceGenerator(IEnumerable<T> sequence)
+        {
+            enumerator = sequence.GetEnumerator();
+        }
 
-		#endregion
+        #endregion
 
-		#region Public Methods
+        #region Public Methods
 
-		public T Next()
-		{
-			bool hasNext = enumerator.MoveNext();
-			var current = enumerator.Current;
+        public T Next()
+        {
+            bool hasNext = enumerator.MoveNext();
+            var current = enumerator.Current;
 
-			if (!hasNext)
-			{
-				enumerator.Reset();
-			}
+            if (!hasNext)
+            {
+                enumerator.Reset();
+            }
 
-			return current;
-		}
+            return current;
+        }
 
-		#endregion
+        #endregion
 
-		#region Private Methods
+        #region Private Methods
 
-		object IGenerator.Next()
-		{
-			return Next();
-		}
+        object IGenerator.Next()
+        {
+            return Next();
+        }
 
-		#endregion
-	}
+        #endregion
+    }
 }

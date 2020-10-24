@@ -76,8 +76,8 @@ namespace UnityEngine.Rendering.Universal
         }
 
         // These limits have to match same limits in Input.hlsl
-        const int k_MaxVisibleAdditionalLightsSSBO  = 256;
-        const int k_MaxVisibleAdditionalLightsUBO   = 32;
+        const int k_MaxVisibleAdditionalLightsSSBO = 256;
+        const int k_MaxVisibleAdditionalLightsUBO = 32;
         public static int maxVisibleAdditionalLights
         {
             get
@@ -175,10 +175,10 @@ namespace UnityEngine.Rendering.Universal
                     throw new NotImplementedException("Only 1 XR display is supported.");
 
                 XRDisplaySubsystem display = xrDisplayList[0];
-                if(display.GetRenderPassCount() == 0)
+                if (display.GetRenderPassCount() == 0)
                 {
                     // Disable XR rendering if display contains 0 renderpass
-                    if(!xrSkipRender)
+                    if (!xrSkipRender)
                     {
                         xrSkipRender = true;
                         Debug.Log("XR display is not ready. Skip XR rendering.");
@@ -206,7 +206,7 @@ namespace UnityEngine.Rendering.Universal
             SetupPerFrameShaderConstants();
 #if ENABLE_VR && ENABLE_XR_MODULE
             SetupXRStates();
-            if(xrSkipRender)
+            if (xrSkipRender)
                 return;
 #endif
 
@@ -280,7 +280,7 @@ namespace UnityEngine.Rendering.Universal
 
             SetupPerCameraShaderConstants(cameraData);
 
-            ProfilingSampler sampler = (asset.debugLevel >= PipelineDebugLevel.Profiling) ? new ProfilingSampler(camera.name): _CameraProfilingSampler;
+            ProfilingSampler sampler = (asset.debugLevel >= PipelineDebugLevel.Profiling) ? new ProfilingSampler(camera.name) : _CameraProfilingSampler;
             CommandBuffer cmd = CommandBufferPool.Get(sampler.name);
             using (new ProfilingScope(cmd, sampler))
             {

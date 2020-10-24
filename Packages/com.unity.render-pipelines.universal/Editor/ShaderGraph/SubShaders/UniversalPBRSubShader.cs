@@ -16,7 +16,7 @@ namespace UnityEditor.Rendering.Universal
     [FormerName("UnityEditor.Rendering.LWRP.LightWeightPBRSubShader")]
     class UniversalPBRSubShader : IPBRSubShader
     {
-#region Passes
+        #region Passes
         ShaderPass m_ForwardPass = new ShaderPass
         {
             // Definition
@@ -150,7 +150,7 @@ namespace UnityEditor.Rendering.Universal
             lightMode = "ShadowCaster",
             passInclude = "Packages/com.unity.render-pipelines.universal/Editor/ShaderGraph/Includes/ShadowCasterPass.hlsl",
             varyingsInclude = "Packages/com.unity.render-pipelines.universal/Editor/ShaderGraph/Includes/Varyings.hlsl",
-            
+
             // Port mask
             vertexPorts = new List<int>()
             {
@@ -287,9 +287,9 @@ namespace UnityEditor.Rendering.Universal
                 "multi_compile_instancing",
             },
         };
-#endregion
+        #endregion
 
-#region Keywords
+        #region Keywords
         static KeywordDescriptor s_LightmapKeyword = new KeywordDescriptor()
         {
             displayName = "Lightmap",
@@ -385,7 +385,7 @@ namespace UnityEditor.Rendering.Universal
             definition = KeywordDefinition.ShaderFeature,
             scope = KeywordScope.Global,
         };
-#endregion
+        #endregion
 
         public int GetPreviewPassIndex() { return 0; }
 
@@ -395,8 +395,8 @@ namespace UnityEditor.Rendering.Universal
             var baseActiveFields = activeFields.baseInstance;
 
             // Graph Vertex
-            if(masterNode.IsSlotConnected(PBRMasterNode.PositionSlotId) || 
-               masterNode.IsSlotConnected(PBRMasterNode.VertNormalSlotId) || 
+            if (masterNode.IsSlotConnected(PBRMasterNode.PositionSlotId) ||
+               masterNode.IsSlotConnected(PBRMasterNode.VertNormalSlotId) ||
                masterNode.IsSlotConnected(PBRMasterNode.VertTangentSlotId))
             {
                 baseActiveFields.Add("features.graphVertex");
@@ -410,7 +410,7 @@ namespace UnityEditor.Rendering.Universal
             {
                 baseActiveFields.Add("AlphaClip");
             }
-            
+
             if (masterNode.model == PBRMasterNode.Model.Specular)
                 baseActiveFields.Add("SpecularSetup");
 
@@ -418,7 +418,7 @@ namespace UnityEditor.Rendering.Universal
             {
                 baseActiveFields.Add("Normal");
             }
-            switch(masterNode.normalDropOffSpace)
+            switch (masterNode.normalDropOffSpace)
             {
                 case NormalDropOffSpace.Tangent:
                     baseActiveFields.AddAll("features.NormalDropOffTS");
@@ -490,7 +490,7 @@ namespace UnityEditor.Rendering.Universal
                 var tagsBuilder = new ShaderStringBuilder(0);
                 surfaceTags.GetTags(tagsBuilder, "UniversalPipeline");
                 subShader.AddShaderChunk(tagsBuilder.ToString());
-                
+
                 GenerateShaderPass(pbrMasterNode, m_ForwardPass, mode, subShader, sourceAssetDependencyPaths);
                 GenerateShaderPass(pbrMasterNode, m_ShadowCasterPass, mode, subShader, sourceAssetDependencyPaths);
                 GenerateShaderPass(pbrMasterNode, m_DepthOnlyPass, mode, subShader, sourceAssetDependencyPaths);

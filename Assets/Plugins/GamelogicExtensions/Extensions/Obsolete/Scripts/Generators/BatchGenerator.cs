@@ -7,68 +7,68 @@ using Gamelogic.Extensions.Internal;
 
 namespace Gamelogic.Extensions.Obsolete
 {
-	/// <summary>
-	/// Generates batches of items. The same batch is returned each time.
-	/// Bath generators are more useful when used in conjunction with another 
-	/// generator that processes the batches, such as ShuffledBatchGenerator.
-	/// </summary>
-	/// <typeparam name="T">The type of items this generator will generate.</typeparam>
-	[Version(1, 2)]
-	[Obsolete("Use the static functions in Gamelogic.Generators.Generator instead.")]
-	public class BatchGenerator<T>:IGenerator<IEnumerable<T>>
-	{
-		#region Public Fields
+    /// <summary>
+    /// Generates batches of items. The same batch is returned each time.
+    /// Bath generators are more useful when used in conjunction with another 
+    /// generator that processes the batches, such as ShuffledBatchGenerator.
+    /// </summary>
+    /// <typeparam name="T">The type of items this generator will generate.</typeparam>
+    [Version(1, 2)]
+    [Obsolete("Use the static functions in Gamelogic.Generators.Generator instead.")]
+    public class BatchGenerator<T> : IGenerator<IEnumerable<T>>
+    {
+        #region Public Fields
 
-		public List<T> batchTemplate;
+        public List<T> batchTemplate;
 
-		#endregion
+        #endregion
 
-		#region Constructors
+        #region Constructors
 
-		public BatchGenerator()
-		{
-			batchTemplate = new List<T>();
-		}
+        public BatchGenerator()
+        {
+            batchTemplate = new List<T>();
+        }
 
-		public BatchGenerator(IEnumerable<T> batchTemplate)
-		{
-			this.batchTemplate = batchTemplate.ToList();
-		}
+        public BatchGenerator(IEnumerable<T> batchTemplate)
+        {
+            this.batchTemplate = batchTemplate.ToList();
+        }
 
-		#endregion
+        #endregion
 
-		#region Public Methods
+        #region Public Methods
 
-		/// <summary>
-		/// Adds a new item to the batch template.
-		/// </summary>
-		public void Add(T batchElement)
-		{
-			batchTemplate.Add(batchElement);
-		}
+        /// <summary>
+        /// Adds a new item to the batch template.
+        /// </summary>
+        public void Add(T batchElement)
+        {
+            batchTemplate.Add(batchElement);
+        }
 
-		/// <summary>
-		/// Removes an item from the batch template.
-		/// </summary>
-		public void Remove(T batchElement)
-		{
-			batchTemplate.Remove(batchElement);
-		}
+        /// <summary>
+        /// Removes an item from the batch template.
+        /// </summary>
+        public void Remove(T batchElement)
+        {
+            batchTemplate.Remove(batchElement);
+        }
 
-		public IEnumerable<T> Next()
-		{
-			return batchTemplate;
-		}
+        public IEnumerable<T> Next()
+        {
+            return batchTemplate;
+        }
 
-		#endregion
+        #endregion
 
-		#region Private Methods
+        #region Private Methods
 
-		object IGenerator.Next()
-		{
-			return Next();
-		}
+        object IGenerator.Next()
+        {
+            return Next();
+        }
 
-		#endregion
-	}
+        #endregion
+    }
 }

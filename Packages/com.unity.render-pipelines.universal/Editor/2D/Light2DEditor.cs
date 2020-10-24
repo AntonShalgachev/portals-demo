@@ -79,7 +79,7 @@ namespace UnityEditor.Experimental.Rendering.Universal
             public static GUIContent generalLightNoLightEnabled = EditorGUIUtility.TrTextContentWithIcon("No valid blend styles are enabled.", MessageType.Error);
 
             public static GUIContent pointLightQuality = EditorGUIUtility.TrTextContent("Quality", "Use accurate if there are noticeable visual issues");
-            public static GUIContent pointLightInnerAngle =  EditorGUIUtility.TrTextContent("Inner Angle", "Specify the inner angle of the light");
+            public static GUIContent pointLightInnerAngle = EditorGUIUtility.TrTextContent("Inner Angle", "Specify the inner angle of the light");
             public static GUIContent pointLightOuterAngle = EditorGUIUtility.TrTextContent("Outer Angle", "Specify the outer angle of the light");
             public static GUIContent pointLightInnerRadius = EditorGUIUtility.TrTextContent("Inner Radius", "Specify the inner radius of the light");
             public static GUIContent pointLightOuterRadius = EditorGUIUtility.TrTextContent("Outer Radius", "Specify the outer radius of the light");
@@ -97,12 +97,12 @@ namespace UnityEditor.Experimental.Rendering.Universal
             public static GUIContent asset2DUnassignedWarning = EditorGUIUtility.TrTextContentWithIcon("2D renderer data must be assigned to your universal render pipeline asset or camera.", MessageType.Warning);
         }
 
-        const float     k_GlobalLightGizmoSize      = 1.2f;
-        const float     k_AngleCapSize              = 0.16f * k_GlobalLightGizmoSize;
-        const float     k_AngleCapOffset            = 0.08f * k_GlobalLightGizmoSize;
-        const float     k_AngleCapOffsetSecondary   = -0.05f;
-        const float     k_RangeCapSize              = 0.025f * k_GlobalLightGizmoSize;
-        const float     k_InnerRangeCapSize         = 0.08f * k_GlobalLightGizmoSize;
+        const float k_GlobalLightGizmoSize = 1.2f;
+        const float k_AngleCapSize = 0.16f * k_GlobalLightGizmoSize;
+        const float k_AngleCapOffset = 0.08f * k_GlobalLightGizmoSize;
+        const float k_AngleCapOffsetSecondary = -0.05f;
+        const float k_RangeCapSize = 0.025f * k_GlobalLightGizmoSize;
+        const float k_InnerRangeCapSize = 0.08f * k_GlobalLightGizmoSize;
 
         SerializedProperty m_LightType;
         SerializedProperty m_LightColor;
@@ -134,9 +134,9 @@ namespace UnityEditor.Experimental.Rendering.Universal
         SerializedProperty m_ShapeLightFalloffOffset;
         SerializedProperty m_ShapeLightSprite;
 
-        int[]           m_BlendStyleIndices;
-        GUIContent[]    m_BlendStyleNames;
-        bool            m_AnyBlendStyleEnabled  = false;
+        int[] m_BlendStyleIndices;
+        GUIContent[] m_BlendStyleNames;
+        bool m_AnyBlendStyleEnabled = false;
 
         SortingLayerDropDown m_SortingLayerDropDown;
 
@@ -152,7 +152,7 @@ namespace UnityEditor.Experimental.Rendering.Universal
                 foreach (Object targetObj in serializedObject.targetObjects)
                 {
                     Light2D light2d = (Light2D)targetObj;
-                    if(!m_ModifiedLights.Contains(light2d))
+                    if (!m_ModifiedLights.Contains(light2d))
                         m_ModifiedLights.Add(light2d);
                 }
             }
@@ -238,7 +238,7 @@ namespace UnityEditor.Experimental.Rendering.Universal
         private void OnDestroy()
         {
 
-            if(m_ModifiedLights.Count > 0)
+            if (m_ModifiedLights.Count > 0)
             {
                 foreach (Light2D light in m_ModifiedLights)
                 {
@@ -586,7 +586,7 @@ namespace UnityEditor.Experimental.Rendering.Universal
                     break;
             }
 
-            if(m_LightType.intValue != (int)Light2D.LightType.Global)
+            if (m_LightType.intValue != (int)Light2D.LightType.Global)
                 EditorGUILayout.PropertyField(m_AlphaBlendOnOverlap, Styles.generalLightOverlapMode);
 
             EditorGUILayout.PropertyField(m_LightOrder, Styles.generalLightOrder);
@@ -605,7 +605,7 @@ namespace UnityEditor.Experimental.Rendering.Universal
 
             if (m_LightType.intValue != (int)Light2D.LightType.Global)
             {
-                
+
                 EditorGUILayout.PropertyField(m_UseNormalMap, Styles.generalUseNormalMap);
 
                 if (m_UseNormalMap.boolValue)
@@ -620,7 +620,7 @@ namespace UnityEditor.Experimental.Rendering.Universal
                 EditorGUILayout.Slider(m_VolumetricAlpha, 0, 1, Styles.generalVolumeOpacity);
 
                 EditorGUILayout.Slider(m_ShadowIntensity, 0, 1, Styles.generalShadowIntensity);
-                if(m_VolumetricAlpha.floatValue > 0)
+                if (m_VolumetricAlpha.floatValue > 0)
                     EditorGUILayout.Slider(m_ShadowVolumeIntensity, 0, 1, Styles.generalShadowVolumeIntensity);
             }
 
