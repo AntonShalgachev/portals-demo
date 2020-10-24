@@ -7,8 +7,6 @@ namespace UnityPrototype
 {
     public class PortalCamera : MonoBehaviour
     {
-        [SerializeField] private PortalMaterials m_materials = null;
-
         private Camera m_camera;
         private Transform m_clippingPlane = null;
 
@@ -47,21 +45,18 @@ namespace UnityPrototype
             if (camera != m_camera)
                 return;
 
-            Debug.Log("OnPreRender");
-            foreach (var material in m_materials.materials)
+            Shader.SetGlobalInt("_PortalCullMode", (int)UnityEngine.Rendering.CullMode.Back);
+
+            Shader.SetGlobalInt("_StencilComp", (int)UnityEngine.Rendering.CompareFunction.Equal);
+            Shader.SetGlobalInt("_StencilRef", 1);
+
+            if (m_clippingPlane != null && m_clippingPlane.gameObject.activeInHierarchy)
             {
-                material.SetInt("_StencilComp", (int)UnityEngine.Rendering.CompareFunction.Equal);
-                material.SetInt("_CullMode", (int)UnityEngine.Rendering.CullMode.Back);
-                material.SetInt("_StencilRef", 1);
+                Plane plane = new Plane(m_clippingPlane.up, m_clippingPlane.position);
 
-                if (m_clippingPlane != null && m_clippingPlane.gameObject.activeInHierarchy)
-                {
-                    Plane plane = new Plane(m_clippingPlane.up, m_clippingPlane.position);
-
-                    Vector4 planeRepresentation = new Vector4(plane.normal.x, plane.normal.y, plane.normal.z, plane.distance);
-                    material.SetVector("_Plane", planeRepresentation);
-                    material.SetInt("_PlaneClip", 1);
-                }
+                Vector4 planeRepresentation = new Vector4(plane.normal.x, plane.normal.y, plane.normal.z, plane.distance);
+                Shader.SetGlobalVector("_ClippingPlane", planeRepresentation);
+                Shader.SetGlobalInt("_ClippingPlaneEnabled", 1);
             }
         }
 
@@ -70,12 +65,10 @@ namespace UnityPrototype
             if (camera != m_camera)
                 return;
 
-            foreach (var material in m_materials.materials)
-            {
-                material.SetInt("_StencilComp", (int)UnityEngine.Rendering.CompareFunction.Disabled);
-                material.SetInt("_CullMode", (int)UnityEngine.Rendering.CullMode.Off);
-                material.SetInt("_PlaneClip", 0);
-            }
+            Shader.SetGlobalInt("_StencilComp", (int)UnityEngine.Rendering.CompareFunction.Disabled);
+
+            Shader.SetGlobalInt("_PortalCullMode", (int)UnityEngine.Rendering.CullMode.Off);
+            Shader.SetGlobalInt("_ClippingPlaneEnabled", 0);
         }
     }
 }

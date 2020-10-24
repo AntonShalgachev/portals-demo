@@ -1,9 +1,5 @@
 ﻿Shader "Unlit/PortalViewportDepth"
 {
-    Properties
-    {
-        [HideInInspector] _CullMode ("__cullMode", Float) = 0 // Off
-    }
     SubShader
     {
         Tags
@@ -19,7 +15,7 @@
 
             ZWrite On
             ZTest Always
-            Cull [_CullMode]
+            Cull [_PortalCullMode]
             
             Stencil
             {

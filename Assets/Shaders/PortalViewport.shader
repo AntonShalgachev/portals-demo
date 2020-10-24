@@ -1,9 +1,5 @@
 ﻿Shader "Unlit/PortalViewport"
 {
-    Properties
-    {
-        [HideInInspector] _CullMode ("__cullMode", Float) = 0 // Off
-    }
     SubShader
     {
         Tags
@@ -18,7 +14,7 @@
             Tags{"LightMode" = "UniversalForward"}
 
             Offset -0.1, 0
-            Cull [_CullMode]
+            Cull [_PortalCullMode]
 
             Stencil
             {

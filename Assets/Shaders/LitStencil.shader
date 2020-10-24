@@ -41,10 +41,6 @@ Shader "Portal Render Pipeline/LitStencil"
         [HideInInspector] _ZWrite("__zw", Float) = 1.0
         [HideInInspector] _Cull("__cull", Float) = 2.0
 
-        // Stencil
-        [HideInInspector] _StencilRef ("__stencilRef", Float) = 0.0
-        [HideInInspector] _StencilComp ("__stencilComp", Float) = 0.0
-
         _ReceiveShadows("Receive Shadows", Float) = 1.0
         // Editmode props
         [HideInInspector] _QueueOffset("Queue offset", Float) = 0.0

@@ -1,13 +1,13 @@
-float4 _Plane;
-bool _PlaneClip = false;
+float4 _ClippingPlane;
+bool _ClippingPlaneEnabled = false;
 
 void ClipPlane(half3 worldPos)
 {
     // TODO improve
-    if (_PlaneClip)
+    if (_ClippingPlaneEnabled)
     {
-        float distance = dot(worldPos, _Plane.xyz);
-        distance = distance + _Plane.w;
+        float distance = dot(worldPos, _ClippingPlane.xyz);
+        distance = distance + _ClippingPlane.w;
         
         clip(distance);
     }
