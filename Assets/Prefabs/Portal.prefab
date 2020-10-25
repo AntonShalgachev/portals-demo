@@ -200,7 +200,7 @@ GameObject:
   - component: {fileID: 4727661746467408755}
   - component: {fileID: 2982001837585683476}
   m_Layer: 0
-  m_Name: Camera
+  m_Name: PortalCamera
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

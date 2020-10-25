@@ -25,6 +25,8 @@ namespace UnityPrototype
 
             m_portalCamera.transform.ResetLocal();
             m_portalCamera.SyncCameraMatrix(viewCamera);
+
+            m_portalCamera.gameObject.name = $"{gameObject.name}Camera";
         }
 
         private void OnEnable()
