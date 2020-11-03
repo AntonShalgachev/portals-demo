@@ -45,19 +45,24 @@ namespace UnityPrototype
             if (camera != m_camera)
                 return;
 
-            Shader.SetGlobalInt("_PortalCullMode", (int)UnityEngine.Rendering.CullMode.Back);
+            CommandBuffer cmd = CommandBufferPool.Get("SetShaderVariables");
 
-            Shader.SetGlobalInt("_StencilComp", (int)UnityEngine.Rendering.CompareFunction.Equal);
-            Shader.SetGlobalInt("_StencilRef", 1);
+            cmd.SetGlobalInt("_PortalCullMode", (int)UnityEngine.Rendering.CullMode.Back);
+
+            cmd.SetGlobalInt("_StencilComp", (int)UnityEngine.Rendering.CompareFunction.Equal);
+            cmd.SetGlobalInt("_StencilRef", 1);
 
             if (m_clippingPlane != null && m_clippingPlane.gameObject.activeInHierarchy)
             {
                 Plane plane = new Plane(m_clippingPlane.up, m_clippingPlane.position);
 
                 Vector4 planeRepresentation = new Vector4(plane.normal.x, plane.normal.y, plane.normal.z, plane.distance);
-                Shader.SetGlobalVector("_ClippingPlane", planeRepresentation);
-                Shader.SetGlobalInt("_ClippingPlaneEnabled", 1);
+                cmd.SetGlobalVector("_ClippingPlane", planeRepresentation);
+                cmd.SetGlobalInt("_ClippingPlaneEnabled", 1);
             }
+
+            context.ExecuteCommandBuffer(cmd);
+            CommandBufferPool.Release(cmd);
         }
 
         private void EndCameraRendering(ScriptableRenderContext context, Camera camera)
@@ -65,10 +70,15 @@ namespace UnityPrototype
             if (camera != m_camera)
                 return;
 
-            Shader.SetGlobalInt("_StencilComp", (int)UnityEngine.Rendering.CompareFunction.Disabled);
+            CommandBuffer cmd = CommandBufferPool.Get("UnsetShaderVariables");
 
-            Shader.SetGlobalInt("_PortalCullMode", (int)UnityEngine.Rendering.CullMode.Off);
-            Shader.SetGlobalInt("_ClippingPlaneEnabled", 0);
+            cmd.SetGlobalInt("_StencilComp", (int)UnityEngine.Rendering.CompareFunction.Disabled);
+
+            cmd.SetGlobalInt("_PortalCullMode", (int)UnityEngine.Rendering.CullMode.Off);
+            cmd.SetGlobalInt("_ClippingPlaneEnabled", 0);
+
+            context.ExecuteCommandBuffer(cmd);
+            CommandBufferPool.Release(cmd);
         }
     }
 }

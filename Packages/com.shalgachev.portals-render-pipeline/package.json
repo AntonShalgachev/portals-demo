@@ -1,0 +1,17 @@
+{
+  "name": "com.shalgachev.portals-render-pipeline",
+  "description": "Render pipeline for the portals.",
+  "version": "0.1.0-preview",
+  "unity": "2019.3",
+  "unityRelease": "12f1",
+  "displayName": "Portals SRP",
+  "dependencies": {
+    "com.unity.render-pipelines.core": "7.2.0"
+  },
+  "keywords":[
+        "graphics",
+        "rendering",
+        "pipeline",
+        "SRP"
+    ]
+}
