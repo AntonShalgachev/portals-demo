@@ -41,7 +41,6 @@ namespace UnityEngine.Rendering.CustomRenderPipeline
         void DrawCamera(ScriptableRenderContext context, Camera camera, Camera portalCamera, int depth)
         {
             CullingResults cullingResults = Cull(context, camera);
-            // ShaderBindings.SetPerCameraShaderVariables(context, camera);
 
             InitializeRenderingData(ref cullingResults, out LightData lightData);
             m_lights.Setup(context, ref lightData);
