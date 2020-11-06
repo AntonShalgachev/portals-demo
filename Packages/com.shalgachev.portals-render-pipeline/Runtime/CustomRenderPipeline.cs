@@ -50,7 +50,7 @@ namespace UnityEngine.Rendering.CustomRenderPipeline
 
             bool enableDynamicBatching = false;
             bool enableInstancing = false;
-            PerObjectData perObjectData = PerObjectData.None;
+            PerObjectData perObjectData = PerObjectData.LightData | PerObjectData.LightIndices;
 
             FilteringSettings opaqueFilteringSettings = new FilteringSettings(RenderQueueRange.opaque);
             FilteringSettings transparentFilteringSettings = new FilteringSettings(RenderQueueRange.transparent);

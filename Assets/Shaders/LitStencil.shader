@@ -128,7 +128,7 @@ Shader "Portal Render Pipeline/LitStencil"
 
             #define REQUIRES_WORLD_SPACE_POS_INTERPOLATOR
             #include "Packages/com.unity.render-pipelines.universal/Shaders/LitInput.hlsl"
-            #include "include/LitForwardPass.hlsl"
+            #include "Packages/com.unity.render-pipelines.universal/Shaders/LitForwardPass.hlsl"
             #include "PortalCommon.cginc"
             
             half4 LitPassFragmentClipped(Varyings input) : SV_Target
