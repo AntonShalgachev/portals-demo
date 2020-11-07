@@ -1,4 +1,4 @@
-Shader "Portal Render Pipeline/LitStencil"
+Shader "Universal Render Pipeline/Lit"
 {
     Properties
     {
@@ -58,7 +58,7 @@ Shader "Portal Render Pipeline/LitStencil"
         // Universal Pipeline tag is required. If Universal render pipeline is not set in the graphics settings
         // this Subshader will fail. One can add a subshader below or fallback to Standard built-in to make this
         // material work with both Universal Render Pipeline and Builtin Unity Pipeline
-        Tags{"RenderType" = "Opaque" "IgnoreProjector" = "True"}
+        Tags{"RenderType" = "Opaque" "RenderPipeline" = "UniversalPipeline" "IgnoreProjector" = "True"}
         LOD 300
 
         // ------------------------------------------------------------------
@@ -73,13 +73,6 @@ Shader "Portal Render Pipeline/LitStencil"
             Blend[_SrcBlend][_DstBlend]
             ZWrite[_ZWrite]
             Cull[_Cull]
-
-            Stencil
-            {
-                Ref [_StencilRef]
-                Comp [_StencilComp]
-                Pass Keep
-            }
 
             HLSLPROGRAM
             // Required to compile gles 2.0 with standard SRP library
@@ -123,23 +116,132 @@ Shader "Portal Render Pipeline/LitStencil"
             #pragma multi_compile_instancing
 
             #pragma vertex LitPassVertex
-            #pragma fragment LitPassFragmentClipped
+            #pragma fragment LitPassFragment
 
-            #define REQUIRES_WORLD_SPACE_POS_INTERPOLATOR
+            #include "LitInput.hlsl"
+            #include "LitForwardPass.hlsl"
+            ENDHLSL
+        }
+
+        Pass
+        {
+            Name "ShadowCaster"
+            Tags{"LightMode" = "ShadowCaster"}
+
+            ZWrite On
+            ZTest LEqual
+            Cull[_Cull]
+
+            HLSLPROGRAM
+            // Required to compile gles 2.0 with standard srp library
+            #pragma prefer_hlslcc gles
+            #pragma exclude_renderers d3d11_9x
+            #pragma target 2.0
+
+            // -------------------------------------
+            // Material Keywords
+            #pragma shader_feature _ALPHATEST_ON
+
+            //--------------------------------------
+            // GPU Instancing
+            #pragma multi_compile_instancing
+            #pragma shader_feature _SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A
+
+            #pragma vertex ShadowPassVertex
+            #pragma fragment ShadowPassFragment
+
             #include "Packages/com.shalgachev.portals.render-pipeline/Shaders/LitInput.hlsl"
-            #include "Packages/com.shalgachev.portals.render-pipeline/Shaders/LitForwardPass.hlsl"
-            #include "PortalCommon.cginc"
-            
-            half4 LitPassFragmentClipped(Varyings input) : SV_Target
-            {
-                ClipPlane(input.positionWS);
-                return LitPassFragment(input);
-            }
+            #include "Packages/com.shalgachev.portals.render-pipeline/Shaders/ShadowCasterPass.hlsl"
+            ENDHLSL
+        }
+
+        Pass
+        {
+            Name "DepthOnly"
+            Tags{"LightMode" = "DepthOnly"}
+
+            ZWrite On
+            ColorMask 0
+            Cull[_Cull]
+
+            HLSLPROGRAM
+            // Required to compile gles 2.0 with standard srp library
+            #pragma prefer_hlslcc gles
+            #pragma exclude_renderers d3d11_9x
+            #pragma target 2.0
+
+            #pragma vertex DepthOnlyVertex
+            #pragma fragment DepthOnlyFragment
+
+            // -------------------------------------
+            // Material Keywords
+            #pragma shader_feature _ALPHATEST_ON
+            #pragma shader_feature _SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A
+
+            //--------------------------------------
+            // GPU Instancing
+            #pragma multi_compile_instancing
+
+            #include "Packages/com.shalgachev.portals.render-pipeline/Shaders/LitInput.hlsl"
+            #include "Packages/com.shalgachev.portals.render-pipeline/Shaders/DepthOnlyPass.hlsl"
+            ENDHLSL
+        }
+
+        // This pass it not used during regular rendering, only for lightmap baking.
+        Pass
+        {
+            Name "Meta"
+            Tags{"LightMode" = "Meta"}
+
+            Cull Off
+
+            HLSLPROGRAM
+            // Required to compile gles 2.0 with standard srp library
+            #pragma prefer_hlslcc gles
+            #pragma exclude_renderers d3d11_9x
+
+            #pragma vertex UniversalVertexMeta
+            #pragma fragment UniversalFragmentMeta
+
+            #pragma shader_feature _SPECULAR_SETUP
+            #pragma shader_feature _EMISSION
+            #pragma shader_feature _METALLICSPECGLOSSMAP
+            #pragma shader_feature _ALPHATEST_ON
+            #pragma shader_feature _ _SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A
+
+            #pragma shader_feature _SPECGLOSSMAP
+
+            #include "Packages/com.shalgachev.portals.render-pipeline/Shaders/LitInput.hlsl"
+            #include "Packages/com.shalgachev.portals.render-pipeline/Shaders/LitMetaPass.hlsl"
 
             ENDHLSL
         }
-    }
+        Pass
+        {
+            Name "Universal2D"
+            Tags{ "LightMode" = "Universal2D" }
 
+            Blend[_SrcBlend][_DstBlend]
+            ZWrite[_ZWrite]
+            Cull[_Cull]
+
+            HLSLPROGRAM
+            // Required to compile gles 2.0 with standard srp library
+            #pragma prefer_hlslcc gles
+            #pragma exclude_renderers d3d11_9x
+
+            #pragma vertex vert
+            #pragma fragment frag
+            #pragma shader_feature _ALPHATEST_ON
+            #pragma shader_feature _ALPHAPREMULTIPLY_ON
+
+            #include "Packages/com.shalgachev.portals.render-pipeline/Shaders/LitInput.hlsl"
+            #include "Packages/com.shalgachev.portals.render-pipeline/Shaders/Utils/Universal2D.hlsl"
+            ENDHLSL
+        }
+
+
+    }
     FallBack "Hidden/Universal Render Pipeline/FallbackError"
     CustomEditor "UnityEditor.Rendering.Universal.ShaderGUI.LitShader"
 }
