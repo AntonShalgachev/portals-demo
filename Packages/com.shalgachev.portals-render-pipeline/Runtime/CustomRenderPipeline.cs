@@ -4,11 +4,11 @@ namespace UnityEngine.Rendering.CustomRenderPipeline
 {
     public sealed class CustomRenderPipeline : RenderPipeline
     {
-        private Lights m_lights = null;
+        private Lights m_lights = new Lights();
 
         public CustomRenderPipeline(CustomRenderPipelineAsset asset)
         {
-            m_lights = new Lights();
+
         }
 
         protected override void Render(ScriptableRenderContext context, Camera[] cameras)
@@ -26,26 +26,43 @@ namespace UnityEngine.Rendering.CustomRenderPipeline
                     ScriptableRenderContext.EmitWorldGeometryForSceneView(camera);
 #endif
 
-                DrawCamera(context, camera, portalCamera, 0);
+                DrawCamera(context, camera, portalCamera);
             }
         }
 
         CullingResults Cull(ScriptableRenderContext context, Camera camera)
         {
-            // Culling. Adjust culling parameters for your needs. One could enable/disable
-            // per-object lighting or control shadow caster distance.
             camera.TryGetCullingParameters(out var cullingParameters);
             return context.Cull(ref cullingParameters);
         }
 
-        void DrawCamera(ScriptableRenderContext context, Camera camera, Camera portalCamera, int depth)
+        void DrawCamera(ScriptableRenderContext context, Camera camera, Camera portalCamera)
         {
+            if (camera.clearFlags == CameraClearFlags.Color)
+            {
+                var cmd = CommandBufferPool.Get("Clear target");
+                cmd.SetRenderTarget(BuiltinRenderTextureType.CameraTarget);
+                cmd.ClearRenderTarget(true, true, camera.backgroundColor);
+                context.ExecuteCommandBuffer(cmd);
+                CommandBufferPool.Release(cmd);
+            }
+
+            DrawCameraRecursive(context, camera, portalCamera, 0);
+
+            if (camera.clearFlags == CameraClearFlags.Skybox && RenderSettings.skybox != null)
+                context.DrawSkybox(camera);
+
+            context.Submit();
+        }
+
+        void DrawCameraRecursive(ScriptableRenderContext context, Camera camera, Camera portalCamera, int depth)
+        {
+            BeginCameraRendering(context, camera);
+
             CullingResults cullingResults = Cull(context, camera);
 
-            InitializeRenderingData(ref cullingResults, out LightData lightData);
+            InitializeLightData(ref cullingResults, out LightData lightData);
             m_lights.Setup(context, ref lightData);
-
-            BeginCameraRendering(context, camera);
 
             bool enableDynamicBatching = false;
             bool enableInstancing = false;
@@ -72,16 +89,6 @@ namespace UnityEngine.Rendering.CustomRenderPipeline
             transparentDrawingSettings.enableInstancing = enableInstancing;
             transparentDrawingSettings.perObjectData = perObjectData;
 
-            if (camera.clearFlags == CameraClearFlags.Color)
-            {
-                // Sets active render target and clear based on camera background color.
-                var cmd = CommandBufferPool.Get();
-                cmd.SetRenderTarget(BuiltinRenderTextureType.CameraTarget);
-                cmd.ClearRenderTarget(true, true, camera.backgroundColor);
-                context.ExecuteCommandBuffer(cmd);
-                CommandBufferPool.Release(cmd);
-            }
-
             ProfilingSampler cameraSampler = new ProfilingSampler(camera.name);
             CommandBuffer cameraCmd = CommandBufferPool.Get(cameraSampler.name);
             using (new ProfilingScope(cameraCmd, cameraSampler))
@@ -93,22 +100,15 @@ namespace UnityEngine.Rendering.CustomRenderPipeline
                 DrawRenderersProfiled(context, cullingResults, "Opaque", ref opaqueDrawingSettings, ref opaqueFilteringSettings);
                 if (portalCamera != null)
                 {
-                    DrawCamera(context, portalCamera, null, depth + 1);
+                    // TODO set portal camera position
+                    DrawCameraRecursive(context, portalCamera, null, depth + 1);
+                    // TODO reset portal camera position (optional)
                 }
                 context.SetupCameraProperties(camera);
                 DrawRenderersProfiled(context, cullingResults, "Transparent", ref transparentDrawingSettings, ref transparentFilteringSettings);
             }
             context.ExecuteCommandBuffer(cameraCmd);
             CommandBufferPool.Release(cameraCmd);
-
-            // Renders skybox if required
-            if (camera.clearFlags == CameraClearFlags.Skybox && RenderSettings.skybox != null)
-                context.DrawSkybox(camera);
-
-            // Submit commands to GPU. Up to this point all commands have been enqueued in the context.
-            // Several submits can be done in a frame to better controls CPU/GPU workload.
-            if (depth == 0)
-                context.Submit();
 
             EndCameraRendering(context, camera);
         }
@@ -172,7 +172,7 @@ namespace UnityEngine.Rendering.CustomRenderPipeline
             public NativeArray<VisibleLight> visibleLights;
         }
 
-        static void InitializeRenderingData(ref CullingResults cullResults, out LightData lightData)
+        static void InitializeLightData(ref CullingResults cullResults, out LightData lightData)
         {
             var visibleLights = cullResults.visibleLights;
 
