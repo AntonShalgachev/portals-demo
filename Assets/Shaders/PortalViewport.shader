@@ -11,7 +11,7 @@
         Pass
         {
             Name "ForwardPortalViewport"
-            Tags{"LightMode" = "ForwardLit"}
+            Tags{"LightMode" = "UniversalForward"}
 
             Offset -0.1, 0
             Cull [_PortalCullMode]

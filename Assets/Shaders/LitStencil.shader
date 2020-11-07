@@ -68,8 +68,7 @@ Shader "Portal Render Pipeline/LitStencil"
             // Lightmode matches the ShaderPassName set in UniversalRenderPipeline.cs. SRPDefaultUnlit and passes with
             // no LightMode tag are also rendered by Universal Render Pipeline
             Name "ForwardLit"
-            Tags{"LightMode" = "ForwardLit"}
-            // Tags{"LightMode" = "UniversalForward"}
+            Tags{"LightMode" = "UniversalForward"}
 
             Blend[_SrcBlend][_DstBlend]
             ZWrite[_ZWrite]

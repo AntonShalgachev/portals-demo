@@ -11,7 +11,7 @@
         Pass
         {
             Name "ForwardPortalViewportDepth"
-            Tags{"LightMode" = "ForwardLit"}
+            Tags{"LightMode" = "UniversalForward"}
 
             ZWrite On
             ZTest Always

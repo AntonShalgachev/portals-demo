@@ -62,7 +62,10 @@ namespace UnityPrototype
             }
 
             context.ExecuteCommandBuffer(cmd);
+            cmd.Clear();
             CommandBufferPool.Release(cmd);
+
+            context.Submit();
         }
 
         private void EndCameraRendering(ScriptableRenderContext context, Camera camera)
@@ -78,7 +81,10 @@ namespace UnityPrototype
             cmd.SetGlobalInt("_ClippingPlaneEnabled", 0);
 
             context.ExecuteCommandBuffer(cmd);
+            cmd.Clear();
             CommandBufferPool.Release(cmd);
+
+            context.Submit();
         }
     }
 }
