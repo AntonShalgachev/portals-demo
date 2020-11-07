@@ -190,7 +190,7 @@ namespace UnityEngine.Rendering.Universal
         }
 
         /// <summary>
-        /// Configures this renderer for the passes.
+        /// Configures the render passes that will execute for this renderer.
         /// This method is called per-camera every frame.
         /// </summary>
         /// <param name="context">Use this render context to issue any draw commands during execution.</param>
@@ -198,36 +198,6 @@ namespace UnityEngine.Rendering.Universal
         /// <seealso cref="ScriptableRenderPass"/>
         /// <seealso cref="ScriptableRendererFeature"/>
         public abstract void Setup(ScriptableRenderContext context, ref RenderingData renderingData);
-
-        /// <summary>
-        /// Configures the opaque render passes that will execute for this renderer.
-        /// This method is called per-camera every frame.
-        /// </summary>
-        /// <param name="context">Use this render context to issue any draw commands during execution.</param>
-        /// <param name="renderingData">Current render state information.</param>
-        /// <seealso cref="ScriptableRenderPass"/>
-        /// <seealso cref="ScriptableRendererFeature"/>
-        public abstract void EnqueueOpaquePasses(ScriptableRenderContext context, ref RenderingData renderingData);
-
-        /// <summary>
-        /// Configures the transparent render passes that will execute for this renderer.
-        /// This method is called per-camera every frame.
-        /// </summary>
-        /// <param name="context">Use this render context to issue any draw commands during execution.</param>
-        /// <param name="renderingData">Current render state information.</param>
-        /// <seealso cref="ScriptableRenderPass"/>
-        /// <seealso cref="ScriptableRendererFeature"/>
-        public abstract void EnqueueTransparentPasses(ScriptableRenderContext context, ref RenderingData renderingData);
-
-        /// <summary>
-        /// Configures the final render passes (post-processing, blit) that will execute for this renderer.
-        /// This method is called per-camera every frame.
-        /// </summary>
-        /// <param name="context">Use this render context to issue any draw commands during execution.</param>
-        /// <param name="renderingData">Current render state information.</param>
-        /// <seealso cref="ScriptableRenderPass"/>
-        /// <seealso cref="ScriptableRendererFeature"/>
-        public abstract void EnqueueFinalPasses(ScriptableRenderContext context, ref RenderingData renderingData);
 
         /// <summary>
         /// Override this method to implement the lighting setup for the renderer. You can use this to

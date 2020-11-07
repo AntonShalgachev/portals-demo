@@ -57,13 +57,7 @@ namespace UnityEngine.Experimental.Rendering.Universal
             return m_Renderer2DData;
         }
 
-        /// <inheritdoc />
         public override void Setup(ScriptableRenderContext context, ref RenderingData renderingData)
-        {
-
-        }
-
-        public override void EnqueueOpaquePasses(ScriptableRenderContext context, ref RenderingData renderingData)
         {
             ref CameraData cameraData = ref renderingData.cameraData;
             ref var cameraTargetDescriptor = ref cameraData.cameraTargetDescriptor;
@@ -171,17 +165,6 @@ namespace UnityEngine.Experimental.Rendering.Universal
                 m_FinalBlitPass.Setup(cameraTargetDescriptor, finalBlitSourceHandle);
                 EnqueuePass(m_FinalBlitPass);
             }
-        }
-
-        public override void EnqueueTransparentPasses(ScriptableRenderContext context, ref RenderingData renderingData)
-        {
-
-        }
-
-        /// <inheritdoc />
-        public override void EnqueueFinalPasses(ScriptableRenderContext context, ref RenderingData renderingData)
-        {
-
         }
 
         public override void SetupCullingParameters(ref ScriptableCullingParameters cullingParameters, ref CameraData cameraData)

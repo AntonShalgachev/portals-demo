@@ -258,13 +258,6 @@ namespace UnityEngine.Rendering.Universal
             RenderSingleCamera(context, cameraData, true, cameraData.postProcessEnabled);
         }
 
-        private enum DrawMode
-        {
-            Opaque,
-            Transparent,
-            Both,
-        }
-
         /// <summary>
         /// Renders a single camera. This method will do culling, setup and execution of the renderer.
         /// </summary>
@@ -273,11 +266,6 @@ namespace UnityEngine.Rendering.Universal
         /// <param name="requiresBlitToBackbuffer">True if this is the last camera in the stack rendering, false otherwise.</param>
         /// <param name="anyPostProcessingEnabled">True if at least one camera has post-processing enabled in the stack, false otherwise.</param>
         static void RenderSingleCamera(ScriptableRenderContext context, CameraData cameraData, bool requiresBlitToBackbuffer, bool anyPostProcessingEnabled)
-        {
-            RenderSingleCameraCustom(context, cameraData, requiresBlitToBackbuffer, anyPostProcessingEnabled, DrawMode.Both);
-        }
-
-        static void RenderSingleCameraCustom(ScriptableRenderContext context, CameraData cameraData, bool requiresBlitToBackbuffer, bool anyPostProcessingEnabled, DrawMode drawMode)
         {
             Camera camera = cameraData.camera;
             var renderer = cameraData.renderer;
@@ -311,13 +299,9 @@ namespace UnityEngine.Rendering.Universal
 #endif
 
                 var cullResults = context.Cull(ref cullingParameters);
-                InitializeRenderingData(asset, drawMode, ref cameraData, ref cullResults, requiresBlitToBackbuffer, anyPostProcessingEnabled, out var renderingData);
+                InitializeRenderingData(asset, ref cameraData, ref cullResults, requiresBlitToBackbuffer, anyPostProcessingEnabled, out var renderingData);
 
                 renderer.Setup(context, ref renderingData);
-                renderer.EnqueueOpaquePasses(context, ref renderingData);
-                renderer.EnqueueTransparentPasses(context, ref renderingData);
-                renderer.EnqueueFinalPasses(context, ref renderingData);
-
                 renderer.Execute(context, ref renderingData);
             }
 
@@ -731,7 +715,7 @@ namespace UnityEngine.Rendering.Universal
             cameraData.requiresDepthTexture |= cameraData.isSceneViewCamera || depthRequiredForPostFX;
         }
 
-        static void InitializeRenderingData(UniversalRenderPipelineAsset settings, DrawMode drawMode, ref CameraData cameraData, ref CullingResults cullResults,
+        static void InitializeRenderingData(UniversalRenderPipelineAsset settings, ref CameraData cameraData, ref CullingResults cullResults,
             bool requiresBlitToBackbuffer, bool anyPostProcessingEnabled, out RenderingData renderingData)
         {
             var visibleLights = cullResults.visibleLights;
@@ -779,8 +763,6 @@ namespace UnityEngine.Rendering.Universal
 #pragma warning disable // avoid warning because killAlphaInFinalBlit has attribute Obsolete
             renderingData.killAlphaInFinalBlit = false;
 #pragma warning restore
-            renderingData.drawOpaque = drawMode == DrawMode.Opaque || drawMode == DrawMode.Both;
-            renderingData.drawTransparent = drawMode == DrawMode.Transparent || drawMode == DrawMode.Both;
         }
 
         static void InitializeShadowData(UniversalRenderPipelineAsset settings, NativeArray<VisibleLight> visibleLights, bool mainLightCastShadows, bool additionalLightsCastShadows, out ShadowData shadowData)

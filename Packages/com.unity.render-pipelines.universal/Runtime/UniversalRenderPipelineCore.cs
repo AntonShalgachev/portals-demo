@@ -29,9 +29,6 @@ namespace UnityEngine.Rendering.Universal
         [Obsolete("killAlphaInFinalBlit is deprecated in the Universal Render Pipeline since it is no longer needed on any supported platform.")]
         public bool killAlphaInFinalBlit;
 
-        public bool drawOpaque;
-        public bool drawTransparent;
-
         /// <summary>
         /// True if post-processing effect is enabled while rendering the camera stack.
         /// </summary>
