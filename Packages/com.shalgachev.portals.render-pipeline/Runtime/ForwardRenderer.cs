@@ -20,6 +20,7 @@ namespace UnityEngine.Rendering.Universal
             public MainLightShadowCasterPass m_MainLightShadowCasterPass;
             public AdditionalLightsShadowCasterPass m_AdditionalLightsShadowCasterPass;
             public ScreenSpaceShadowResolvePass m_ScreenSpaceShadowResolvePass;
+            public SetupCameraPropertiesPass m_SetupCameraPropertiesPass;
             public DrawObjectsPass m_RenderOpaqueForwardPass;
             public DrawSkyboxPass m_DrawSkyboxPass;
             public CopyDepthPass m_CopyDepthPass;
@@ -31,6 +32,8 @@ namespace UnityEngine.Rendering.Universal
             public PostProcessPass m_FinalPostProcessPass;
             public FinalBlitPass m_FinalBlitPass;
             public CapturePass m_CapturePass;
+            public DrawGizmosPass m_DrawGizmosPreImageEffects;
+            public DrawGizmosPass m_DrawGizmosPostImageEffects;
         }
 
         // PassContainer m_passes = new PassContainer();
@@ -91,6 +94,7 @@ namespace UnityEngine.Rendering.Universal
                 passContainer.m_AdditionalLightsShadowCasterPass = new AdditionalLightsShadowCasterPass(RenderPassEvent.BeforeRenderingShadows);
                 passContainer.m_DepthPrepass = new DepthOnlyPass(RenderPassEvent.BeforeRenderingPrepasses, RenderQueueRange.opaque, data.opaqueLayerMask);
                 passContainer.m_ScreenSpaceShadowResolvePass = new ScreenSpaceShadowResolvePass(RenderPassEvent.BeforeRenderingPrepasses, m_ScreenspaceShadowsMaterial);
+                passContainer.m_SetupCameraPropertiesPass = new SetupCameraPropertiesPass(RenderPassEvent.AfterRenderingShadows);
                 passContainer.m_ColorGradingLutPass = new ColorGradingLutPass(RenderPassEvent.BeforeRenderingPrepasses, data.postProcessData);
                 passContainer.m_RenderOpaqueForwardPass = new DrawObjectsPass("Render Opaques", true, RenderPassEvent.BeforeRenderingOpaques, RenderQueueRange.opaque, data.opaqueLayerMask, m_DefaultStencilState, stencilData.stencilReference);
                 passContainer.m_CopyDepthPass = new CopyDepthPass(RenderPassEvent.AfterRenderingSkybox, m_CopyDepthMaterial);
@@ -102,6 +106,8 @@ namespace UnityEngine.Rendering.Universal
                 passContainer.m_PostProcessPass = new PostProcessPass(RenderPassEvent.BeforeRenderingPostProcessing, data.postProcessData, m_BlitMaterial);
                 passContainer.m_FinalPostProcessPass = new PostProcessPass(RenderPassEvent.AfterRendering + 1, data.postProcessData, m_BlitMaterial);
                 passContainer.m_CapturePass = new CapturePass(RenderPassEvent.AfterRendering);
+                passContainer.m_DrawGizmosPreImageEffects = new DrawGizmosPass(RenderPassEvent.BeforeRenderingPostProcessing, GizmoSubset.PreImageEffects);
+                passContainer.m_DrawGizmosPostImageEffects = new DrawGizmosPass(RenderPassEvent.AfterBlitting, GizmoSubset.PostImageEffects);
                 passContainer.m_FinalBlitPass = new FinalBlitPass(RenderPassEvent.AfterRendering + 1, m_BlitMaterial);
 
                 m_passContainers.Add(passContainer);
@@ -113,7 +119,7 @@ namespace UnityEngine.Rendering.Universal
 #endif
 
 #if UNITY_EDITOR
-            m_SceneViewDepthCopyPass = new SceneViewDepthCopyPass(RenderPassEvent.AfterRendering + 9, m_CopyDepthMaterial);
+            m_SceneViewDepthCopyPass = new SceneViewDepthCopyPass(RenderPassEvent.AfterBlitting, m_CopyDepthMaterial);
 #endif
 
             // RenderTexture format depends on camera and pipeline (HDR, non HDR, etc)
@@ -268,6 +274,8 @@ namespace UnityEngine.Rendering.Universal
             if (additionalLightShadows)
                 EnqueuePass(passes.m_AdditionalLightsShadowCasterPass);
 
+            EnqueuePass(passes.m_SetupCameraPropertiesPass);
+
             if (requiresDepthPrepass)
             {
                 passes.m_DepthPrepass.Setup(cameraTargetDescriptor, m_DepthTexture);
@@ -283,6 +291,8 @@ namespace UnityEngine.Rendering.Universal
             EnqueueGeometryPasses(ref cameraData, requiresDepthPrepass, createDepthTexture, transparentsNeedSettingsPass);
 
             EnqueuePass(passes.m_OnRenderObjectCallbackPass);
+
+            EnqueuePass(passes.m_DrawGizmosPreImageEffects);
 
             bool lastCameraInTheStack = renderingData.resolveFinalTarget;
             bool hasCaptureActions = renderingData.cameraData.captureActions != null && lastCameraInTheStack;
@@ -397,6 +407,8 @@ namespace UnityEngine.Rendering.Universal
                 }
 
             }
+
+            EnqueuePass(passes.m_DrawGizmosPostImageEffects);
 
 #if UNITY_EDITOR
             if (renderingData.cameraData.isSceneViewCamera)

@@ -27,6 +27,7 @@ namespace UnityEngine.Rendering.Universal
         BeforeRenderingPostProcessing = 550,
         AfterRenderingPostProcessing = 600,
         AfterRendering = 1000,
+        AfterBlitting = 2000,
     }
 
     /// <summary>

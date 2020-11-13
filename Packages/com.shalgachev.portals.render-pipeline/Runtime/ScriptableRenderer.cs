@@ -37,7 +37,7 @@ namespace UnityEngine.Rendering.Universal
             public bool cameraStacking { get; set; } = false;
         }
 
-        void SetShaderTimeValues(float time, float deltaTime, float smoothDeltaTime, CommandBuffer cmd = null)
+        void SetShaderTimeValues(float time, float deltaTime, float smoothDeltaTime, CommandBuffer cmd)
         {
             // We make these parameters to mirror those described in `https://docs.unity3d.com/Manual/SL-UnityShaderVariables.html
             float timeEights = time / 8f;
@@ -51,22 +51,11 @@ namespace UnityEngine.Rendering.Universal
             Vector4 deltaTimeVector = new Vector4(deltaTime, 1f / deltaTime, smoothDeltaTime, 1f / smoothDeltaTime);
             Vector4 timeParametersVector = new Vector4(time, Mathf.Sin(time), Mathf.Cos(time), 0.0f);
 
-            if (cmd == null)
-            {
-                Shader.SetGlobalVector(UniversalRenderPipeline.PerFrameBuffer._Time, timeVector);
-                Shader.SetGlobalVector(UniversalRenderPipeline.PerFrameBuffer._SinTime, sinTimeVector);
-                Shader.SetGlobalVector(UniversalRenderPipeline.PerFrameBuffer._CosTime, cosTimeVector);
-                Shader.SetGlobalVector(UniversalRenderPipeline.PerFrameBuffer.unity_DeltaTime, deltaTimeVector);
-                Shader.SetGlobalVector(UniversalRenderPipeline.PerFrameBuffer._TimeParameters, timeParametersVector);
-            }
-            else
-            {
-                cmd.SetGlobalVector(UniversalRenderPipeline.PerFrameBuffer._Time, timeVector);
-                cmd.SetGlobalVector(UniversalRenderPipeline.PerFrameBuffer._SinTime, sinTimeVector);
-                cmd.SetGlobalVector(UniversalRenderPipeline.PerFrameBuffer._CosTime, cosTimeVector);
-                cmd.SetGlobalVector(UniversalRenderPipeline.PerFrameBuffer.unity_DeltaTime, deltaTimeVector);
-                cmd.SetGlobalVector(UniversalRenderPipeline.PerFrameBuffer._TimeParameters, timeParametersVector);
-            }
+            cmd.SetGlobalVector(UniversalRenderPipeline.PerFrameBuffer._Time, timeVector);
+            cmd.SetGlobalVector(UniversalRenderPipeline.PerFrameBuffer._SinTime, sinTimeVector);
+            cmd.SetGlobalVector(UniversalRenderPipeline.PerFrameBuffer._CosTime, cosTimeVector);
+            cmd.SetGlobalVector(UniversalRenderPipeline.PerFrameBuffer.unity_DeltaTime, deltaTimeVector);
+            cmd.SetGlobalVector(UniversalRenderPipeline.PerFrameBuffer._TimeParameters, timeParametersVector);
         }
 
         public RenderTargetIdentifier cameraColorTarget
@@ -97,20 +86,12 @@ namespace UnityEngine.Rendering.Universal
 
         static class RenderPassBlock
         {
-            // Executes render passes that are inputs to the main rendering
-            // but don't depend on camera state. They all render in monoscopic mode. f.ex, shadow maps.
-            public static readonly int BeforeRendering = 0;
-
             // Main bulk of render pass execution. They required camera state to be properly set
             // and when enabled they will render in stereo.
-            public static readonly int MainRenderingOpaque = 1;
-            public static readonly int MainRenderingTransparent = 2;
-
-            // Execute after Post-processing.
-            public static readonly int AfterRendering = 3;
+            public static readonly int MainRendering = 0;
         }
 
-        const int k_RenderPassBlockCount = 4;
+        const int k_RenderPassBlockCount = 1;
 
         List<ScriptableRenderPass> m_ActiveRenderPassQueue = new List<ScriptableRenderPass>(32);
         List<ScriptableRendererFeature> m_RendererFeatures = new List<ScriptableRendererFeature>(10);
@@ -235,15 +216,6 @@ namespace UnityEngine.Rendering.Universal
         /// <param name="renderingData">Current render state information.</param>
         public void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
         {
-            ref CameraData cameraData = ref renderingData.cameraData;
-            Camera camera = cameraData.camera;
-            CommandBuffer cmd = CommandBufferPool.Get(k_SetCameraRenderStateTag);
-
-            // Initialize Camera Render State
-            SetCameraRenderState(cmd, ref cameraData);
-            context.ExecuteCommandBuffer(cmd);
-            cmd.Clear();
-
             // Sort the render pass queue
             SortStable(m_ActiveRenderPassQueue);
 
@@ -258,14 +230,11 @@ namespace UnityEngine.Rendering.Universal
 #endif
             float deltaTime = Time.deltaTime;
             float smoothDeltaTime = Time.smoothDeltaTime;
-            SetShaderTimeValues(time, deltaTime, smoothDeltaTime);
+            // SetShaderTimeValues(time, deltaTime, smoothDeltaTime);
 
             // Upper limits for each block. Each block will contains render passes with events below the limit.
             NativeArray<RenderPassEvent> blockEventLimits = new NativeArray<RenderPassEvent>(k_RenderPassBlockCount, Allocator.Temp);
-            blockEventLimits[RenderPassBlock.BeforeRendering] = RenderPassEvent.BeforeRenderingPrepasses;
-            blockEventLimits[RenderPassBlock.MainRenderingOpaque] = RenderPassEvent.AfterRenderingOpaques;
-            blockEventLimits[RenderPassBlock.MainRenderingTransparent] = RenderPassEvent.AfterRenderingPostProcessing;
-            blockEventLimits[RenderPassBlock.AfterRendering] = (RenderPassEvent)Int32.MaxValue;
+            blockEventLimits[RenderPassBlock.MainRendering] = (RenderPassEvent)Int32.MaxValue;
 
             NativeArray<int> blockRanges = new NativeArray<int>(blockEventLimits.Length + 1, Allocator.Temp);
             // blockRanges[0] is always 0
@@ -274,73 +243,20 @@ namespace UnityEngine.Rendering.Universal
             FillBlockRanges(blockEventLimits, blockRanges);
             blockEventLimits.Dispose();
 
+            CommandBuffer cmd = CommandBufferPool.Get(k_SetCameraRenderStateTag);
+
+            // Initialize Camera Render State
+            SetCameraRenderState(cmd, ref renderingData.cameraData);
+            context.ExecuteCommandBuffer(cmd);
+            cmd.Clear();
+
+            SetShaderTimeValues(time, deltaTime, smoothDeltaTime, cmd);
+            context.ExecuteCommandBuffer(cmd);
+            cmd.Clear();
+
             SetupLights(context, ref renderingData);
 
-            // Before Render Block. This render blocks always execute in mono rendering.
-            // Camera is not setup. Lights are not setup.
-            // Used to render input textures like shadowmaps.
-            ExecuteBlock(RenderPassBlock.BeforeRendering, blockRanges, context, ref renderingData);
-
-            for (int eyeIndex = 0; eyeIndex < renderingData.cameraData.numberOfXRPasses; ++eyeIndex)
-            {
-                /// Configure shader variables and other unity properties that are required for rendering.
-                /// * Setup Camera RenderTarget and Viewport
-                /// * VR Camera Setup and SINGLE_PASS_STEREO props
-                /// * Setup camera view, projection and their inverse matrices.
-                /// * Setup properties: _WorldSpaceCameraPos, _ProjectionParams, _ScreenParams, _ZBufferParams, unity_OrthoParams
-                /// * Setup camera world clip planes properties
-                /// * Setup HDR keyword
-                /// * Setup global time properties (_Time, _SinTime, _CosTime)
-                bool stereoEnabled = renderingData.cameraData.isStereoEnabled;
-                context.SetupCameraProperties(camera, stereoEnabled, eyeIndex);
-
-                // If overlay camera, we have to reset projection related matrices due to inheriting viewport from base
-                // camera. This changes the aspect ratio, which requires to recompute projection.
-                // TODO: We need to expose all work done in SetupCameraProperties above to c# land. This not only
-                // avoids resetting values but also guarantee values are correct for all systems.
-                // Known Issue: billboard will not work with camera stacking when using viewport with aspect ratio different from default aspect.
-                if (cameraData.renderType == CameraRenderType.Overlay)
-                {
-                    cmd.SetViewProjectionMatrices(cameraData.viewMatrix, cameraData.projectionMatrix);
-                }
-
-                // Override time values from when `SetupCameraProperties` were called.
-                // They might be a frame behind.
-                // We can remove this after removing `SetupCameraProperties` as the values should be per frame, and not per camera.
-                SetShaderTimeValues(time, deltaTime, smoothDeltaTime, cmd);
-                context.ExecuteCommandBuffer(cmd);
-                cmd.Clear();
-
-                if (stereoEnabled)
-                    BeginXRRendering(context, camera, eyeIndex);
-
-#if VISUAL_EFFECT_GRAPH_0_0_1_OR_NEWER
-            var localCmd = CommandBufferPool.Get(string.Empty);
-            //Triggers dispatch per camera, all global parameters should have been setup at this stage.
-            VFX.VFXManager.ProcessCameraCommand(camera, localCmd);
-            context.ExecuteCommandBuffer(localCmd);
-            CommandBufferPool.Release(localCmd);
-#endif
-
-                // In the opaque and transparent blocks the main rendering executes.
-
-                // Opaque blocks...
-                ExecuteBlock(RenderPassBlock.MainRenderingOpaque, blockRanges, context, ref renderingData, eyeIndex);
-
-                // Transparent blocks...
-                ExecuteBlock(RenderPassBlock.MainRenderingTransparent, blockRanges, context, ref renderingData, eyeIndex);
-
-                // Draw Gizmos...
-                DrawGizmos(context, camera, GizmoSubset.PreImageEffects);
-
-                // In this block after rendering drawing happens, e.g, post processing, video player capture.
-                ExecuteBlock(RenderPassBlock.AfterRendering, blockRanges, context, ref renderingData, eyeIndex);
-
-                if (stereoEnabled)
-                    EndXRRendering(context, renderingData, eyeIndex);
-            }
-
-            DrawGizmos(context, camera, GizmoSubset.PostImageEffects);
+            ExecuteBlock(RenderPassBlock.MainRendering, blockRanges, context, ref renderingData);
 
             InternalFinishRendering(context, renderingData.resolveFinalTarget);
             blockRanges.Dispose();
@@ -757,15 +673,6 @@ namespace UnityEngine.Rendering.Universal
             m_ActiveDepthAttachment = depthAttachment;
 
             CoreUtils.SetRenderTarget(cmd, colorAttachments, depthAttachment, clearFlag, clearColor);
-        }
-
-        [Conditional("UNITY_EDITOR")]
-        void DrawGizmos(ScriptableRenderContext context, Camera camera, GizmoSubset gizmoSubset)
-        {
-#if UNITY_EDITOR
-            if (UnityEditor.Handles.ShouldRenderGizmos())
-                context.DrawGizmos(camera, gizmoSubset);
-#endif
         }
 
         // Fill in render pass indices for each block. End index is startIndex + 1.

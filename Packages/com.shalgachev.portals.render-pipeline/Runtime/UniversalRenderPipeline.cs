@@ -671,13 +671,7 @@ namespace UnityEngine.Rendering.Universal
                 cameraData.maxShadowDistance : 0.0f;
 
             cameraData.viewMatrix = camera.worldToCameraMatrix;
-
-            // Overlay cameras inherit viewport from base.
-            // If the viewport is different between them we might need to patch the projection
-            // matrix to prevent squishing when rendering objects in overlay cameras.
-            cameraData.projectionMatrix = (!camera.orthographic && !cameraData.isStereoEnabled && cameraData.pixelRect != camera.pixelRect) ?
-                Matrix4x4.Perspective(camera.fieldOfView, cameraData.aspectRatio, camera.nearClipPlane, camera.farClipPlane) :
-                camera.projectionMatrix;
+            cameraData.projectionMatrix = camera.projectionMatrix;
 
             if (cameraData.isSceneViewCamera)
             {
