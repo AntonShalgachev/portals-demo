@@ -51,6 +51,7 @@ namespace UnityEngine.Rendering.Universal
     public struct CameraData
     {
         public Camera camera;
+        public List<Camera> portalCameras;
         public CameraRenderType renderType;
         public RenderTexture targetTexture;
         public RenderTextureDescriptor cameraTargetDescriptor;

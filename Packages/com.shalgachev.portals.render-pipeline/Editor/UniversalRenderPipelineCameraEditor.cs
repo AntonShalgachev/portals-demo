@@ -29,6 +29,7 @@ namespace UnityEditor.Rendering.Universal
             public static GUIContent outputSettingsText = EditorGUIUtility.TrTextContent("Output", "These settings control how the camera output is formatted.");
             public static GUIContent renderingSettingsText = EditorGUIUtility.TrTextContent("Rendering", "These settings control for the specific rendering features for this camera.");
             public static GUIContent stackSettingsText = EditorGUIUtility.TrTextContent("Stack", "The list of overlay cameras assigned to this camera.");
+            public static GUIContent portalStackSettingsText = EditorGUIUtility.TrTextContent("Portal Stack", "The list of portal cameras assigned to this camera.");
 
             public static GUIContent backgroundType = EditorGUIUtility.TrTextContent("Background Type", "Controls how to initialize the Camera's background.\n\nSkybox initializes camera with Skybox, defaulting to a background color if no skybox is found.\n\nSolid Color initializes background with the background color.\n\nUninitialized has undefined values for the camera background. Use this only if you are rendering all pixels in the Camera's view.");
             public static GUIContent cameraType = EditorGUIUtility.TrTextContent("Render Type", "Controls which type of camera this is.");
@@ -133,6 +134,7 @@ namespace UnityEditor.Rendering.Universal
         SavedBool m_OutputSettingsFoldout;
         SavedBool m_RenderingSettingsFoldout;
         SavedBool m_StackSettingsFoldout;
+        SavedBool m_PortalStackSettingsFoldout;
 
         // Animation Properties
         public bool isSameClearFlags { get { return !settings.clearFlags.hasMultipleDifferentValues; } }
@@ -154,6 +156,7 @@ namespace UnityEditor.Rendering.Universal
         SerializedProperty m_AdditionalCameraDataRendererProp;
         SerializedProperty m_AdditionalCameraDataCameraTypeProp;
         SerializedProperty m_AdditionalCameraDataCameras;
+        SerializedProperty m_AdditionalCameraDataPortalCameras;
         SerializedProperty m_AdditionalCameraDataVolumeLayerMask;
         SerializedProperty m_AdditionalCameraDataVolumeTrigger;
         SerializedProperty m_AdditionalCameraDataRenderPostProcessing;
@@ -204,6 +207,7 @@ namespace UnityEditor.Rendering.Universal
             m_OutputSettingsFoldout = new SavedBool($"{target.GetType()}.OutputSettingsFoldout", false);
             m_RenderingSettingsFoldout = new SavedBool($"{target.GetType()}.RenderingSettingsFoldout", false);
             m_StackSettingsFoldout = new SavedBool($"{target.GetType()}.StackSettingsFoldout", false);
+            m_PortalStackSettingsFoldout = new SavedBool($"{target.GetType()}.PortalStackSettingsFoldout", false);
             m_AdditionalCameraData = camera.gameObject.GetComponent<UniversalAdditionalCameraData>();
             m_ErrorIcon = EditorGUIUtility.Load("icons/console.erroricon.sml.png") as Texture2D;
             validCameras.Clear();
@@ -226,6 +230,7 @@ namespace UnityEditor.Rendering.Universal
         {
             var o = new PropertyFetcher<UniversalAdditionalCameraData>(m_AdditionalCameraDataSO);
             m_AdditionalCameraDataCameras = o.Find("m_Cameras");
+            m_AdditionalCameraDataPortalCameras = o.Find("m_PortalCameras");
 
             var camType = (CameraRenderType)m_AdditionalCameraDataCameraTypeProp.intValue;
             if (camType == CameraRenderType.Base)
@@ -454,6 +459,7 @@ namespace UnityEditor.Rendering.Universal
             {
                 DrawOutputSettings();
                 DrawStackSettings();
+                DrawPortalStackSettings();
             }
 
             EditorGUI.indentLevel--;
@@ -529,6 +535,47 @@ namespace UnityEditor.Rendering.Universal
             EditorGUILayout.EndFoldoutHeaderGroup();
         }
 
+        void DrawPortalStackSettings()
+        {
+            m_PortalStackSettingsFoldout.value = EditorGUILayout.BeginFoldoutHeaderGroup(m_PortalStackSettingsFoldout.value, Styles.portalStackSettingsText);
+            ScriptableRenderer.RenderingFeatures supportedRenderingFeatures = m_AdditionalCameraData?.scriptableRenderer?.supportedRenderingFeatures;
+
+            if (supportedRenderingFeatures != null && supportedRenderingFeatures.cameraStacking == false)
+            {
+                EditorGUILayout.HelpBox("The renderer used by this camera doesn't support camera stacking. Only Base camera will render.", MessageType.Warning);
+                return;
+            }
+
+            // TODO: Warn when MultiPass is active and enabled so we show in the UI camera stacking is not supported.
+            // Seems like the stereo rendering mode only changes in playmode. Check the reason so we can enable this check.
+            //#if ENABLE_VR
+            //            if (UnityEngine.XR.XRSettings.stereoRenderingMode == UnityEngine.XR.XRSettings.StereoRenderingMode.MultiPass)
+            //            {
+            //                EditorGUILayout.HelpBox("Camera Stacking is not supported in Multi Pass stereo mode. Only Base camera will render.", MessageType.Warning);
+            //                return;
+            //            }
+            //#endif
+
+#if POST_PROCESSING_STACK_2_0_0_OR_NEWER
+            if (m_UniversalRenderPipeline.postProcessingFeatureSet == PostProcessingFeatureSet.PostProcessingV2)
+            {
+                EditorGUILayout.HelpBox("Camera Stacking is not supported with Post-processing V2. Only Base camera will render.", MessageType.Warning);
+                return;
+            }
+#endif
+
+            if (m_PortalStackSettingsFoldout.value)
+            {
+                EditorGUILayout.PropertyField(m_AdditionalCameraDataPortalCameras);
+
+                m_AdditionalCameraDataSO.ApplyModifiedProperties();
+
+                EditorGUILayout.Space();
+                EditorGUILayout.Space();
+            }
+            EditorGUILayout.EndFoldoutHeaderGroup();
+        }
+
         void DrawEnvironmentSettings(CameraRenderType camType)
         {
             m_EnvironmentSettingsFoldout.value = EditorGUILayout.BeginFoldoutHeaderGroup(m_EnvironmentSettingsFoldout.value, Styles.environmentSettingsText);
@@ -568,6 +615,12 @@ namespace UnityEditor.Rendering.Universal
                     DrawPostProcessing();
                 }
                 else if (camType == CameraRenderType.Overlay)
+                {
+                    DrawPostProcessingOverlay();
+                    EditorGUILayout.PropertyField(m_AdditionalCameraClearDepth, Styles.clearDepth);
+                    m_AdditionalCameraDataSO.ApplyModifiedProperties();
+                }
+                else if (camType == CameraRenderType.Portal)
                 {
                     DrawPostProcessingOverlay();
                     EditorGUILayout.PropertyField(m_AdditionalCameraClearDepth, Styles.clearDepth);

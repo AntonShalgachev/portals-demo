@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine.Rendering.Universal.Internal;
 
 namespace UnityEngine.Rendering.Universal
@@ -12,22 +13,28 @@ namespace UnityEngine.Rendering.Universal
         const int k_DepthStencilBufferBits = 32;
         const string k_CreateCameraTextures = "Create Camera Texture";
 
-        ColorGradingLutPass m_ColorGradingLutPass;
-        DepthOnlyPass m_DepthPrepass;
-        MainLightShadowCasterPass m_MainLightShadowCasterPass;
-        AdditionalLightsShadowCasterPass m_AdditionalLightsShadowCasterPass;
-        ScreenSpaceShadowResolvePass m_ScreenSpaceShadowResolvePass;
-        DrawObjectsPass m_RenderOpaqueForwardPass;
-        DrawSkyboxPass m_DrawSkyboxPass;
-        CopyDepthPass m_CopyDepthPass;
-        CopyColorPass m_CopyColorPass;
-        TransparentSettingsPass m_TransparentSettingsPass;
-        DrawObjectsPass m_RenderTransparentForwardPass;
-        InvokeOnRenderObjectCallbackPass m_OnRenderObjectCallbackPass;
-        PostProcessPass m_PostProcessPass;
-        PostProcessPass m_FinalPostProcessPass;
-        FinalBlitPass m_FinalBlitPass;
-        CapturePass m_CapturePass;
+        private class PassContainer
+        {
+            public ColorGradingLutPass m_ColorGradingLutPass;
+            public DepthOnlyPass m_DepthPrepass;
+            public MainLightShadowCasterPass m_MainLightShadowCasterPass;
+            public AdditionalLightsShadowCasterPass m_AdditionalLightsShadowCasterPass;
+            public ScreenSpaceShadowResolvePass m_ScreenSpaceShadowResolvePass;
+            public DrawObjectsPass m_RenderOpaqueForwardPass;
+            public DrawSkyboxPass m_DrawSkyboxPass;
+            public CopyDepthPass m_CopyDepthPass;
+            public CopyColorPass m_CopyColorPass;
+            public TransparentSettingsPass m_TransparentSettingsPass;
+            public DrawObjectsPass m_RenderTransparentForwardPass;
+            public InvokeOnRenderObjectCallbackPass m_OnRenderObjectCallbackPass;
+            public PostProcessPass m_PostProcessPass;
+            public PostProcessPass m_FinalPostProcessPass;
+            public FinalBlitPass m_FinalBlitPass;
+            public CapturePass m_CapturePass;
+        }
+
+        // PassContainer m_passes = new PassContainer();
+        List<PassContainer> m_passContainers = new List<PassContainer>();
 
 #if POST_PROCESSING_STACK_2_0_0_OR_NEWER
         PostProcessPassCompat m_OpaquePostProcessPassCompat;
@@ -55,8 +62,12 @@ namespace UnityEngine.Rendering.Universal
         Material m_SamplingMaterial;
         Material m_ScreenspaceShadowsMaterial;
 
+        int m_maxPortalDepth = 0;
+
         public ForwardRenderer(ForwardRendererData data) : base(data)
         {
+            m_maxPortalDepth = data.maxPortalDepth;
+
             m_BlitMaterial = CoreUtils.CreateEngineMaterial(data.shaders.blitPS);
             m_CopyDepthMaterial = CoreUtils.CreateEngineMaterial(data.shaders.copyDepthPS);
             m_SamplingMaterial = CoreUtils.CreateEngineMaterial(data.shaders.samplingPS);
@@ -70,24 +81,31 @@ namespace UnityEngine.Rendering.Universal
             m_DefaultStencilState.SetFailOperation(stencilData.failOperation);
             m_DefaultStencilState.SetZFailOperation(stencilData.zFailOperation);
 
-            // Note: Since all custom render passes inject first and we have stable sort,
-            // we inject the builtin passes in the before events.
-            m_MainLightShadowCasterPass = new MainLightShadowCasterPass(RenderPassEvent.BeforeRenderingShadows);
-            m_AdditionalLightsShadowCasterPass = new AdditionalLightsShadowCasterPass(RenderPassEvent.BeforeRenderingShadows);
-            m_DepthPrepass = new DepthOnlyPass(RenderPassEvent.BeforeRenderingPrepasses, RenderQueueRange.opaque, data.opaqueLayerMask);
-            m_ScreenSpaceShadowResolvePass = new ScreenSpaceShadowResolvePass(RenderPassEvent.BeforeRenderingPrepasses, m_ScreenspaceShadowsMaterial);
-            m_ColorGradingLutPass = new ColorGradingLutPass(RenderPassEvent.BeforeRenderingPrepasses, data.postProcessData);
-            m_RenderOpaqueForwardPass = new DrawObjectsPass("Render Opaques", true, RenderPassEvent.BeforeRenderingOpaques, RenderQueueRange.opaque, data.opaqueLayerMask, m_DefaultStencilState, stencilData.stencilReference);
-            m_CopyDepthPass = new CopyDepthPass(RenderPassEvent.AfterRenderingSkybox, m_CopyDepthMaterial);
-            m_DrawSkyboxPass = new DrawSkyboxPass(RenderPassEvent.BeforeRenderingSkybox);
-            m_CopyColorPass = new CopyColorPass(RenderPassEvent.BeforeRenderingTransparents, m_SamplingMaterial);
-            m_TransparentSettingsPass = new TransparentSettingsPass(RenderPassEvent.BeforeRenderingTransparents, data.shadowTransparentReceive);
-            m_RenderTransparentForwardPass = new DrawObjectsPass("Render Transparents", false, RenderPassEvent.BeforeRenderingTransparents, RenderQueueRange.transparent, data.transparentLayerMask, m_DefaultStencilState, stencilData.stencilReference);
-            m_OnRenderObjectCallbackPass = new InvokeOnRenderObjectCallbackPass(RenderPassEvent.BeforeRenderingPostProcessing);
-            m_PostProcessPass = new PostProcessPass(RenderPassEvent.BeforeRenderingPostProcessing, data.postProcessData, m_BlitMaterial);
-            m_FinalPostProcessPass = new PostProcessPass(RenderPassEvent.AfterRendering + 1, data.postProcessData, m_BlitMaterial);
-            m_CapturePass = new CapturePass(RenderPassEvent.AfterRendering);
-            m_FinalBlitPass = new FinalBlitPass(RenderPassEvent.AfterRendering + 1, m_BlitMaterial);
+            for (var i = 0; i < m_maxPortalDepth; i++)
+            {
+                var passContainer = new PassContainer();
+
+                // Note: Since all custom render passes inject first and we have stable sort,
+                // we inject the builtin passes in the before events.
+                passContainer.m_MainLightShadowCasterPass = new MainLightShadowCasterPass(RenderPassEvent.BeforeRenderingShadows);
+                passContainer.m_AdditionalLightsShadowCasterPass = new AdditionalLightsShadowCasterPass(RenderPassEvent.BeforeRenderingShadows);
+                passContainer.m_DepthPrepass = new DepthOnlyPass(RenderPassEvent.BeforeRenderingPrepasses, RenderQueueRange.opaque, data.opaqueLayerMask);
+                passContainer.m_ScreenSpaceShadowResolvePass = new ScreenSpaceShadowResolvePass(RenderPassEvent.BeforeRenderingPrepasses, m_ScreenspaceShadowsMaterial);
+                passContainer.m_ColorGradingLutPass = new ColorGradingLutPass(RenderPassEvent.BeforeRenderingPrepasses, data.postProcessData);
+                passContainer.m_RenderOpaqueForwardPass = new DrawObjectsPass("Render Opaques", true, RenderPassEvent.BeforeRenderingOpaques, RenderQueueRange.opaque, data.opaqueLayerMask, m_DefaultStencilState, stencilData.stencilReference);
+                passContainer.m_CopyDepthPass = new CopyDepthPass(RenderPassEvent.AfterRenderingSkybox, m_CopyDepthMaterial);
+                passContainer.m_DrawSkyboxPass = new DrawSkyboxPass(RenderPassEvent.BeforeRenderingSkybox);
+                passContainer.m_CopyColorPass = new CopyColorPass(RenderPassEvent.BeforeRenderingTransparents, m_SamplingMaterial);
+                passContainer.m_TransparentSettingsPass = new TransparentSettingsPass(RenderPassEvent.BeforeRenderingTransparents, data.shadowTransparentReceive);
+                passContainer.m_RenderTransparentForwardPass = new DrawObjectsPass("Render Transparents", false, RenderPassEvent.BeforeRenderingTransparents, RenderQueueRange.transparent, data.transparentLayerMask, m_DefaultStencilState, stencilData.stencilReference);
+                passContainer.m_OnRenderObjectCallbackPass = new InvokeOnRenderObjectCallbackPass(RenderPassEvent.BeforeRenderingPostProcessing);
+                passContainer.m_PostProcessPass = new PostProcessPass(RenderPassEvent.BeforeRenderingPostProcessing, data.postProcessData, m_BlitMaterial);
+                passContainer.m_FinalPostProcessPass = new PostProcessPass(RenderPassEvent.AfterRendering + 1, data.postProcessData, m_BlitMaterial);
+                passContainer.m_CapturePass = new CapturePass(RenderPassEvent.AfterRendering);
+                passContainer.m_FinalBlitPass = new FinalBlitPass(RenderPassEvent.AfterRendering + 1, m_BlitMaterial);
+
+                m_passContainers.Add(passContainer);
+            }
 
 #if POST_PROCESSING_STACK_2_0_0_OR_NEWER
             m_OpaquePostProcessPassCompat = new PostProcessPassCompat(RenderPassEvent.BeforeRenderingOpaques, true);
@@ -118,7 +136,10 @@ namespace UnityEngine.Rendering.Universal
         protected override void Dispose(bool disposing)
         {
             // always dispose unmanaged resources
-            m_PostProcessPass.Cleanup();
+
+            foreach (var passContainer in m_passContainers)
+                passContainer.m_PostProcessPass.Cleanup();
+
             CoreUtils.Destroy(m_BlitMaterial);
             CoreUtils.Destroy(m_CopyDepthMaterial);
             CoreUtils.Destroy(m_SamplingMaterial);
@@ -128,6 +149,8 @@ namespace UnityEngine.Rendering.Universal
         /// <inheritdoc />
         public override void Setup(ScriptableRenderContext context, ref RenderingData renderingData)
         {
+            PassContainer passes = m_passContainers[0];
+
             Camera camera = renderingData.cameraData.camera;
             ref CameraData cameraData = ref renderingData.cameraData;
             RenderTextureDescriptor cameraTargetDescriptor = renderingData.cameraData.cameraTargetDescriptor;
@@ -144,9 +167,9 @@ namespace UnityEngine.Rendering.Universal
                         rendererFeatures[i].AddRenderPasses(this, ref renderingData);
                 }
 
-                EnqueuePass(m_RenderOpaqueForwardPass);
-                EnqueuePass(m_DrawSkyboxPass);
-                EnqueuePass(m_RenderTransparentForwardPass);
+                EnqueuePass(passes.m_RenderOpaqueForwardPass);
+                EnqueuePass(passes.m_DrawSkyboxPass);
+                EnqueuePass(passes.m_RenderTransparentForwardPass);
                 return;
             }
 
@@ -169,9 +192,9 @@ namespace UnityEngine.Rendering.Universal
             bool requiresDepthTexture = cameraData.requiresDepthTexture;
             bool isStereoEnabled = cameraData.isStereoEnabled;
 
-            bool mainLightShadows = m_MainLightShadowCasterPass.Setup(ref renderingData);
-            bool additionalLightShadows = m_AdditionalLightsShadowCasterPass.Setup(ref renderingData);
-            bool transparentsNeedSettingsPass = m_TransparentSettingsPass.Setup(ref renderingData);
+            bool mainLightShadows = passes.m_MainLightShadowCasterPass.Setup(ref renderingData);
+            bool additionalLightShadows = passes.m_AdditionalLightsShadowCasterPass.Setup(ref renderingData);
+            bool transparentsNeedSettingsPass = passes.m_TransparentSettingsPass.Setup(ref renderingData);
 
             // Depth prepass is generated in the following cases:
             // - Scene view camera always requires a depth texture. We do a depth pre-pass to simplify it and it shouldn't matter much for editor.
@@ -181,7 +204,7 @@ namespace UnityEngine.Rendering.Universal
 
             // The copying of depth should normally happen after rendering opaques.
             // But if we only require it for post processing or the scene camera then we do it after rendering transparent objects
-            m_CopyDepthPass.renderPassEvent = (!requiresDepthTexture && (applyPostProcessing || isSceneViewCamera)) ? RenderPassEvent.AfterRenderingTransparents : RenderPassEvent.AfterRenderingOpaques;
+            passes.m_CopyDepthPass.renderPassEvent = (!requiresDepthTexture && (applyPostProcessing || isSceneViewCamera)) ? RenderPassEvent.AfterRenderingTransparents : RenderPassEvent.AfterRenderingOpaques;
 
             // TODO: There's an issue in multiview and depth copy pass. Atm forcing a depth prepass on XR until we have a proper fix.
             if (isStereoEnabled && requiresDepthTexture)
@@ -240,66 +263,26 @@ namespace UnityEngine.Rendering.Universal
             bool hasPassesAfterPostProcessing = activeRenderPassQueue.Find(x => x.renderPassEvent == RenderPassEvent.AfterRendering) != null;
 
             if (mainLightShadows)
-                EnqueuePass(m_MainLightShadowCasterPass);
+                EnqueuePass(passes.m_MainLightShadowCasterPass);
 
             if (additionalLightShadows)
-                EnqueuePass(m_AdditionalLightsShadowCasterPass);
+                EnqueuePass(passes.m_AdditionalLightsShadowCasterPass);
 
             if (requiresDepthPrepass)
             {
-                m_DepthPrepass.Setup(cameraTargetDescriptor, m_DepthTexture);
-                EnqueuePass(m_DepthPrepass);
+                passes.m_DepthPrepass.Setup(cameraTargetDescriptor, m_DepthTexture);
+                EnqueuePass(passes.m_DepthPrepass);
             }
 
             if (generateColorGradingLUT)
             {
-                m_ColorGradingLutPass.Setup(m_ColorGradingLut);
-                EnqueuePass(m_ColorGradingLutPass);
+                passes.m_ColorGradingLutPass.Setup(m_ColorGradingLut);
+                EnqueuePass(passes.m_ColorGradingLutPass);
             }
 
-            EnqueuePass(m_RenderOpaqueForwardPass);
+            EnqueueGeometryPasses(ref cameraData, requiresDepthPrepass, createDepthTexture, transparentsNeedSettingsPass);
 
-#if POST_PROCESSING_STACK_2_0_0_OR_NEWER
-#pragma warning disable 0618 // Obsolete
-            bool hasOpaquePostProcessCompat = applyPostProcessing &&
-                postProcessFeatureSet == PostProcessingFeatureSet.PostProcessingV2 &&
-                renderingData.cameraData.postProcessLayer.HasOpaqueOnlyEffects(RenderingUtils.postProcessRenderContext);
-
-            if (hasOpaquePostProcessCompat)
-            {
-                m_OpaquePostProcessPassCompat.Setup(cameraTargetDescriptor, m_ActiveCameraColorAttachment, m_ActiveCameraColorAttachment);
-                EnqueuePass(m_OpaquePostProcessPassCompat);
-            }
-#pragma warning restore 0618
-#endif
-
-            bool isOverlayCamera = cameraData.renderType == CameraRenderType.Overlay;
-            if (camera.clearFlags == CameraClearFlags.Skybox && RenderSettings.skybox != null && !isOverlayCamera)
-                EnqueuePass(m_DrawSkyboxPass);
-
-            // If a depth texture was created we necessarily need to copy it, otherwise we could have render it to a renderbuffer
-            if (!requiresDepthPrepass && renderingData.cameraData.requiresDepthTexture && createDepthTexture)
-            {
-                m_CopyDepthPass.Setup(m_ActiveCameraDepthAttachment, m_DepthTexture);
-                EnqueuePass(m_CopyDepthPass);
-            }
-
-            if (renderingData.cameraData.requiresOpaqueTexture)
-            {
-                // TODO: Downsampling method should be store in the renderer instead of in the asset.
-                // We need to migrate this data to renderer. For now, we query the method in the active asset.
-                Downsampling downsamplingMethod = UniversalRenderPipeline.asset.opaqueDownsampling;
-                m_CopyColorPass.Setup(m_ActiveCameraColorAttachment.Identifier(), m_OpaqueColor, downsamplingMethod);
-                EnqueuePass(m_CopyColorPass);
-            }
-
-            if (transparentsNeedSettingsPass)
-            {
-                EnqueuePass(m_TransparentSettingsPass);
-            }
-
-            EnqueuePass(m_RenderTransparentForwardPass);
-            EnqueuePass(m_OnRenderObjectCallbackPass);
+            EnqueuePass(passes.m_OnRenderObjectCallbackPass);
 
             bool lastCameraInTheStack = renderingData.resolveFinalTarget;
             bool hasCaptureActions = renderingData.cameraData.captureActions != null && lastCameraInTheStack;
@@ -367,15 +350,15 @@ namespace UnityEngine.Rendering.Universal
 
                         // if resolving to screen we need to be able to perform sRGBConvertion in post-processing if necessary
                         bool doSRGBConvertion = !(dontResolvePostProcessingToCameraTarget || (m_ActiveCameraColorAttachment != RenderTargetHandle.CameraTarget));
-                        m_PostProcessPass.Setup(cameraTargetDescriptor, m_ActiveCameraColorAttachment, destination, m_ActiveCameraDepthAttachment, m_ColorGradingLut, applyFinalPostProcessing, doSRGBConvertion);
+                        passes.m_PostProcessPass.Setup(cameraTargetDescriptor, m_ActiveCameraColorAttachment, destination, m_ActiveCameraDepthAttachment, m_ColorGradingLut, applyFinalPostProcessing, doSRGBConvertion);
                         Debug.Assert(applyPostProcessing || doSRGBConvertion, "This will do unnecessary blit!");
-                        EnqueuePass(m_PostProcessPass);
+                        EnqueuePass(passes.m_PostProcessPass);
                     }
 
                     if (renderingData.cameraData.captureActions != null)
                     {
-                        m_CapturePass.Setup(m_ActiveCameraColorAttachment);
-                        EnqueuePass(m_CapturePass);
+                        passes.m_CapturePass.Setup(m_ActiveCameraColorAttachment);
+                        EnqueuePass(passes.m_CapturePass);
                     }
 
                     // if we applied post-processing for this camera it means current active texture is m_AfterPostProcessColor
@@ -384,8 +367,8 @@ namespace UnityEngine.Rendering.Universal
                     // Do FXAA or any other final post-processing effect that might need to run after AA.
                     if (applyFinalPostProcessing)
                     {
-                        m_FinalPostProcessPass.SetupFinalPass(sourceForFinalPass);
-                        EnqueuePass(m_FinalPostProcessPass);
+                        passes.m_FinalPostProcessPass.SetupFinalPass(sourceForFinalPass);
+                        EnqueuePass(passes.m_FinalPostProcessPass);
                     }
 
                     // if post-processing then we already resolved to camera target while doing post.
@@ -401,16 +384,16 @@ namespace UnityEngine.Rendering.Universal
                     // We need final blit to resolve to screen
                     if (!cameraTargetResolved)
                     {
-                        m_FinalBlitPass.Setup(cameraTargetDescriptor, sourceForFinalPass);
-                        EnqueuePass(m_FinalBlitPass);
+                        passes.m_FinalBlitPass.Setup(cameraTargetDescriptor, sourceForFinalPass);
+                        EnqueuePass(passes.m_FinalBlitPass);
                     }
                 }
 
                 // stay in RT so we resume rendering on stack after post-processing
                 else if (applyPostProcessing)
                 {
-                    m_PostProcessPass.Setup(cameraTargetDescriptor, m_ActiveCameraColorAttachment, m_AfterPostProcessColor, m_ActiveCameraDepthAttachment, m_ColorGradingLut, false, false);
-                    EnqueuePass(m_PostProcessPass);
+                    passes.m_PostProcessPass.Setup(cameraTargetDescriptor, m_ActiveCameraColorAttachment, m_AfterPostProcessColor, m_ActiveCameraDepthAttachment, m_ColorGradingLut, false, false);
+                    EnqueuePass(passes.m_PostProcessPass);
                 }
 
             }
@@ -424,6 +407,55 @@ namespace UnityEngine.Rendering.Universal
                 EnqueuePass(m_SceneViewDepthCopyPass);
             }
 #endif
+        }
+
+        private void EnqueueGeometryPasses(ref CameraData cameraData, bool requiresDepthPrepass, bool createDepthTexture, bool transparentsNeedSettingsPass)
+        {
+            PassContainer passes = m_passContainers[0];
+            Camera camera = cameraData.camera;
+
+            EnqueuePass(passes.m_RenderOpaqueForwardPass);
+
+#if POST_PROCESSING_STACK_2_0_0_OR_NEWER
+#pragma warning disable 0618 // Obsolete
+            bool hasOpaquePostProcessCompat = applyPostProcessing &&
+                postProcessFeatureSet == PostProcessingFeatureSet.PostProcessingV2 &&
+                renderingData.cameraData.postProcessLayer.HasOpaqueOnlyEffects(RenderingUtils.postProcessRenderContext);
+
+            if (hasOpaquePostProcessCompat)
+            {
+                m_OpaquePostProcessPassCompat.Setup(cameraTargetDescriptor, m_ActiveCameraColorAttachment, m_ActiveCameraColorAttachment);
+                EnqueuePass(m_OpaquePostProcessPassCompat);
+            }
+#pragma warning restore 0618
+#endif
+
+            bool isBaseCamera = cameraData.renderType == CameraRenderType.Base;
+            if (camera.clearFlags == CameraClearFlags.Skybox && RenderSettings.skybox != null && isBaseCamera)
+                EnqueuePass(passes.m_DrawSkyboxPass);
+
+            // If a depth texture was created we necessarily need to copy it, otherwise we could have render it to a renderbuffer
+            if (!requiresDepthPrepass && cameraData.requiresDepthTexture && createDepthTexture)
+            {
+                passes.m_CopyDepthPass.Setup(m_ActiveCameraDepthAttachment, m_DepthTexture);
+                EnqueuePass(passes.m_CopyDepthPass);
+            }
+
+            if (cameraData.requiresOpaqueTexture)
+            {
+                // TODO: Downsampling method should be store in the renderer instead of in the asset.
+                // We need to migrate this data to renderer. For now, we query the method in the active asset.
+                Downsampling downsamplingMethod = UniversalRenderPipeline.asset.opaqueDownsampling;
+                passes.m_CopyColorPass.Setup(m_ActiveCameraColorAttachment.Identifier(), m_OpaqueColor, downsamplingMethod);
+                EnqueuePass(passes.m_CopyColorPass);
+            }
+
+            if (transparentsNeedSettingsPass)
+            {
+                EnqueuePass(passes.m_TransparentSettingsPass);
+            }
+
+            EnqueuePass(passes.m_RenderTransparentForwardPass);
         }
 
         /// <inheritdoc />

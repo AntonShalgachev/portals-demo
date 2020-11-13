@@ -62,6 +62,7 @@ namespace UnityEngine.Rendering.Universal
     {
         Base,
         Overlay,
+        Portal,
     }
 
     /// <summary>
@@ -146,6 +147,7 @@ namespace UnityEngine.Rendering.Universal
 
         [SerializeField] CameraRenderType m_CameraType = CameraRenderType.Base;
         [SerializeField] List<Camera> m_Cameras = new List<Camera>();
+        [SerializeField] List<Camera> m_PortalCameras = new List<Camera>();
         [SerializeField] int m_RendererIndex = -1;
 
         [SerializeField] LayerMask m_VolumeLayerMask = 1; // "Default"
@@ -279,6 +281,14 @@ namespace UnityEngine.Rendering.Universal
                 }
 
                 return m_Cameras;
+            }
+        }
+
+        public List<Camera> portalCameraStack
+        {
+            get
+            {
+                return m_PortalCameras;
             }
         }
 

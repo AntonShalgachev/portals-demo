@@ -275,9 +275,27 @@ namespace UnityEngine.Rendering.Universal
                 return;
             }
 
-            if (!camera.TryGetCullingParameters(IsStereoEnabled(camera), out var cullingParameters))
-                return;
+            // for (int i = 0; i < cameraData.portalCameras.Count; ++i)
+            // {
+            //     var portalCamera = cameraData.portalCameras[i];
 
+            //     if (!portalCamera.isActiveAndEnabled)
+            //         continue;
+
+            //     portalCamera.TryGetComponent<UniversalAdditionalCameraData>(out var portalCameraAdditionalData);
+            //     if (portalCameraAdditionalData == null)
+            //         continue;
+
+            //     if (portalCameraAdditionalData.renderType != CameraRenderType.Portal)
+            //     {
+            //         Debug.LogWarning("Non-portal camera is in portal camera stack. Skipping");
+            //         continue;
+            //     }
+
+            //     InitializeCameraData(portalCamera, portalCameraAdditionalData, out var portalCameraData);
+            // }
+
+            // TODO remove?
             SetupPerCameraShaderConstants(cameraData);
 
             ProfilingSampler sampler = (asset.debugLevel >= PipelineDebugLevel.Profiling) ? new ProfilingSampler(camera.name) : _CameraProfilingSampler;
@@ -285,7 +303,6 @@ namespace UnityEngine.Rendering.Universal
             using (new ProfilingScope(cmd, sampler))
             {
                 renderer.Clear(cameraData.renderType);
-                renderer.SetupCullingParameters(ref cullingParameters, ref cameraData);
 
                 context.ExecuteCommandBuffer(cmd);
                 cmd.Clear();
@@ -298,11 +315,15 @@ namespace UnityEngine.Rendering.Universal
                 }
 #endif
 
-                var cullResults = context.Cull(ref cullingParameters);
-                InitializeRenderingData(asset, ref cameraData, ref cullResults, requiresBlitToBackbuffer, anyPostProcessingEnabled, out var renderingData);
+                if (camera.TryGetCullingParameters(IsStereoEnabled(camera), out var cullingParameters))
+                {
+                    renderer.SetupCullingParameters(ref cullingParameters, ref cameraData);
+                    var cullResults = context.Cull(ref cullingParameters);
+                    InitializeRenderingData(asset, ref cameraData, ref cullResults, requiresBlitToBackbuffer, anyPostProcessingEnabled, out var renderingData);
 
-                renderer.Setup(context, ref renderingData);
-                renderer.Execute(context, ref renderingData);
+                    renderer.Setup(context, ref renderingData);
+                    renderer.Execute(context, ref renderingData);
+                }
             }
 
             context.ExecuteCommandBuffer(cmd);
@@ -321,7 +342,7 @@ namespace UnityEngine.Rendering.Universal
             baseCamera.TryGetComponent<UniversalAdditionalCameraData>(out var baseCameraAdditionalData);
 
             // Overlay cameras will be rendered stacked while rendering base cameras
-            if (baseCameraAdditionalData != null && baseCameraAdditionalData.renderType == CameraRenderType.Overlay)
+            if (baseCameraAdditionalData != null && baseCameraAdditionalData.renderType != CameraRenderType.Base)
                 return;
 
             // renderer contains a stack if it has additional data and the renderer supports stacking
@@ -499,6 +520,8 @@ namespace UnityEngine.Rendering.Universal
             cameraData = new CameraData();
             InitializeStackedCameraData(camera, additionalCameraData, ref cameraData);
             InitializeAdditionalCameraData(camera, additionalCameraData, ref cameraData);
+
+            cameraData.portalCameras = additionalCameraData?.portalCameraStack;
         }
 
 #if ENABLE_VR && ENABLE_XR_MODULE
@@ -687,7 +710,7 @@ namespace UnityEngine.Rendering.Universal
 
             // Disable depth and color copy. We should add it in the renderer instead to avoid performance pitfalls
             // of camera stacking breaking render pass execution implicitly.
-            if (cameraData.renderType == CameraRenderType.Overlay)
+            if (cameraData.renderType != CameraRenderType.Base)
             {
                 cameraData.requiresDepthTexture = false;
                 cameraData.requiresOpaqueTexture = false;

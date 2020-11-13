@@ -59,6 +59,7 @@ namespace UnityEngine.Rendering.Universal
         [SerializeField] LayerMask m_TransparentLayerMask = -1;
         [SerializeField] StencilStateData m_DefaultStencilState = new StencilStateData();
         [SerializeField] bool m_ShadowTransparentReceive = true;
+        [SerializeField] int m_MaxPortalDepth = 3;
 
         protected override ScriptableRenderer Create()
         {
@@ -118,6 +119,16 @@ namespace UnityEngine.Rendering.Universal
             {
                 SetDirty();
                 m_ShadowTransparentReceive = value;
+            }
+        }
+
+        public int maxPortalDepth
+        {
+            get => m_MaxPortalDepth;
+            set
+            {
+                SetDirty();
+                m_MaxPortalDepth = value;
             }
         }
 

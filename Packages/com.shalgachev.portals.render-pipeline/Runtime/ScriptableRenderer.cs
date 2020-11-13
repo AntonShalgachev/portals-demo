@@ -416,7 +416,7 @@ namespace UnityEngine.Rendering.Universal
 
             // Overlay cameras composite on top of previous ones. They don't clear color.
             // For overlay cameras we check if depth should be cleared on not.
-            if (cameraData.renderType == CameraRenderType.Overlay)
+            if (cameraData.renderType != CameraRenderType.Base)
                 return (cameraData.clearDepth) ? ClearFlag.Depth : ClearFlag.None;
 
             // Always clear on first render pass in mobile as it's same perf of DontCare and avoid tile clearing issues.
