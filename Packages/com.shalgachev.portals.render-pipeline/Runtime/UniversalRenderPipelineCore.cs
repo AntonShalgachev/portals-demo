@@ -16,6 +16,12 @@ namespace UnityEngine.Rendering.Universal
         Subtractive,
     };
 
+    public struct ExtendedRenderingData
+    {
+        public RenderingData mainRenderingData;
+        public RenderingData[,] additionalRenderingData;
+    }
+
     [MovedFrom("UnityEngine.Rendering.LWRP")]
     public struct RenderingData
     {
@@ -34,6 +40,8 @@ namespace UnityEngine.Rendering.Universal
         /// </summary>
         public bool postProcessingEnabled;
         internal bool resolveFinalTarget;
+
+        public bool isValid;
     }
 
     [MovedFrom("UnityEngine.Rendering.LWRP")]
@@ -45,6 +53,12 @@ namespace UnityEngine.Rendering.Universal
         public NativeArray<VisibleLight> visibleLights;
         public bool shadeAdditionalLightsPerVertex;
         public bool supportsMixedLighting;
+    }
+
+    public struct ExtendedCameraData
+    {
+        public CameraData cameraData;
+        public CameraData[] portalCameraDatas;
     }
 
     [MovedFrom("UnityEngine.Rendering.LWRP")]

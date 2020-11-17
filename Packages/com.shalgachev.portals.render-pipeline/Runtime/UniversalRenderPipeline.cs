@@ -254,19 +254,21 @@ namespace UnityEngine.Rendering.Universal
                 return;
             }
 
-            InitializeCameraData(camera, additionalCameraData, out var cameraData);
-            RenderSingleCamera(context, cameraData, true, cameraData.postProcessEnabled);
+            InitializeExtendedCameraData(camera, additionalCameraData, out var extendedCameraData);
+            RenderSingleCamera(context, extendedCameraData, true, extendedCameraData.cameraData.postProcessEnabled);
         }
 
         /// <summary>
         /// Renders a single camera. This method will do culling, setup and execution of the renderer.
         /// </summary>
         /// <param name="context">Render context used to record commands during execution.</param>
-        /// <param name="cameraData">Camera rendering data. This might contain data inherited from a base camera.</param>
+        /// <param name="extendedCameraData">Extended camera rendering data. This might contain data inherited from a base camera.</param>
         /// <param name="requiresBlitToBackbuffer">True if this is the last camera in the stack rendering, false otherwise.</param>
         /// <param name="anyPostProcessingEnabled">True if at least one camera has post-processing enabled in the stack, false otherwise.</param>
-        static void RenderSingleCamera(ScriptableRenderContext context, CameraData cameraData, bool requiresBlitToBackbuffer, bool anyPostProcessingEnabled)
+        static void RenderSingleCamera(ScriptableRenderContext context, ExtendedCameraData extendedCameraData, bool requiresBlitToBackbuffer, bool anyPostProcessingEnabled)
         {
+            ref var cameraData = ref extendedCameraData.cameraData;
+
             Camera camera = cameraData.camera;
             var renderer = cameraData.renderer;
             if (renderer == null)
@@ -274,26 +276,6 @@ namespace UnityEngine.Rendering.Universal
                 Debug.LogWarning(string.Format("Trying to render {0} with an invalid renderer. Camera rendering will be skipped.", camera.name));
                 return;
             }
-
-            // for (int i = 0; i < cameraData.portalCameras.Count; ++i)
-            // {
-            //     var portalCamera = cameraData.portalCameras[i];
-
-            //     if (!portalCamera.isActiveAndEnabled)
-            //         continue;
-
-            //     portalCamera.TryGetComponent<UniversalAdditionalCameraData>(out var portalCameraAdditionalData);
-            //     if (portalCameraAdditionalData == null)
-            //         continue;
-
-            //     if (portalCameraAdditionalData.renderType != CameraRenderType.Portal)
-            //     {
-            //         Debug.LogWarning("Non-portal camera is in portal camera stack. Skipping");
-            //         continue;
-            //     }
-
-            //     InitializeCameraData(portalCamera, portalCameraAdditionalData, out var portalCameraData);
-            // }
 
             // TODO remove?
             SetupPerCameraShaderConstants(cameraData);
@@ -315,12 +297,12 @@ namespace UnityEngine.Rendering.Universal
                 }
 #endif
 
-                if (camera.TryGetCullingParameters(IsStereoEnabled(camera), out var cullingParameters))
-                {
-                    renderer.SetupCullingParameters(ref cullingParameters, ref cameraData);
-                    var cullResults = context.Cull(ref cullingParameters);
-                    InitializeRenderingData(asset, ref cameraData, ref cullResults, requiresBlitToBackbuffer, anyPostProcessingEnabled, out var renderingData);
+                InitializeRecursiveRenderingData(renderer, context, ref extendedCameraData, requiresBlitToBackbuffer, anyPostProcessingEnabled, out var extendedRenderingData);
 
+                ref var renderingData = ref extendedRenderingData.mainRenderingData;
+
+                if (renderingData.isValid)
+                {
                     renderer.Setup(context, ref renderingData);
                     renderer.Execute(context, ref renderingData);
                 }
@@ -414,8 +396,8 @@ namespace UnityEngine.Rendering.Universal
             VFX.VFXManager.PrepareCamera(baseCamera);
 #endif
             UpdateVolumeFramework(baseCamera, baseCameraAdditionalData);
-            InitializeCameraData(baseCamera, baseCameraAdditionalData, out var baseCameraData);
-            RenderSingleCamera(context, baseCameraData, !isStackedRendering, anyPostProcessingEnabled);
+            InitializeExtendedCameraData(baseCamera, baseCameraAdditionalData, out var baseExtendedCameraData);
+            RenderSingleCamera(context, baseExtendedCameraData, !isStackedRendering, anyPostProcessingEnabled);
             EndCameraRendering(context, baseCamera);
 
             if (!isStackedRendering)
@@ -433,7 +415,9 @@ namespace UnityEngine.Rendering.Universal
                 if (currCameraData != null)
                 {
                     // Copy base settings from base camera data and initialize initialize remaining specific settings for this camera type.
-                    CameraData overlayCameraData = baseCameraData;
+                    ExtendedCameraData overlayExtendedCameraData = new ExtendedCameraData();
+                    overlayExtendedCameraData.cameraData = baseExtendedCameraData.cameraData;
+                    // CameraData overlayCameraData = baseExtendedCameraData;
                     bool lastCamera = i == lastActiveOverlayCameraIndex;
 
                     BeginCameraRendering(context, currCamera);
@@ -442,8 +426,8 @@ namespace UnityEngine.Rendering.Universal
                     VFX.VFXManager.PrepareCamera(currCamera);
 #endif
                     UpdateVolumeFramework(currCamera, currCameraData);
-                    InitializeAdditionalCameraData(currCamera, currCameraData, ref overlayCameraData);
-                    RenderSingleCamera(context, overlayCameraData, lastCamera, anyPostProcessingEnabled);
+                    InitializeAdditionalCameraData(currCamera, currCameraData, ref overlayExtendedCameraData.cameraData);
+                    RenderSingleCamera(context, overlayExtendedCameraData, lastCamera, anyPostProcessingEnabled);
                     EndCameraRendering(context, currCamera);
                 }
             }
@@ -520,8 +504,36 @@ namespace UnityEngine.Rendering.Universal
             cameraData = new CameraData();
             InitializeStackedCameraData(camera, additionalCameraData, ref cameraData);
             InitializeAdditionalCameraData(camera, additionalCameraData, ref cameraData);
+        }
 
-            cameraData.portalCameras = additionalCameraData?.portalCameraStack;
+        static void InitializeExtendedCameraData(Camera camera, UniversalAdditionalCameraData additionalCameraData, out ExtendedCameraData extendedCameraData)
+        {
+            extendedCameraData = new ExtendedCameraData();
+            InitializeCameraData(camera, additionalCameraData, out extendedCameraData.cameraData);
+
+            var portalCameras = additionalCameraData != null ? additionalCameraData.portalCameraStack : new List<Camera>();
+
+            extendedCameraData.portalCameraDatas = new CameraData[portalCameras.Count];
+
+            for (int i = 0; i < portalCameras.Count; ++i)
+            {
+                var portalCamera = portalCameras[i];
+
+                if (!portalCamera.isActiveAndEnabled)
+                    continue;
+
+                portalCamera.TryGetComponent<UniversalAdditionalCameraData>(out var portalCameraAdditionalData);
+                if (portalCameraAdditionalData == null)
+                    continue;
+
+                if (portalCameraAdditionalData.renderType != CameraRenderType.Portal)
+                {
+                    Debug.LogWarning("Non-portal camera is in portal camera stack. Skipping");
+                    continue;
+                }
+
+                InitializeCameraData(portalCamera, portalCameraAdditionalData, out extendedCameraData.portalCameraDatas[i]);
+            }
         }
 
 #if ENABLE_VR && ENABLE_XR_MODULE
@@ -732,6 +744,48 @@ namespace UnityEngine.Rendering.Universal
             cameraData.requiresDepthTexture |= cameraData.isSceneViewCamera || depthRequiredForPostFX;
         }
 
+        static void CreateRenderingDataForCameraData(ScriptableRenderer renderer, ScriptableRenderContext context, ref CameraData cameraData, bool requiresBlitToBackbuffer, bool anyPostProcessingEnabled, out RenderingData renderingData)
+        {
+            renderingData = new RenderingData();
+
+            var camera = cameraData.camera;
+
+            if (camera.TryGetCullingParameters(IsStereoEnabled(camera), out var cullingParameters))
+            {
+                renderer.SetupCullingParameters(ref cullingParameters, ref cameraData);
+                var cullResults = context.Cull(ref cullingParameters);
+                InitializeRenderingData(asset, ref cameraData, ref cullResults, requiresBlitToBackbuffer, anyPostProcessingEnabled, out renderingData);
+            }
+            else
+            {
+                renderingData.isValid = false;
+                Debug.LogWarning($"Failed to get culling parameters for camera {camera}");
+            }
+        }
+
+        static void InitializeRecursiveRenderingData(ScriptableRenderer renderer, ScriptableRenderContext context, ref ExtendedCameraData extendedCameraData, bool requiresBlitToBackbuffer, bool anyPostProcessingEnabled, out ExtendedRenderingData extendedRenderingData)
+        {
+            extendedRenderingData = new ExtendedRenderingData();
+
+            CreateRenderingDataForCameraData(renderer, context, ref extendedCameraData.cameraData, requiresBlitToBackbuffer, anyPostProcessingEnabled, out extendedRenderingData.mainRenderingData);
+
+            // TODO hook the real max depth
+            var maxDepth = 1;
+            var numCameras = extendedCameraData.portalCameraDatas.Length;
+
+            extendedRenderingData.additionalRenderingData = new RenderingData[maxDepth, numCameras];
+
+            for (var depth = 0; depth < maxDepth; depth++)
+            {
+                for (var camIndex = 0; camIndex < numCameras; camIndex++)
+                {
+                    ref var cameraData = ref extendedCameraData.portalCameraDatas[camIndex];
+                    ref var renderingData = ref extendedRenderingData.additionalRenderingData[depth, camIndex];
+                    CreateRenderingDataForCameraData(renderer, context, ref cameraData, requiresBlitToBackbuffer, anyPostProcessingEnabled, out renderingData);
+                }
+            }
+        }
+
         static void InitializeRenderingData(UniversalRenderPipelineAsset settings, ref CameraData cameraData, ref CullingResults cullResults,
             bool requiresBlitToBackbuffer, bool anyPostProcessingEnabled, out RenderingData renderingData)
         {
@@ -780,6 +834,8 @@ namespace UnityEngine.Rendering.Universal
 #pragma warning disable // avoid warning because killAlphaInFinalBlit has attribute Obsolete
             renderingData.killAlphaInFinalBlit = false;
 #pragma warning restore
+
+            renderingData.isValid = true;
         }
 
         static void InitializeShadowData(UniversalRenderPipelineAsset settings, NativeArray<VisibleLight> visibleLights, bool mainLightCastShadows, bool additionalLightsCastShadows, out ShadowData shadowData)
