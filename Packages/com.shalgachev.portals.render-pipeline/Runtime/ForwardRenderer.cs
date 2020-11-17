@@ -15,6 +15,7 @@ namespace UnityEngine.Rendering.Universal
 
         private class PassContainer
         {
+            public SetupForwardLightsPass m_SetupForwardLightsPass;
             public ColorGradingLutPass m_ColorGradingLutPass;
             public DepthOnlyPass m_DepthPrepass;
             public MainLightShadowCasterPass m_MainLightShadowCasterPass;
@@ -90,6 +91,7 @@ namespace UnityEngine.Rendering.Universal
 
                 // Note: Since all custom render passes inject first and we have stable sort,
                 // we inject the builtin passes in the before events.
+                passContainer.m_SetupForwardLightsPass = new SetupForwardLightsPass(RenderPassEvent.BeforeRendering);
                 passContainer.m_MainLightShadowCasterPass = new MainLightShadowCasterPass(RenderPassEvent.BeforeRenderingShadows);
                 passContainer.m_AdditionalLightsShadowCasterPass = new AdditionalLightsShadowCasterPass(RenderPassEvent.BeforeRenderingShadows);
                 passContainer.m_DepthPrepass = new DepthOnlyPass(RenderPassEvent.BeforeRenderingPrepasses, RenderQueueRange.opaque, data.opaqueLayerMask);
@@ -252,6 +254,8 @@ namespace UnityEngine.Rendering.Universal
                 m_ActiveCameraDepthAttachment = m_CameraDepthAttachment;
             }
 
+            passes.m_SetupForwardLightsPass.Setup(m_ForwardLights);
+
             ConfigureCameraTarget(m_ActiveCameraColorAttachment.Identifier(), m_ActiveCameraDepthAttachment.Identifier());
 
             for (int i = 0; i < rendererFeatures.Count; ++i)
@@ -267,6 +271,8 @@ namespace UnityEngine.Rendering.Universal
                     activeRenderPassQueue.RemoveAt(i);
             }
             bool hasPassesAfterPostProcessing = activeRenderPassQueue.Find(x => x.renderPassEvent == RenderPassEvent.AfterRendering) != null;
+
+            EnqueuePass(passes.m_SetupForwardLightsPass);
 
             if (mainLightShadows)
                 EnqueuePass(passes.m_MainLightShadowCasterPass);
@@ -468,12 +474,6 @@ namespace UnityEngine.Rendering.Universal
             }
 
             EnqueuePass(passes.m_RenderTransparentForwardPass);
-        }
-
-        /// <inheritdoc />
-        public override void SetupLights(ScriptableRenderContext context, ref RenderingData renderingData)
-        {
-            m_ForwardLights.Setup(context, ref renderingData);
         }
 
         /// <inheritdoc />

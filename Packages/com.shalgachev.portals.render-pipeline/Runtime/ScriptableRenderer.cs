@@ -181,16 +181,6 @@ namespace UnityEngine.Rendering.Universal
         public abstract void Setup(ScriptableRenderContext context, ref RenderingData renderingData);
 
         /// <summary>
-        /// Override this method to implement the lighting setup for the renderer. You can use this to
-        /// compute and upload light CBUFFER for example.
-        /// </summary>
-        /// <param name="context">Use this render context to issue any draw commands during execution.</param>
-        /// <param name="renderingData">Current render state information.</param>
-        public virtual void SetupLights(ScriptableRenderContext context, ref RenderingData renderingData)
-        {
-        }
-
-        /// <summary>
         /// Override this method to configure the culling parameters for the renderer. You can use this to configure if
         /// lights should be culled per-object or the maximum shadow distance for example.
         /// </summary>
@@ -245,16 +235,9 @@ namespace UnityEngine.Rendering.Universal
 
             CommandBuffer cmd = CommandBufferPool.Get(k_SetCameraRenderStateTag);
 
-            // Initialize Camera Render State
-            SetCameraRenderState(cmd, ref renderingData.cameraData);
-            context.ExecuteCommandBuffer(cmd);
-            cmd.Clear();
-
             SetShaderTimeValues(time, deltaTime, smoothDeltaTime, cmd);
             context.ExecuteCommandBuffer(cmd);
             cmd.Clear();
-
-            SetupLights(context, ref renderingData);
 
             ExecuteBlock(RenderPassBlock.MainRendering, blockRanges, context, ref renderingData);
 
@@ -344,21 +327,6 @@ namespace UnityEngine.Rendering.Universal
                 return ClearFlag.Depth;
 
             return ClearFlag.All;
-        }
-
-        // Initialize Camera Render State
-        // Place all per-camera rendering logic that is generic for all types of renderers here.
-        void SetCameraRenderState(CommandBuffer cmd, ref CameraData cameraData)
-        {
-            // Reset per-camera shader keywords. They are enabled depending on which render passes are executed.
-            cmd.DisableShaderKeyword(ShaderKeywordStrings.MainLightShadows);
-            cmd.DisableShaderKeyword(ShaderKeywordStrings.MainLightShadowCascades);
-            cmd.DisableShaderKeyword(ShaderKeywordStrings.AdditionalLightsVertex);
-            cmd.DisableShaderKeyword(ShaderKeywordStrings.AdditionalLightsPixel);
-            cmd.DisableShaderKeyword(ShaderKeywordStrings.AdditionalLightShadows);
-            cmd.DisableShaderKeyword(ShaderKeywordStrings.SoftShadows);
-            cmd.DisableShaderKeyword(ShaderKeywordStrings.MixedLightingSubtractive);
-            cmd.DisableShaderKeyword(ShaderKeywordStrings.LinearToSRGBConversion);
         }
 
         internal void Clear(CameraRenderType cameraType)
