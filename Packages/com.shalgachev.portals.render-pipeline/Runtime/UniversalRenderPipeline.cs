@@ -429,6 +429,16 @@ namespace UnityEngine.Rendering.Universal
             }
         }
 
+        public static void OnBeginCameraRendering(ScriptableRenderContext context, Camera camera)
+        {
+            BeginCameraRendering(context, camera);
+        }
+
+        public static void OnEndCameraRendering(ScriptableRenderContext context, Camera camera)
+        {
+            EndCameraRendering(context, camera);
+        }
+
         static void UpdateVolumeFramework(Camera camera, UniversalAdditionalCameraData additionalCameraData)
         {
             // Default values when there's no additional camera data available

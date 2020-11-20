@@ -52,7 +52,7 @@
             fixed4 frag (v2f i) : COLOR
             {
                 ClipPlane(i.worldPos);
-                return fixed4(0, 0, 0, 1);
+                return fixed4(1, 1, 0, 1);
             }
             ENDCG
         }

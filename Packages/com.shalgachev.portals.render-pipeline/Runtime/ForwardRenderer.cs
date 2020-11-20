@@ -403,15 +403,33 @@ namespace UnityEngine.Rendering.Universal
 
         private void EnqueueGeometryPasses(ref ExtendedRenderingData extendedRenderingData, bool requiresDepthPrepass, bool createDepthTexture)
         {
-            ref var renderingData = ref extendedRenderingData.mainRenderingData;
+            PassContainer passes = m_passContainers[0];
+            passes.m_SetupForwardLightsPass.Setup(m_ForwardLights);
+            EnqueuePass(passes.m_SetupForwardLightsPass);
+
+            EnqueueGeometryPassesRecursive(ref extendedRenderingData, requiresDepthPrepass, createDepthTexture, 0);
+        }
+
+        private void EnqueueGeometryPassesRecursive(ref ExtendedRenderingData extendedRenderingData, bool requiresDepthPrepass, bool createDepthTexture, int depth)
+        {
+            var maxDepth = extendedRenderingData.additionalRenderingData.GetLength(0);
+            var portalCamerasCount = extendedRenderingData.additionalRenderingData.GetLength(1);
+
+            if (depth > 0 && portalCamerasCount <= 0)
+                return;
+
+            if (depth > maxDepth)
+                return;
+
+            var previousDepth = m_currentDepth;
+            m_currentDepth = depth;
+
+            ref var renderingData = ref (depth <= 0 ? ref extendedRenderingData.mainRenderingData : ref extendedRenderingData.additionalRenderingData[depth - 1, 0]);
 
             ref var cameraData = ref renderingData.cameraData;
 
-            PassContainer passes = m_passContainers[0];
+            PassContainer passes = m_passContainers[depth];
             Camera camera = cameraData.camera;
-
-            passes.m_SetupForwardLightsPass.Setup(m_ForwardLights);
-            EnqueuePass(passes.m_SetupForwardLightsPass);
 
             bool mainLightShadows = passes.m_MainLightShadowCasterPass.Setup(ref renderingData);
             if (mainLightShadows)
@@ -444,6 +462,10 @@ namespace UnityEngine.Rendering.Universal
             //             }
 
             EnqueuePass(passes.m_RenderOpaqueForwardPass);
+
+            EnqueueGeometryPassesRecursive(ref extendedRenderingData, requiresDepthPrepass, createDepthTexture, depth + 1);
+
+            EnqueuePass(passes.m_SetupCameraPropertiesPass);
 
             // #if POST_PROCESSING_STACK_2_0_0_OR_NEWER
             // #pragma warning disable 0618 // Obsolete
@@ -487,6 +509,8 @@ namespace UnityEngine.Rendering.Universal
             }
 
             EnqueuePass(passes.m_RenderTransparentForwardPass);
+
+            m_currentDepth = previousDepth;
         }
 
         /// <inheritdoc />

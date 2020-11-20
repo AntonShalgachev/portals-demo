@@ -210,7 +210,7 @@ namespace UnityEngine.Rendering.Universal
         public void Execute(ScriptableRenderContext context, ref ExtendedRenderingData extendedRenderingData)
         {
             // Sort the render pass queue
-            SortStable(m_ActiveRenderPassQueue);
+            // SortStable(m_ActiveRenderPassQueue);
 
             // Cache the time for after the call to `SetupCameraProperties` and set the time variables in shader
             // For now we set the time variables per camera, as we plan to remove `SetupCamearProperties`.
@@ -356,6 +356,9 @@ namespace UnityEngine.Rendering.Universal
         void ExecuteBlock(int blockIndex, NativeArray<int> blockRanges,
             ScriptableRenderContext context, ref ExtendedRenderingData extendedRenderingData, int eyeIndex = 0, bool submit = false)
         {
+            Camera mainCamera = extendedRenderingData.mainRenderingData.cameraData.camera;
+            Camera previousCamera = mainCamera;
+
             int endIndex = blockRanges[blockIndex + 1];
             for (int currIndex = blockRanges[blockIndex]; currIndex < endIndex; ++currIndex)
             {
@@ -363,8 +366,20 @@ namespace UnityEngine.Rendering.Universal
                 var depth = renderPass.depth;
                 var cameraId = renderPass.cameraId;
                 ref var renderingData = ref (depth > 0) ? ref extendedRenderingData.additionalRenderingData[depth - 1, cameraId] : ref extendedRenderingData.mainRenderingData;
+                var camera = renderingData.cameraData.camera;
+
+                if (camera != previousCamera)
+                {
+                    UniversalRenderPipeline.OnEndCameraRendering(context, previousCamera);
+                    UniversalRenderPipeline.OnBeginCameraRendering(context, camera);
+                    previousCamera = camera;
+                }
+
                 ExecuteRenderPass(context, renderPass, ref renderingData, eyeIndex);
             }
+
+            if (previousCamera != mainCamera)
+                UniversalRenderPipeline.OnEndCameraRendering(context, previousCamera);
 
             if (submit)
                 context.Submit();
