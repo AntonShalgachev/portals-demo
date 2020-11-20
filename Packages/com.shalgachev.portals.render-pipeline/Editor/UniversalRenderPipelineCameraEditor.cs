@@ -581,7 +581,7 @@ namespace UnityEditor.Rendering.Universal
             m_EnvironmentSettingsFoldout.value = EditorGUILayout.BeginFoldoutHeaderGroup(m_EnvironmentSettingsFoldout.value, Styles.environmentSettingsText);
             if (m_EnvironmentSettingsFoldout.value)
             {
-                if (camType == CameraRenderType.Base)
+                if (camType != CameraRenderType.Overlay)
                 {
                     DrawClearFlags();
 
