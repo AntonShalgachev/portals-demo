@@ -68,6 +68,9 @@ namespace UnityEngine.Rendering.Universal
         internal bool overrideCameraTarget { get; set; }
         internal bool isBlitRenderPass { get; set; }
 
+        public int depth { get; set; } = 0;
+        public int cameraId { get; set; } = 0;
+
         RenderTargetIdentifier[] m_ColorAttachments = new RenderTargetIdentifier[] { BuiltinRenderTextureType.CameraTarget };
         RenderTargetIdentifier m_DepthAttachment = BuiltinRenderTextureType.CameraTarget;
         ClearFlag m_ClearFlag = ClearFlag.None;

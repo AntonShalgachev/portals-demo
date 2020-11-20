@@ -57,8 +57,10 @@ namespace UnityEngine.Experimental.Rendering.Universal
             return m_Renderer2DData;
         }
 
-        public override void Setup(ScriptableRenderContext context, ref RenderingData renderingData)
+        public override void Setup(ScriptableRenderContext context, ref ExtendedRenderingData extendedRenderingData)
         {
+            ref var renderingData = ref extendedRenderingData.mainRenderingData;
+
             ref CameraData cameraData = ref renderingData.cameraData;
             ref var cameraTargetDescriptor = ref cameraData.cameraTargetDescriptor;
             PixelPerfectCamera ppc;

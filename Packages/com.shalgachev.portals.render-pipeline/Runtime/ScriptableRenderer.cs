@@ -78,6 +78,9 @@ namespace UnityEngine.Rendering.Universal
             get => m_ActiveRenderPassQueue;
         }
 
+        protected int m_currentDepth = 0;
+        protected int m_currentCameraId = 0;
+
         /// <summary>
         /// Supported rendering features by this renderer.
         /// <see cref="SupportedRenderingFeatures"/>
@@ -178,7 +181,7 @@ namespace UnityEngine.Rendering.Universal
         /// <param name="renderingData">Current render state information.</param>
         /// <seealso cref="ScriptableRenderPass"/>
         /// <seealso cref="ScriptableRendererFeature"/>
-        public abstract void Setup(ScriptableRenderContext context, ref RenderingData renderingData);
+        public abstract void Setup(ScriptableRenderContext context, ref ExtendedRenderingData extendedRenderingData);
 
         /// <summary>
         /// Override this method to configure the culling parameters for the renderer. You can use this to configure if
@@ -204,7 +207,7 @@ namespace UnityEngine.Rendering.Universal
         /// </summary>
         /// <param name="context">Use this render context to issue any draw commands during execution.</param>
         /// <param name="renderingData">Current render state information.</param>
-        public void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
+        public void Execute(ScriptableRenderContext context, ref ExtendedRenderingData extendedRenderingData)
         {
             // Sort the render pass queue
             SortStable(m_ActiveRenderPassQueue);
@@ -239,9 +242,9 @@ namespace UnityEngine.Rendering.Universal
             context.ExecuteCommandBuffer(cmd);
             cmd.Clear();
 
-            ExecuteBlock(RenderPassBlock.MainRendering, blockRanges, context, ref renderingData);
+            ExecuteBlock(RenderPassBlock.MainRendering, blockRanges, context, ref extendedRenderingData);
 
-            InternalFinishRendering(context, renderingData.resolveFinalTarget);
+            InternalFinishRendering(context, extendedRenderingData.mainRenderingData.resolveFinalTarget);
             blockRanges.Dispose();
             CommandBufferPool.Release(cmd);
         }
@@ -252,6 +255,8 @@ namespace UnityEngine.Rendering.Universal
         /// <param name="pass">Render pass to be enqueued.</param>
         public void EnqueuePass(ScriptableRenderPass pass)
         {
+            pass.depth = m_currentDepth;
+            pass.cameraId = m_currentCameraId;
             m_ActiveRenderPassQueue.Add(pass);
         }
 
@@ -349,12 +354,15 @@ namespace UnityEngine.Rendering.Universal
         }
 
         void ExecuteBlock(int blockIndex, NativeArray<int> blockRanges,
-            ScriptableRenderContext context, ref RenderingData renderingData, int eyeIndex = 0, bool submit = false)
+            ScriptableRenderContext context, ref ExtendedRenderingData extendedRenderingData, int eyeIndex = 0, bool submit = false)
         {
             int endIndex = blockRanges[blockIndex + 1];
             for (int currIndex = blockRanges[blockIndex]; currIndex < endIndex; ++currIndex)
             {
                 var renderPass = m_ActiveRenderPassQueue[currIndex];
+                var depth = renderPass.depth;
+                var cameraId = renderPass.cameraId;
+                ref var renderingData = ref (depth > 0) ? ref extendedRenderingData.additionalRenderingData[depth - 1, cameraId] : ref extendedRenderingData.mainRenderingData;
                 ExecuteRenderPass(context, renderPass, ref renderingData, eyeIndex);
             }
 

@@ -267,44 +267,40 @@ namespace UnityEngine.Rendering.Universal
         /// <param name="anyPostProcessingEnabled">True if at least one camera has post-processing enabled in the stack, false otherwise.</param>
         static void RenderSingleCamera(ScriptableRenderContext context, ExtendedCameraData extendedCameraData, bool requiresBlitToBackbuffer, bool anyPostProcessingEnabled)
         {
-            ref var cameraData = ref extendedCameraData.cameraData;
+            ref var mainCameraData = ref extendedCameraData.cameraData;
+            Camera mainCamera = mainCameraData.camera;
+            var renderer = mainCameraData.renderer;
 
-            Camera camera = cameraData.camera;
-            var renderer = cameraData.renderer;
             if (renderer == null)
             {
-                Debug.LogWarning(string.Format("Trying to render {0} with an invalid renderer. Camera rendering will be skipped.", camera.name));
+                Debug.LogWarning(string.Format("Trying to render {0} with an invalid renderer. Camera rendering will be skipped.", mainCamera.name));
                 return;
             }
 
-            // TODO remove?
-            SetupPerCameraShaderConstants(cameraData);
-
-            ProfilingSampler sampler = (asset.debugLevel >= PipelineDebugLevel.Profiling) ? new ProfilingSampler(camera.name) : _CameraProfilingSampler;
+            ProfilingSampler sampler = (asset.debugLevel >= PipelineDebugLevel.Profiling) ? new ProfilingSampler(mainCamera.name) : _CameraProfilingSampler;
             CommandBuffer cmd = CommandBufferPool.Get(sampler.name);
             using (new ProfilingScope(cmd, sampler))
             {
-                renderer.Clear(cameraData.renderType);
+                renderer.Clear(mainCameraData.renderType);
 
                 context.ExecuteCommandBuffer(cmd);
                 cmd.Clear();
 
 #if UNITY_EDITOR
                 // Emit scene view UI
-                if (cameraData.isSceneViewCamera)
+                if (mainCameraData.isSceneViewCamera)
                 {
-                    ScriptableRenderContext.EmitWorldGeometryForSceneView(camera);
+                    ScriptableRenderContext.EmitWorldGeometryForSceneView(mainCamera);
                 }
 #endif
 
                 InitializeRecursiveRenderingData(renderer, context, ref extendedCameraData, requiresBlitToBackbuffer, anyPostProcessingEnabled, out var extendedRenderingData);
 
-                ref var renderingData = ref extendedRenderingData.mainRenderingData;
-
-                if (renderingData.isValid)
+                ref var mainRenderingData = ref extendedRenderingData.mainRenderingData;
+                if (mainRenderingData.isValid)
                 {
-                    renderer.Setup(context, ref renderingData);
-                    renderer.Execute(context, ref renderingData);
+                    renderer.Setup(context, ref extendedRenderingData);
+                    renderer.Execute(context, ref extendedRenderingData);
                 }
             }
 
