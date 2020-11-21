@@ -270,10 +270,6 @@ namespace UnityEngine.Rendering.Universal
 
             EnqueueGeometryPasses(ref extendedRenderingData, requiresDepthPrepass, createDepthTexture);
 
-            EnqueuePass(passes.m_OnRenderObjectCallbackPass);
-
-            EnqueuePass(passes.m_DrawGizmosPreImageEffects);
-
             bool lastCameraInTheStack = mainRenderingData.resolveFinalTarget;
             bool hasCaptureActions = mainRenderingData.cameraData.captureActions != null && lastCameraInTheStack;
             bool applyFinalPostProcessing = anyPostProcessing && lastCameraInTheStack &&
@@ -388,8 +384,6 @@ namespace UnityEngine.Rendering.Universal
 
             }
 
-            EnqueuePass(passes.m_DrawGizmosPostImageEffects);
-
 #if UNITY_EDITOR
             if (mainCameraData.isSceneViewCamera)
             {
@@ -403,10 +397,6 @@ namespace UnityEngine.Rendering.Universal
 
         private void EnqueueGeometryPasses(ref ExtendedRenderingData extendedRenderingData, bool requiresDepthPrepass, bool createDepthTexture)
         {
-            PassContainer passes = m_passContainers[0];
-            passes.m_SetupForwardLightsPass.Setup(m_ForwardLights);
-            EnqueuePass(passes.m_SetupForwardLightsPass);
-
             EnqueueGeometryPassesRecursive(ref extendedRenderingData, requiresDepthPrepass, createDepthTexture, 0);
         }
 
@@ -430,6 +420,9 @@ namespace UnityEngine.Rendering.Universal
 
             PassContainer passes = m_passContainers[depth];
             Camera camera = cameraData.camera;
+
+            passes.m_SetupForwardLightsPass.Setup(m_ForwardLights);
+            EnqueuePass(passes.m_SetupForwardLightsPass);
 
             bool mainLightShadows = passes.m_MainLightShadowCasterPass.Setup(ref renderingData);
             if (mainLightShadows)
@@ -509,6 +502,11 @@ namespace UnityEngine.Rendering.Universal
             }
 
             EnqueuePass(passes.m_RenderTransparentForwardPass);
+
+            EnqueuePass(passes.m_OnRenderObjectCallbackPass);
+
+            EnqueuePass(passes.m_DrawGizmosPreImageEffects);
+            EnqueuePass(passes.m_DrawGizmosPostImageEffects);
 
             m_currentDepth = previousDepth;
         }
