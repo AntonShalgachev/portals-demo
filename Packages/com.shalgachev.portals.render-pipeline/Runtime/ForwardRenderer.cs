@@ -38,7 +38,7 @@ namespace UnityEngine.Rendering.Universal
         }
 
         // PassContainer m_passes = new PassContainer();
-        List<PassContainer> m_passContainers = new List<PassContainer>();
+        List<List<PassContainer>> m_passContainers = new List<List<PassContainer>>();
 
 #if POST_PROCESSING_STACK_2_0_0_OR_NEWER
         PostProcessPassCompat m_OpaquePostProcessPassCompat;
@@ -85,34 +85,19 @@ namespace UnityEngine.Rendering.Universal
             m_DefaultStencilState.SetFailOperation(stencilData.failOperation);
             m_DefaultStencilState.SetZFailOperation(stencilData.zFailOperation);
 
-            for (var i = 0; i < m_maxPortalDepth; i++)
+            var maxPortalCameras = 2;
+
+            for (var depth = 0; depth < m_maxPortalDepth; depth++)
             {
-                var passContainer = new PassContainer();
+                var maxCameras = depth > 0 ? maxPortalCameras : 1;
 
-                // Note: Since all custom render passes inject first and we have stable sort,
-                // we inject the builtin passes in the before events.
-                passContainer.m_SetupForwardLightsPass = new SetupForwardLightsPass(RenderPassEvent.BeforeRendering);
-                passContainer.m_MainLightShadowCasterPass = new MainLightShadowCasterPass(RenderPassEvent.BeforeRenderingShadows);
-                passContainer.m_AdditionalLightsShadowCasterPass = new AdditionalLightsShadowCasterPass(RenderPassEvent.BeforeRenderingShadows);
-                passContainer.m_DepthPrepass = new DepthOnlyPass(RenderPassEvent.BeforeRenderingPrepasses, RenderQueueRange.opaque, data.opaqueLayerMask);
-                passContainer.m_ScreenSpaceShadowResolvePass = new ScreenSpaceShadowResolvePass(RenderPassEvent.BeforeRenderingPrepasses, m_ScreenspaceShadowsMaterial);
-                passContainer.m_SetupCameraPropertiesPass = new SetupCameraPropertiesPass(RenderPassEvent.AfterRenderingShadows);
-                passContainer.m_ColorGradingLutPass = new ColorGradingLutPass(RenderPassEvent.BeforeRenderingPrepasses, data.postProcessData);
-                passContainer.m_RenderOpaqueForwardPass = new DrawObjectsPass("Render Opaques", true, RenderPassEvent.BeforeRenderingOpaques, RenderQueueRange.opaque, data.opaqueLayerMask, m_DefaultStencilState, stencilData.stencilReference);
-                passContainer.m_CopyDepthPass = new CopyDepthPass(RenderPassEvent.AfterRenderingSkybox, m_CopyDepthMaterial);
-                passContainer.m_DrawSkyboxPass = new DrawSkyboxPass(RenderPassEvent.BeforeRenderingSkybox);
-                passContainer.m_CopyColorPass = new CopyColorPass(RenderPassEvent.BeforeRenderingTransparents, m_SamplingMaterial);
-                passContainer.m_TransparentSettingsPass = new TransparentSettingsPass(RenderPassEvent.BeforeRenderingTransparents, data.shadowTransparentReceive);
-                passContainer.m_RenderTransparentForwardPass = new DrawObjectsPass("Render Transparents", false, RenderPassEvent.BeforeRenderingTransparents, RenderQueueRange.transparent, data.transparentLayerMask, m_DefaultStencilState, stencilData.stencilReference);
-                passContainer.m_OnRenderObjectCallbackPass = new InvokeOnRenderObjectCallbackPass(RenderPassEvent.BeforeRenderingPostProcessing);
-                passContainer.m_PostProcessPass = new PostProcessPass(RenderPassEvent.BeforeRenderingPostProcessing, data.postProcessData, m_BlitMaterial);
-                passContainer.m_FinalPostProcessPass = new PostProcessPass(RenderPassEvent.AfterRendering + 1, data.postProcessData, m_BlitMaterial);
-                passContainer.m_CapturePass = new CapturePass(RenderPassEvent.AfterRendering);
-                passContainer.m_DrawGizmosPreImageEffects = new DrawGizmosPass(RenderPassEvent.BeforeRenderingPostProcessing, GizmoSubset.PreImageEffects);
-                passContainer.m_DrawGizmosPostImageEffects = new DrawGizmosPass(RenderPassEvent.AfterBlitting, GizmoSubset.PostImageEffects);
-                passContainer.m_FinalBlitPass = new FinalBlitPass(RenderPassEvent.AfterRendering + 1, m_BlitMaterial);
+                var passes = new List<PassContainer>();
+                for (var cameraId = 0; cameraId < maxCameras; cameraId++)
+                {
+                    passes.Add(CreatePassContainer(data));
+                }
 
-                m_passContainers.Add(passContainer);
+                m_passContainers.Add(passes);
             }
 
 #if POST_PROCESSING_STACK_2_0_0_OR_NEWER
@@ -140,13 +125,46 @@ namespace UnityEngine.Rendering.Universal
             };
         }
 
+        private PassContainer CreatePassContainer(ForwardRendererData data)
+        {
+            StencilStateData stencilData = data.defaultStencilState;
+
+            var passContainer = new PassContainer();
+
+            // Note: Since all custom render passes inject first and we have stable sort,
+            // we inject the builtin passes in the before events.
+            passContainer.m_SetupForwardLightsPass = new SetupForwardLightsPass(RenderPassEvent.BeforeRendering);
+            passContainer.m_MainLightShadowCasterPass = new MainLightShadowCasterPass(RenderPassEvent.BeforeRenderingShadows);
+            passContainer.m_AdditionalLightsShadowCasterPass = new AdditionalLightsShadowCasterPass(RenderPassEvent.BeforeRenderingShadows);
+            passContainer.m_DepthPrepass = new DepthOnlyPass(RenderPassEvent.BeforeRenderingPrepasses, RenderQueueRange.opaque, data.opaqueLayerMask);
+            passContainer.m_ScreenSpaceShadowResolvePass = new ScreenSpaceShadowResolvePass(RenderPassEvent.BeforeRenderingPrepasses, m_ScreenspaceShadowsMaterial);
+            passContainer.m_SetupCameraPropertiesPass = new SetupCameraPropertiesPass(RenderPassEvent.AfterRenderingShadows);
+            passContainer.m_ColorGradingLutPass = new ColorGradingLutPass(RenderPassEvent.BeforeRenderingPrepasses, data.postProcessData);
+            passContainer.m_RenderOpaqueForwardPass = new DrawObjectsPass("Render Opaques", true, RenderPassEvent.BeforeRenderingOpaques, RenderQueueRange.opaque, data.opaqueLayerMask, m_DefaultStencilState, stencilData.stencilReference);
+            passContainer.m_CopyDepthPass = new CopyDepthPass(RenderPassEvent.AfterRenderingSkybox, m_CopyDepthMaterial);
+            passContainer.m_DrawSkyboxPass = new DrawSkyboxPass(RenderPassEvent.BeforeRenderingSkybox);
+            passContainer.m_CopyColorPass = new CopyColorPass(RenderPassEvent.BeforeRenderingTransparents, m_SamplingMaterial);
+            passContainer.m_TransparentSettingsPass = new TransparentSettingsPass(RenderPassEvent.BeforeRenderingTransparents, data.shadowTransparentReceive);
+            passContainer.m_RenderTransparentForwardPass = new DrawObjectsPass("Render Transparents", false, RenderPassEvent.BeforeRenderingTransparents, RenderQueueRange.transparent, data.transparentLayerMask, m_DefaultStencilState, stencilData.stencilReference);
+            passContainer.m_OnRenderObjectCallbackPass = new InvokeOnRenderObjectCallbackPass(RenderPassEvent.BeforeRenderingPostProcessing);
+            passContainer.m_PostProcessPass = new PostProcessPass(RenderPassEvent.BeforeRenderingPostProcessing, data.postProcessData, m_BlitMaterial);
+            passContainer.m_FinalPostProcessPass = new PostProcessPass(RenderPassEvent.AfterRendering + 1, data.postProcessData, m_BlitMaterial);
+            passContainer.m_CapturePass = new CapturePass(RenderPassEvent.AfterRendering);
+            passContainer.m_DrawGizmosPreImageEffects = new DrawGizmosPass(RenderPassEvent.BeforeRenderingPostProcessing, GizmoSubset.PreImageEffects);
+            passContainer.m_DrawGizmosPostImageEffects = new DrawGizmosPass(RenderPassEvent.AfterBlitting, GizmoSubset.PostImageEffects);
+            passContainer.m_FinalBlitPass = new FinalBlitPass(RenderPassEvent.AfterRendering + 1, m_BlitMaterial);
+
+            return passContainer;
+        }
+
         /// <inheritdoc />
         protected override void Dispose(bool disposing)
         {
             // always dispose unmanaged resources
 
-            foreach (var passContainer in m_passContainers)
-                passContainer.m_PostProcessPass.Cleanup();
+            foreach (var passesList in m_passContainers)
+                foreach (var passes in passesList)
+                    passes.m_PostProcessPass.Cleanup();
 
             CoreUtils.Destroy(m_BlitMaterial);
             CoreUtils.Destroy(m_CopyDepthMaterial);
@@ -157,7 +175,7 @@ namespace UnityEngine.Rendering.Universal
         /// <inheritdoc />
         public override void Setup(ScriptableRenderContext context, ref ExtendedRenderingData extendedRenderingData)
         {
-            PassContainer passes = m_passContainers[0];
+            PassContainer passes = m_passContainers[0][0];
 
             ref var mainRenderingData = ref extendedRenderingData.mainRenderingData;
             Camera mainCamera = mainRenderingData.cameraData.camera;
@@ -414,11 +432,34 @@ namespace UnityEngine.Rendering.Universal
             var previousDepth = m_currentDepth;
             m_currentDepth = depth;
 
-            ref var renderingData = ref (depth <= 0 ? ref extendedRenderingData.mainRenderingData : ref extendedRenderingData.additionalRenderingData[depth - 1, 0]);
+            if (depth == 0)
+            {
+                EnqueueGeometryPassesRecursive(ref extendedRenderingData, requiresDepthPrepass, createDepthTexture, depth, 0);
+            }
+            else
+            {
+                for (var cameraId = 0; cameraId < portalCamerasCount; cameraId++)
+                {
+                    var previousCameraId = m_currentCameraId;
+                    m_currentCameraId = cameraId;
+
+                    EnqueueGeometryPassesRecursive(ref extendedRenderingData, requiresDepthPrepass, createDepthTexture, depth, cameraId);
+
+                    m_currentCameraId = previousCameraId;
+                }
+
+            }
+
+            m_currentDepth = previousDepth;
+        }
+
+        public void EnqueueGeometryPassesRecursive(ref ExtendedRenderingData extendedRenderingData, bool requiresDepthPrepass, bool createDepthTexture, int depth, int cameraId)
+        {
+            ref var renderingData = ref (depth <= 0 ? ref extendedRenderingData.mainRenderingData : ref extendedRenderingData.additionalRenderingData[depth - 1, cameraId]);
 
             ref var cameraData = ref renderingData.cameraData;
 
-            PassContainer passes = m_passContainers[depth];
+            PassContainer passes = m_passContainers[depth][cameraId];
             Camera camera = cameraData.camera;
 
             passes.m_SetupForwardLightsPass.Setup(m_ForwardLights);
@@ -507,8 +548,6 @@ namespace UnityEngine.Rendering.Universal
 
             EnqueuePass(passes.m_DrawGizmosPreImageEffects);
             EnqueuePass(passes.m_DrawGizmosPostImageEffects);
-
-            m_currentDepth = previousDepth;
         }
 
         /// <inheritdoc />

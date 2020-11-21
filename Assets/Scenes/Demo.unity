@@ -1161,6 +1161,12 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!20 &839287902 stripped
+Camera:
+  m_CorrespondingSourceObject: {fileID: 7356635822512291067, guid: b7c0dd27e1b224e469417dae9ceaa10c,
+    type: 3}
+  m_PrefabInstance: {fileID: 7356635823450644639}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &848486637
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1513,6 +1519,7 @@ MonoBehaviour:
   m_Cameras: []
   m_PortalCameras:
   - {fileID: 1513529009}
+  - {fileID: 839287902}
   m_RendererIndex: -1
   m_VolumeLayerMask:
     serializedVersion: 2
@@ -2418,11 +2425,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 529741079}
     m_Modifications:
-    - target: {fileID: 7356635822512291070, guid: b7c0dd27e1b224e469417dae9ceaa10c,
-        type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 7356635823441164755, guid: b7c0dd27e1b224e469417dae9ceaa10c,
         type: 3}
       propertyPath: m_LocalPosition.x

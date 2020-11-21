@@ -224,6 +224,12 @@ namespace UnityEngine.Rendering.Universal.Internal
 
         public override void Configure(CommandBuffer cmd, RenderTextureDescriptor cameraTextureDescriptor)
         {
+            if (m_AdditionalLightsShadowmapTexture != null)
+            {
+                Debug.LogWarning($"Texture {m_AdditionalLightsShadowmapTexture.name} wasn't released");
+                FrameCleanup(cmd);
+            }
+
             cmd.name += " (Additional lights)";
             m_AdditionalLightsShadowmapTexture = ShadowUtils.GetTemporaryShadowTexture(m_ShadowmapWidth, m_ShadowmapHeight, k_ShadowmapBufferBits);
             ConfigureTarget(new RenderTargetIdentifier(m_AdditionalLightsShadowmapTexture));

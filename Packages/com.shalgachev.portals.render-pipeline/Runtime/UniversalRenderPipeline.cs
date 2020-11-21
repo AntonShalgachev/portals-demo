@@ -846,7 +846,7 @@ namespace UnityEngine.Rendering.Universal
 
         static void InitializeShadowData(UniversalRenderPipelineAsset settings, NativeArray<VisibleLight> visibleLights, bool mainLightCastShadows, bool additionalLightsCastShadows, out ShadowData shadowData)
         {
-            m_ShadowBiasData.Clear();
+            shadowData.bias = new List<Vector4>();
 
             for (int i = 0; i < visibleLights.Length; ++i)
             {
@@ -862,12 +862,11 @@ namespace UnityEngine.Rendering.Universal
                 }
 
                 if (data && !data.usePipelineSettings)
-                    m_ShadowBiasData.Add(new Vector4(light.shadowBias, light.shadowNormalBias, 0.0f, 0.0f));
+                    shadowData.bias.Add(new Vector4(light.shadowBias, light.shadowNormalBias, 0.0f, 0.0f));
                 else
-                    m_ShadowBiasData.Add(new Vector4(settings.shadowDepthBias, settings.shadowNormalBias, 0.0f, 0.0f));
+                    shadowData.bias.Add(new Vector4(settings.shadowDepthBias, settings.shadowNormalBias, 0.0f, 0.0f));
             }
 
-            shadowData.bias = m_ShadowBiasData;
             shadowData.supportsMainLightShadows = SystemInfo.supportsShadows && settings.supportsMainLightShadows && mainLightCastShadows;
 
             // We no longer use screen space shadows in URP.

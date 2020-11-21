@@ -184,8 +184,6 @@ namespace UnityEngine.Rendering.Universal
 
     public sealed partial class UniversalRenderPipeline
     {
-        static List<Vector4> m_ShadowBiasData = new List<Vector4>();
-
         /// <summary>
         /// Checks if a camera is a game camera.
         /// </summary>
