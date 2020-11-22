@@ -9,6 +9,7 @@ using UnityEngine.Scripting.APIUpdating;
 using Lightmapping = UnityEngine.Experimental.GlobalIllumination.Lightmapping;
 #if ENABLE_VR && ENABLE_XR_MODULE
 using UnityEngine.XR;
+using UnityPrototype;
 #endif
 
 namespace UnityEngine.Rendering.LWRP
@@ -422,7 +423,7 @@ namespace UnityEngine.Rendering.Universal
                     VFX.VFXManager.PrepareCamera(currCamera);
 #endif
                     UpdateVolumeFramework(currCamera, currCameraData);
-                    InitializeAdditionalCameraData(currCamera, currCameraData, ref overlayExtendedCameraData.cameraData);
+                    InitializeAdditionalCameraData(null, currCamera, currCameraData, ref overlayExtendedCameraData.cameraData);
                     RenderSingleCamera(context, overlayExtendedCameraData, lastCamera, anyPostProcessingEnabled);
                     EndCameraRendering(context, currCamera);
                 }
@@ -505,19 +506,19 @@ namespace UnityEngine.Rendering.Universal
 #endif
         }
 
-        static void InitializeCameraData(Camera camera, UniversalAdditionalCameraData additionalCameraData, out CameraData cameraData)
+        static void InitializeCameraData(PortalCamera portalCamera, Camera camera, UniversalAdditionalCameraData additionalCameraData, out CameraData cameraData)
         {
             cameraData = new CameraData();
-            InitializeStackedCameraData(camera, additionalCameraData, ref cameraData);
-            InitializeAdditionalCameraData(camera, additionalCameraData, ref cameraData);
+            InitializeStackedCameraData(portalCamera, camera, additionalCameraData, ref cameraData);
+            InitializeAdditionalCameraData(portalCamera, camera, additionalCameraData, ref cameraData);
         }
 
         static void InitializeExtendedCameraData(Camera camera, UniversalAdditionalCameraData additionalCameraData, out ExtendedCameraData extendedCameraData)
         {
             extendedCameraData = new ExtendedCameraData();
-            InitializeCameraData(camera, additionalCameraData, out extendedCameraData.cameraData);
+            InitializeCameraData(null, camera, additionalCameraData, out extendedCameraData.cameraData);
 
-            var portalCameras = additionalCameraData != null ? additionalCameraData.portalCameraStack : new List<Camera>();
+            var portalCameras = additionalCameraData != null ? additionalCameraData.portalCameraStack : new List<PortalCamera>();
 
             extendedCameraData.portalCameraDatas = new CameraData[portalCameras.Count];
 
@@ -538,7 +539,10 @@ namespace UnityEngine.Rendering.Universal
                     continue;
                 }
 
-                InitializeCameraData(portalCamera, portalCameraAdditionalData, out extendedCameraData.portalCameraDatas[i]);
+                if (portalCamera != null && Application.isPlaying)
+                    portalCamera.SyncCameraTransform(camera, 1);
+
+                InitializeCameraData(portalCamera, portalCamera.camera, portalCameraAdditionalData, out extendedCameraData.portalCameraDatas[i]);
             }
         }
 
@@ -586,7 +590,7 @@ namespace UnityEngine.Rendering.Universal
         /// <param name="baseCamera">Base camera to inherit settings from.</param>
         /// <param name="baseAdditionalCameraData">Component that contains additional base camera data.</param>
         /// <param name="cameraData">Camera data to initialize setttings.</param>
-        static void InitializeStackedCameraData(Camera baseCamera, UniversalAdditionalCameraData baseAdditionalCameraData, ref CameraData cameraData)
+        static void InitializeStackedCameraData(PortalCamera portalCamera, Camera baseCamera, UniversalAdditionalCameraData baseAdditionalCameraData, ref CameraData cameraData)
         {
             var settings = asset;
             cameraData.targetTexture = baseCamera.targetTexture;
@@ -678,10 +682,11 @@ namespace UnityEngine.Rendering.Universal
         /// <param name="camera">Camera to initialize settings from.</param>
         /// <param name="additionalCameraData">Additional camera data component to initialize settings from.</param>
         /// <param name="cameraData">Settings to be initilized.</param>
-        static void InitializeAdditionalCameraData(Camera camera, UniversalAdditionalCameraData additionalCameraData, ref CameraData cameraData)
+        static void InitializeAdditionalCameraData(PortalCamera portalCamera, Camera camera, UniversalAdditionalCameraData additionalCameraData, ref CameraData cameraData)
         {
             var settings = asset;
             cameraData.camera = camera;
+            cameraData.portalCamera = portalCamera;
 
             bool anyShadowsEnabled = settings.supportsMainLightShadows || settings.supportsAdditionalLightShadows;
             cameraData.maxShadowDistance = Mathf.Min(settings.shadowDistance, camera.farClipPlane);

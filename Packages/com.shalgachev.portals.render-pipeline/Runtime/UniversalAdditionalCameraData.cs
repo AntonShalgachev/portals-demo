@@ -6,6 +6,7 @@ using UnityEngine.Scripting.APIUpdating;
 using UnityEngine.Serialization;
 using UnityEngine.Rendering;
 using System.ComponentModel;
+using UnityPrototype;
 
 namespace UnityEngine.Rendering.LWRP
 {
@@ -147,7 +148,7 @@ namespace UnityEngine.Rendering.Universal
 
         [SerializeField] CameraRenderType m_CameraType = CameraRenderType.Base;
         [SerializeField] List<Camera> m_Cameras = new List<Camera>();
-        [SerializeField] List<Camera> m_PortalCameras = new List<Camera>();
+        [SerializeField] List<PortalCamera> m_PortalCameras = new List<PortalCamera>();
         [SerializeField] int m_RendererIndex = -1;
 
         [SerializeField] LayerMask m_VolumeLayerMask = 1; // "Default"
@@ -284,7 +285,7 @@ namespace UnityEngine.Rendering.Universal
             }
         }
 
-        public List<Camera> portalCameraStack
+        public List<PortalCamera> portalCameraStack
         {
             get
             {

@@ -367,11 +367,13 @@ namespace UnityEngine.Rendering.Universal
                 var cameraId = renderPass.cameraId;
                 ref var renderingData = ref (depth > 0) ? ref extendedRenderingData.additionalRenderingData[depth - 1, cameraId] : ref extendedRenderingData.mainRenderingData;
                 var camera = renderingData.cameraData.camera;
+                var portalCamera = renderingData.cameraData.portalCamera;
 
                 if (camera != previousCamera)
                 {
                     UniversalRenderPipeline.OnEndCameraRendering(context, previousCamera);
                     UniversalRenderPipeline.OnBeginCameraRendering(context, camera);
+
                     previousCamera = camera;
                 }
 

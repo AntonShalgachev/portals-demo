@@ -5,6 +5,7 @@ using UnityEngine.Scripting.APIUpdating;
 
 using UnityEngine.Experimental.GlobalIllumination;
 using Lightmapping = UnityEngine.Experimental.GlobalIllumination.Lightmapping;
+using UnityPrototype;
 
 namespace UnityEngine.Rendering.Universal
 {
@@ -65,6 +66,7 @@ namespace UnityEngine.Rendering.Universal
     public struct CameraData
     {
         public Camera camera;
+        public PortalCamera portalCamera;
         public List<Camera> portalCameras;
         public CameraRenderType renderType;
         public RenderTexture targetTexture;

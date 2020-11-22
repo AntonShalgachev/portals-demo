@@ -8,11 +8,27 @@ namespace UnityPrototype
     public class PortalCamera : MonoBehaviour
     {
         private Camera m_camera;
+        private Portal m_portal = null;
+
         private Transform m_clippingPlane = null;
 
-        private void Awake()
+        public new Camera camera => GetCamera();
+        public Portal portal => GetPortal();
+
+        private Camera GetCamera()
         {
-            m_camera = GetComponent<Camera>();
+            if (m_camera == null)
+                m_camera = GetComponent<Camera>();
+
+            return m_camera;
+        }
+
+        private Portal GetPortal()
+        {
+            if (m_portal == null)
+                m_portal = GetComponentInParent<Portal>();
+
+            return m_portal;
         }
 
         private void OnEnable()
@@ -25,6 +41,27 @@ namespace UnityPrototype
         {
             RenderPipelineManager.beginCameraRendering -= BeginCameraRendering;
             RenderPipelineManager.endCameraRendering -= EndCameraRendering;
+        }
+
+        public void SyncCameraTransform(Camera eyeCamera, int level)
+        {
+            Portal otherPortal = portal.otherPortal;
+
+            SyncCameraMatrix(eyeCamera);
+            UpdateCameraTransform(eyeCamera, portal, otherPortal, level);
+            SetClippingPlane(otherPortal.clippingPlane);
+        }
+
+        public void ResetCameraTransform()
+        {
+            transform.localPosition = Vector3.zero;
+            transform.localRotation = Quaternion.identity;
+        }
+
+        private void UpdateCameraTransform(Camera viewCamera, Portal thisPortal, Portal otherPortal, int level)
+        {
+            transform.position = Portal.FromToPortalMatrix(thisPortal, otherPortal).MultiplyPoint(viewCamera.transform.position);
+            transform.rotation = Portal.FromToPortalRotation(thisPortal, otherPortal) * viewCamera.transform.rotation;
         }
 
         public void SyncCameraMatrix(Camera viewCamera)
@@ -85,6 +122,8 @@ namespace UnityPrototype
             CommandBufferPool.Release(cmd);
 
             context.Submit();
+
+            // ResetCameraTransform();
         }
     }
 }

@@ -16,12 +16,13 @@ namespace UnityPrototype
         [SerializeField] private PortalCamera m_portalCamera = null;
         [SerializeField] private Transform m_clippingPlane = null;
 
-        public PortalsController m_controller => GetComponentInParent<PortalsController>(); // inefficient, but I don't care for now
-        public Portal m_otherPortal => m_controller.GetOtherPortal(this);
+        public PortalsController controller => GetComponentInParent<PortalsController>(); // inefficient, but I don't care for now
+        public Portal otherPortal => controller.GetOtherPortal(this);
+        public Transform clippingPlane => m_clippingPlane;
 
         private void Awake()
         {
-            var viewCamera = m_controller.activeCamera;
+            var viewCamera = controller.activeCamera;
 
             m_portalCamera.transform.ResetLocal();
             m_portalCamera.SyncCameraMatrix(viewCamera);
@@ -31,45 +32,34 @@ namespace UnityPrototype
 
         private void OnEnable()
         {
-            if (m_controller != null)
-                m_controller.RegisterPortal(this);
+            if (controller != null)
+                controller.RegisterPortal(this);
 
             m_objectDetector.onTransformExit += OnObjectExitedPortalDetector;
         }
 
         private void OnDisable()
         {
-            if (m_controller != null)
-                m_controller.UnregisterPortal(this);
+            if (controller != null)
+                controller.UnregisterPortal(this);
 
             m_objectDetector.onTransformExit -= OnObjectExitedPortalDetector;
         }
 
         private void Update()
         {
-            var otherPortal = m_otherPortal;
-            if (otherPortal == null)
-                return;
-
             if (m_visual != null)
-                m_visual.transform.SetScaleXY(m_controller.portalSize.x, m_controller.portalSize.y);
+                m_visual.transform.SetScaleXY(controller.portalSize.x, controller.portalSize.y);
             if (m_objectDetector != null)
-                m_objectDetector.transform.SetScaleXY(m_controller.portalSize.x, m_controller.portalSize.y);
-
-            TeleportObjects(otherPortal);
+                m_objectDetector.transform.SetScaleXY(controller.portalSize.x, controller.portalSize.y);
         }
 
         private void LateUpdate()
         {
-            var otherPortal = m_otherPortal;
             if (otherPortal == null)
                 return;
 
-            var viewCamera = m_controller.activeCamera;
-            m_portalCamera.SyncCameraMatrix(viewCamera);
-            UpdateCameraTransform(viewCamera, otherPortal);
-
-            m_portalCamera.SetClippingPlane(otherPortal.m_clippingPlane);
+            TeleportObjects(otherPortal);
         }
 
         private static Quaternion MirrorRotation()
@@ -77,20 +67,14 @@ namespace UnityPrototype
             return Quaternion.Euler(0.0f, 180.0f, 0.0f);
         }
 
-        private static Quaternion FromToPortalRotation(Portal from, Portal to)
+        public static Quaternion FromToPortalRotation(Portal from, Portal to)
         {
             return to.transform.rotation * Quaternion.Inverse(from.transform.rotation) * MirrorRotation();
         }
 
-        private static Matrix4x4 FromToPortalMatrix(Portal from, Portal to)
+        public static Matrix4x4 FromToPortalMatrix(Portal from, Portal to)
         {
             return to.transform.localToWorldMatrix * Matrix4x4.Rotate(MirrorRotation()) * from.transform.worldToLocalMatrix;
-        }
-
-        private void UpdateCameraTransform(Camera viewCamera, Portal otherPortal)
-        {
-            m_portalCamera.transform.position = FromToPortalMatrix(this, otherPortal).MultiplyPoint(viewCamera.transform.position);
-            m_portalCamera.transform.rotation = FromToPortalRotation(this, otherPortal) * viewCamera.transform.rotation;
         }
 
         private void TeleportObjects(Portal otherPortal)
@@ -143,12 +127,12 @@ namespace UnityPrototype
 
         private void OnDrawGizmos()
         {
-            if (m_controller != null)
+            if (controller != null)
             {
                 Gizmos.color = Color.red;
                 var oldMatrix = Gizmos.matrix;
                 Gizmos.matrix = Matrix4x4.TRS(transform.position, transform.rotation, transform.lossyScale);
-                GizmosHelper.DrawWireRectangle(Vector3.zero, m_controller.portalSize);
+                GizmosHelper.DrawWireRectangle(Vector3.zero, controller.portalSize);
                 Gizmos.matrix = oldMatrix;
             }
         }
